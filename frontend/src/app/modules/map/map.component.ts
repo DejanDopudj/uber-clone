@@ -9,6 +9,7 @@ import 'leaflet-routing-machine';
 })
 export class MapComponent implements AfterViewInit {
   private map: any;
+  private control: any;
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
@@ -29,11 +30,11 @@ export class MapComponent implements AfterViewInit {
     });
     tiles.addTo(this.map);
 
-    this.map.on('click', addMarker); 
+    this.map.on('click', this.addMarker); 
 
-    let control = L.Routing.control({
+    this.control = L.Routing.control({
       lineOptions: {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1},
-      altLineOptions: {styles: [{color: '#8aa19d', weight: 6}], extendToWaypoints: true, missingRouteTolerance: 0.1},
+      altLineOptions: {styles: [{color: '#8aa1ad', weight: 7}], extendToWaypoints: true, missingRouteTolerance: 0.1},
       showAlternatives: true,
       addWaypoints: true,
       waypoints: [],
@@ -43,16 +44,20 @@ export class MapComponent implements AfterViewInit {
     .on('routesfound', function(e) {
     })
     .addTo(this.map);
-
-    function addMarker(e: any){
-      control.setWaypoints([...control.getPlan().getWaypoints().filter(x => x.latLng), e.latlng]);
-    }
   }
 
   constructor() { }
 
   ngAfterViewInit(): void {
     this.initMap();
+  }
+
+  addMarker = (e: any) => {
+    this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
+  }
+
+  clearMarkers(): void {
+    this.control.setWaypoints([]);
   }
 
 }

@@ -4,11 +4,13 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './modules/map/map.component';
+import { MapControlsComponent } from './modules/map/map-controls/map-controls.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    MapControlsComponent
   ],
   imports: [
     BrowserModule, AppRoutingModule
