@@ -10,6 +10,7 @@ import 'leaflet-routing-machine';
 export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
+  public summary: any;
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
@@ -32,6 +33,7 @@ export class MapComponent implements AfterViewInit {
 
     this.map.on('click', this.addMarker); 
 
+    const that = this;
     this.control = L.Routing.control({
       lineOptions: {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1},
       altLineOptions: {styles: [{color: '#8aa1ad', weight: 7}], extendToWaypoints: true, missingRouteTolerance: 0.1},
@@ -42,6 +44,10 @@ export class MapComponent implements AfterViewInit {
       routeWhileDragging: true,
     })
     .on('routesfound', function(e) {
+      that.summary = e.routes[0].summary;
+    })
+    .on('routeselected', function(e) {
+      that.summary = e.route.summary;
     })
     .addTo(this.map);
   }
@@ -58,6 +64,7 @@ export class MapComponent implements AfterViewInit {
 
   clearMarkers(): void {
     this.control.setWaypoints([]);
+    this.summary = null;
   }
 
 }

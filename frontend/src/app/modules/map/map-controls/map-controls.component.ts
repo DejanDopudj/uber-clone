@@ -1,4 +1,9 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
+interface RideSummary {
+  totalDistance: number,
+  totalTime: number,
+}
 
 @Component({
   selector: 'app-map-controls',
@@ -6,6 +11,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
   styleUrls: ['./map-controls.component.css']
 })
 export class MapControlsComponent implements OnInit {
+  @Input() summary!: RideSummary;
   @Output() clear: EventEmitter<any> = new EventEmitter();
 
   constructor() { }

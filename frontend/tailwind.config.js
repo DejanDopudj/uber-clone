@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       colors: {
         "accent": "#006D5B",
-      }
+      },
     },
   },
   plugins: [],
