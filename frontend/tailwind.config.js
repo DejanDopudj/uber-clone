@@ -6,6 +6,9 @@ module.exports = {
       colors: {
         "accent": "#006D5B",
       },
+      spacing: {
+        "88": "22rem",
+      }
     },
   },
   plugins: [],

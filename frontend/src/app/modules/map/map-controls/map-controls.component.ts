@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { faBars, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
 interface RideSummary {
   totalDistance: number,
@@ -14,6 +15,9 @@ export class MapControlsComponent implements OnInit {
   @Input() summary!: RideSummary;
   @Output() clear: EventEmitter<any> = new EventEmitter();
 
+  faBars = faBars;
+  faArrowRightToBracket = faArrowRightToBracket;
+  
   constructor() { }
 
   ngOnInit(): void {
