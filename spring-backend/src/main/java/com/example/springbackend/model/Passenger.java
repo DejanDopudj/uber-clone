@@ -13,7 +13,6 @@ public class Passenger extends Member {
 
     private String paymentDetails;
 
-
     @ManyToMany()
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "favourite_routes",

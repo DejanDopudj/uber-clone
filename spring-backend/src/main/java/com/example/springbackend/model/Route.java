@@ -15,4 +15,6 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    String routeDetails;
+
 }

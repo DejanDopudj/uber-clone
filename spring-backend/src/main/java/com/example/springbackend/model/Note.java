@@ -20,4 +20,6 @@ public class Note {
     @JoinColumn(name = "admin_username")
     Admin admin;
 
+    String content;
+
 }

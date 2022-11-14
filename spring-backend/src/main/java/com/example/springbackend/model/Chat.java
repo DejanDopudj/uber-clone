@@ -13,11 +13,11 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "member_username")
-    Member member;
-
     private LocalDateTime lastReadAdmin;
 
     private LocalDateTime lastReadMember;
+
+    @OneToOne
+    @JoinColumn(name = "member_username")
+    Member member;
 }

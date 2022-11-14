@@ -16,7 +16,7 @@ public class PassengerRide {
     private double vehicleRating;
     private String comment;
     private double price;
-    
+
     @ManyToOne
     Passenger passenger;
 

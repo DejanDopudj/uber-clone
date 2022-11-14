@@ -31,12 +31,4 @@ public class Ride {
     @ManyToOne
     @JoinColumn
     private Route expectedRoute;
-
-
-    @ManyToMany()
-    @Fetch(value = FetchMode.SUBSELECT)
-    @JoinTable(name = "passenger_rides",
-            joinColumns = @JoinColumn(name = "ride_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "passanger_username", referencedColumnName = "username"))
-    private List<Passenger> passengers;
 }
