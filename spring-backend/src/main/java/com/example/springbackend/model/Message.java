@@ -18,6 +18,6 @@ public class Message {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "sender",referencedColumnName = "username")
+    @JoinColumn(name = "sender_id",referencedColumnName = "username")
     User sender;
 }
