@@ -1,5 +1,6 @@
 package com.example.springbackend.model;
 
+import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Data
 public class Ride {
 
     @Id
@@ -24,7 +26,11 @@ public class Ride {
 
     @ManyToOne
     @JoinColumn
-    private Route route;
+    private Route actualRoute;
+
+    @ManyToOne
+    @JoinColumn
+    private Route expectedRoute;
 
 
     @ManyToMany()

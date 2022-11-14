@@ -18,8 +18,5 @@ public class SpringBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringBackendApplication.class, args);
         System.out.println("test");
-        System.out.println(org.hibernate.Version.getVersionString());
     }
-
-
 }
