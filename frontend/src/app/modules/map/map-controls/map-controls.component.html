@@ -32,7 +32,7 @@
 
   <!-- clear markers button -->
   <div *ngIf="summary" class="absolute right-0 bottom-0">
-    <div class="text-center m-5 px-4 py-2 bg-white rounded-lg shadow-md font-medium text-accent">
+    <div class="text-center m-5 px-4 py-2 bg-white rounded-full shadow-md font-medium text-accent">
       {{ (summary.totalDistance / 1000).toLocaleString('fullwide', {minimumFractionDigits:2, maximumFractionDigits:2}) }} km
     </div>
   </div>
