@@ -42,6 +42,15 @@ export class MapComponent implements AfterViewInit {
       waypoints: [],
       autoRoute: true,
       routeWhileDragging: true,
+      plan: L.Routing.plan([], {
+        draggableWaypoints: true,
+        routeWhileDragging: true,
+        createMarker: function(i, wp) {
+          return L.marker(wp.latLng, {draggable: true}).on('contextmenu', function(e: any) { 
+            that.removeMarker(wp);
+          });
+        }
+      })
     })
     .on('routesfound', function(e) {
       that.chosenRoute = e.routes[0];
@@ -50,6 +59,8 @@ export class MapComponent implements AfterViewInit {
       that.chosenRoute = e.route;
     })
     .addTo(this.map);
+
+    
   }
 
   constructor() { }
@@ -60,6 +71,10 @@ export class MapComponent implements AfterViewInit {
 
   addMarker = (e: any) => {
     this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
+  }
+
+  removeMarker(wp: any): void {
+    this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)])
   }
 
   clearMarkers(): void {
