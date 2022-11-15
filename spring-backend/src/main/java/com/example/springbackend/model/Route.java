@@ -1,11 +1,10 @@
 package com.example.springbackend.model;
 
+import com.example.springbackend.model.helpClasses.Coordinates;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -15,6 +14,10 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    String routeDetails;
+    @ElementCollection
+    private List<Coordinates<Double,Double>> coordinates;
+
+    @ElementCollection
+    private List<Coordinates<Double,Double>> waypoints;
 
 }
