@@ -1,5 +1,6 @@
 package com.example.springbackend.model;
 
+import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -19,4 +20,7 @@ public class Passenger extends Member {
             joinColumns = @JoinColumn(name = "passanger_username", referencedColumnName = "username"),
             inverseJoinColumns = @JoinColumn(name = "route_id", referencedColumnName = "id"))
     private List<Route> favouriteRoutes;
+
+    @Enumerated(EnumType.STRING)
+    private AuthenticationProvider authenticationProvider;
 }
