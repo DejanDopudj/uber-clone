@@ -8,6 +8,7 @@ import { MapComponent } from './modules/map/map.component';
 import { MapControlsComponent } from './modules/map/map-controls/map-controls.component';
 import { RegisterComponent } from './modules/auth/register/register.component';
 import { LoginComponent } from './modules/auth/login/login.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,7 @@ import { LoginComponent } from './modules/auth/login/login.component';
     LoginComponent
   ],
   imports: [
-    BrowserModule, AppRoutingModule, FontAwesomeModule
+    BrowserModule, AppRoutingModule, FontAwesomeModule, ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
