@@ -16,8 +16,4 @@ public class Member extends User{
 
     @OneToMany(mappedBy = "member")
     private List<Note> notes;
-
-    @OneToOne
-    @JoinColumn(name = "chat_id")
-    Chat chat;
 }

@@ -20,7 +20,4 @@ public class Passenger extends Member {
             joinColumns = @JoinColumn(name = "passanger_username", referencedColumnName = "username"),
             inverseJoinColumns = @JoinColumn(name = "route_id", referencedColumnName = "id"))
     private List<Route> favouriteRoutes;
-
-    @Enumerated(EnumType.STRING)
-    private AuthenticationProvider authenticationProvider;
 }
