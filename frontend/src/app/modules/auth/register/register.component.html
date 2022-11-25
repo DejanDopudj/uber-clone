@@ -6,7 +6,7 @@
     </div>
     <h1 class="text-3xl font-bold text-white">Create an account</h1>
 
-    <form [formGroup]="registerForm">
+    <form [formGroup]="registerForm" (submit)="onSubmit()">
     <div class="flex flex-col gap-y-6 mt-10 mb-12 tracking-wide">
       <div class="w-full">
         <label class="block tracking-wide text-light text-xs font-bold mb-1"
@@ -21,9 +21,12 @@
         <div class="h-1">
           <p *ngIf="email && email.invalid && email.touched"
             class="text-yellow-400 text-xs italic">
-            {{
-              email.errors?.['required'] ? 'Email is required.' :  email.errors?.['pattern'] ? 'Email is not valid.' : ''
-            }}
+            <span *ngIf="email.errors?.['required']">
+              Email is required.
+            </span>
+            <span *ngIf="email.errors?.['pattern']">
+              Email is not valid.
+            </span>
           </p>
         </div>
       </div>
@@ -41,10 +44,15 @@
           <div class="h-1">
             <p *ngIf="name && name.invalid && name.touched"
               class="text-yellow-400 text-xs italic">
-              {{
-                name.errors?.['required'] ? 'First name is required.' :  name.errors?.['minlength'] ?
-                'First name is too short.' : name.errors?.['maxlength'] ? 'First name is too long.' : ''
-              }}
+              <span *ngIf="name.errors?.['required']">
+                First name is required.
+              </span>
+              <span *ngIf="name.errors?.['minlength']">
+                First name is too short.
+              </span>
+              <span *ngIf="name.errors?.['maxlength']">
+                First name is too long.
+              </span>
             </p>
           </div>
         </div>
@@ -61,10 +69,15 @@
           <div class="h-1">
             <p *ngIf="surname && surname.invalid && surname.touched"
               class="text-yellow-400 text-xs italic">
-              {{
-                surname.errors?.['required'] ? 'Last name is required.' :  surname.errors?.['minlength'] ?
-                'Last name is too short.' : surname.errors?.['maxlength'] ? 'Last name is too long.' : ''
-              }}
+              <span *ngIf="surname.errors?.['required']">
+                Last name is required.
+              </span>
+              <span *ngIf="surname.errors?.['minlength']">
+                Last name is too short.
+              </span>
+              <span *ngIf="surname.errors?.['maxlength']">
+                Last name is too long.
+              </span>
             </p>
           </div>
         </div>
@@ -82,9 +95,12 @@
         <div class="h-1">
           <p *ngIf="password && password.invalid && password.touched"
             class="text-yellow-400 text-xs italic">
-            {{
-              password.errors?.['required'] ? 'Password is required.' :  password.errors?.['minlength'] ? 'Password is too short.' : ''
-            }}
+            <span *ngIf="password.errors?.['required']">
+              Password is required.
+            </span>
+            <span *ngIf="password.errors?.['minlength']">
+              Password is too short.
+            </span>
           </p>
         </div>
       </div>

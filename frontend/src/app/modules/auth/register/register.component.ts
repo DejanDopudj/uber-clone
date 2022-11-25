@@ -48,6 +48,10 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onSubmit() {
+    console.log('submit')
+  }
+
   get email() {
     return this.registerForm.get('email');
   }
