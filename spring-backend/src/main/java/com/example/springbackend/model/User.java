@@ -13,8 +13,8 @@ import java.util.Collection;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name="users")
 public class User implements UserDetails {
-    @Id
     private String username;
+    @Id
     private String email;
     private String password;
     private String name;
