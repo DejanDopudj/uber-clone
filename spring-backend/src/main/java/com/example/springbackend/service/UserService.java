@@ -13,16 +13,15 @@ public class UserService {
     private UserRepository userRepository;
 
 
-    public void processOAuthPostLogin(String username) {
-        User existUser = userRepository.findByUsername(username);
+    public void processOAuthPostLogin(String email) {
+        User existUser = userRepository.findByEmail(email);
 
         if (existUser == null) {
             User newUser = new User();
-            newUser.setUsername(username);
+            newUser.setEmail(email);
             newUser.setAuthenticationProvider(AuthenticationProvider.GOOGLE);
-
             userRepository.save(newUser);
         }
-
+        System.out.println(email);
     }
 }
