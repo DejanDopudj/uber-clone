@@ -6,6 +6,7 @@ import { MapComponent } from './modules/map/map.component';
 
 const routes: Routes = [
   { path: '', component: MapComponent },
+  { path: 'user', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule) },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: '**', redirectTo: '/auth/404' },
