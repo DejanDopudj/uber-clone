@@ -35,7 +35,6 @@ public class AuthenticationController {
             System.out.println(authenticationRequest.getPassword());
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-            userService.processOAuthPostLogin(authenticationRequest.getUsername());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             User user = (User) authentication.getPrincipal();
             String jwt = tokenUtils.generateToken(user.getUsername());
