@@ -1,5 +1,5 @@
 package com.example.springbackend.model.helpClasses;
 
 public enum AuthenticationProvider {
-    LOCAL, GOOGLE
+    LOCAL, GOOGLE, FACEBOOK
 }

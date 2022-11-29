@@ -1,10 +1,12 @@
 package com.example.springbackend.config;
 
 import com.example.springbackend.model.security.CustomOAuth2User;
+import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.security.RestAuthenticationEntryPoint;
 import com.example.springbackend.security.TokenAuthenticationFilter;
 import com.example.springbackend.service.CustomOAuth2UserService;
 import com.example.springbackend.service.CustomUserDetailsService;
+import com.example.springbackend.service.PassengerService;
 import com.example.springbackend.service.UserService;
 import com.example.springbackend.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -52,7 +55,7 @@ public class WebSecurityConfig {
     private final TokenUtils tokenUtils;
 
     @Autowired
-    private final UserService userService;
+    private final PassengerService passengerService;
 
     @Autowired
     private CustomOAuth2UserService oAuth2UserService;
@@ -63,11 +66,11 @@ public class WebSecurityConfig {
                 .userDetailsService(customUserDetailsService);
     }
 
-    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, RestAuthenticationEntryPoint restAuthenticationEntryPoint, TokenUtils tokenUtils, UserService userService) {
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, RestAuthenticationEntryPoint restAuthenticationEntryPoint, TokenUtils tokenUtils, PassengerService passengerService) {
         this.customUserDetailsService = customUserDetailsService;
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.tokenUtils = tokenUtils;
-        this.userService = userService;
+        this.passengerService = passengerService;
     }
 
     @Bean
@@ -109,10 +112,8 @@ public class WebSecurityConfig {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                         Authentication authentication) throws IOException, ServletException {
-
                         CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
-
-                        userService.processOAuthPostLogin(oauthUser.getEmail());
+                        passengerService.processOAuthPostLogin(oauthUser);
 
                     }
                 }).and()
