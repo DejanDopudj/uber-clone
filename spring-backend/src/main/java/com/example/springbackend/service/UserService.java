@@ -16,6 +16,8 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     PassengerRepository passengerRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Boolean userExists(String email){
         return userRepository.findByEmail(email).isPresent();
@@ -29,5 +31,10 @@ public class UserService {
             newUser.setAuthenticationProvider(AuthenticationProvider.valueOf(customOAuth2User.getOauth2ClientName().toUpperCase()));
             passengerRepository.save(newUser);
         }
+    }
+
+    public UserDisplayDTO getByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        return modelMapper.map(user, UserDisplayDTO.class);
     }
 }
