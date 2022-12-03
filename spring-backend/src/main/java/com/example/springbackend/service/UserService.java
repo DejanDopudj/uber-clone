@@ -1,5 +1,6 @@
 package com.example.springbackend.service;
 
+import com.example.springbackend.dto.display.AccountDisplayDTO;
 import com.example.springbackend.dto.display.UserDisplayDTO;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.User;
@@ -9,6 +10,7 @@ import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,8 +37,8 @@ public class UserService {
         }
     }
 
-    public UserDisplayDTO getByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
-        return modelMapper.map(user, UserDisplayDTO.class);
+    public AccountDisplayDTO getAccount(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return modelMapper.map(user, AccountDisplayDTO.class);
     }
 }

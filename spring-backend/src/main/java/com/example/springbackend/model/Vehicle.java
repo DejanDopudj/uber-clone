@@ -16,6 +16,12 @@ public class Vehicle {
 
     private boolean petsAllowed;
 
+    private String make;
+
+    private String model;
+
+    private String colour;
+
     @ManyToOne
     @JoinColumn
     private VehicleType vehicleType;

@@ -1,4 +1,4 @@
-<div class="w-11/12 sm:w-132 mx-auto text-center border border-stone-500 rounded-lg py-16 px-4 sm:p-16 my-20">
+<div *ngIf="driver" class="w-11/12 sm:w-132 mx-auto text-center border border-stone-500 rounded-lg py-16 px-4 sm:p-16 my-20">
 
   <!-- main info -->
   <div>
@@ -8,17 +8,17 @@
       class="rounded-full">
       <span class="absolute bottom-1 right-1 h-6 w-6">
         <span class="relative flex w-6 h-6 bg-dark rounded-full text-center">
-          <span *ngIf="isDriverActive" class="absolute inline-flex w-4 h-4 top-1 left-1 bg-accent-light rounded-full animate-ping my-auto mx-auto"></span>
-          <span class="relative inline-flex rounded-full h-4 w-4 my-auto mx-auto" [ngClass]="isDriverActive ? 'bg-accent-light' : 'bg-light'"></span>
+          <span *ngIf="driver.active" class="absolute inline-flex w-4 h-4 top-1 left-1 bg-accent-light rounded-full animate-ping my-auto mx-auto"></span>
+          <span class="relative inline-flex rounded-full h-4 w-4 my-auto mx-auto" [ngClass]="driver.active ? 'bg-accent-light' : 'bg-light'"></span>
         </span>
       </span>
     </div>
 
     <div class="mt-2 text-gray-50 text-2xl tracking-tight leading-5">
-      Travis Bickle
+      {{ driver.name }} {{ driver.surname }}
     </div>
-    <div class="mt-0 text-light text-xs tracking-widest font-medium">
-     NEW YORK CITY
+    <div class="mt-0 text-light text-xs tracking-widest font-medium uppercase">
+     {{ driver.city }}
     </div>
 
     <div class="flex justify-center gap-x-1 mt-1">
@@ -54,9 +54,9 @@
 
   <!-- car info -->
   <div class="flex-col my-10">
-    <img src="assets/icons/car-coupe.png" class="w-20 fill-gray-300 mx-auto" title="Coupe"/>
+    <img [src]="getCarImage()" class="w-20 fill-gray-300 mx-auto" title="Coupe"/>
     <div>
-      <span class="text-light text-sm">Checker Marathon · 1975 A11 · Yellow</span>
+      <span class="text-light text-sm">{{ driver.vehicle.make }} · {{ driver.vehicle.model }} · {{ driver.vehicle.colour }}</span>
     </div>
   </div>
 
@@ -73,7 +73,7 @@
       <fa-icon [icon]="faMobileRetro" class="text-gray-50"></fa-icon>
     </div>
     <div class="my-auto text-left pr-4 shrink-0">
-      <div class="text-sm text-gray-50 font-medium">+1 422 135 12</div>
+      <div class="text-sm text-gray-50 font-medium">{{ driver.phoneNumber }}</div>
     </div>
 
   </div>
