@@ -3,12 +3,12 @@ import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { RegisterComponent } from './modules/auth/register/register.component';
 import { MapComponent } from './modules/map/map.component';
-import { ProfileComponent } from './modules/user/profile/profile.component';
+import { AccountComponent } from './modules/user/profile/account.component';
 
 const routes: Routes = [
   { path: '', component: MapComponent },
   { path: 'account', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule) },
-  { path: 'driver/:username', component: ProfileComponent },
+  { path: 'driver/:username', component: AccountComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: '**', redirectTo: '/auth/404' },

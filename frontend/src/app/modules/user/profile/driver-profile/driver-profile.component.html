@@ -1,0 +1,80 @@
+<div class="w-11/12 sm:w-132 mx-auto text-center border border-stone-500 rounded-lg py-16 px-4 sm:p-16 my-20">
+
+  <!-- main info -->
+  <div>
+    <!-- image -->
+    <div class="relative h-28 w-28 mx-auto">
+      <img src="/assets/images/placeholders/taxi-driver.jpg" alt=""
+      class="rounded-full">
+      <span class="absolute bottom-1 right-1 h-6 w-6">
+        <span class="relative flex w-6 h-6 bg-dark rounded-full text-center">
+          <span *ngIf="isDriverActive" class="absolute inline-flex w-4 h-4 top-1 left-1 bg-accent-light rounded-full animate-ping my-auto mx-auto"></span>
+          <span class="relative inline-flex rounded-full h-4 w-4 my-auto mx-auto" [ngClass]="isDriverActive ? 'bg-accent-light' : 'bg-light'"></span>
+        </span>
+      </span>
+    </div>
+
+    <div class="mt-2 text-gray-50 text-2xl tracking-tight leading-5">
+      Travis Bickle
+    </div>
+    <div class="mt-0 text-light text-xs tracking-widest font-medium">
+     NEW YORK CITY
+    </div>
+
+    <div class="flex justify-center gap-x-1 mt-1">
+      <div class="text-light text-sm"><span class="text-light text-base">&#9733;</span> 4.69 · 420 ratings</div>
+    </div>
+
+  </div>
+
+  <!-- ride stats -->
+  <div class="flex h-14 border mt-3 border-stone-500 rounded-lg">
+
+    <div class="flex border-r border-stone-500 border-dashed w-1/2 shrink-0">
+      <div class="my-auto px-4 shrink-0">
+        <fa-icon [icon]="faCar" class="text-white"></fa-icon>
+      </div>
+      <div class="my-auto text-left shrink-0">
+        <div class="text-sm text-white font-medium">947</div>
+        <div class="text-xs text-light">Rides Completed</div>
+      </div>
+    </div>
+
+    <div class="flex w-1/2 shrink-0">
+      <div class="my-auto px-4 shrink-0">
+        <fa-icon [icon]="faPaperPlane" class="text-white"></fa-icon>
+      </div>
+      <div class="my-auto text-left shrink-0">
+        <div class="text-sm text-white font-medium">5,312 km</div>
+        <div class="text-xs text-light">Distance Travelled</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- car info -->
+  <div class="flex-col my-10">
+    <img src="assets/icons/car-coupe.png" class="w-20 fill-gray-300 mx-auto" title="Coupe"/>
+    <div>
+      <span class="text-light text-sm">Checker Marathon · 1975 A11 · Yellow</span>
+    </div>
+  </div>
+
+  <!-- reviews button -->
+  <div class="mt-2">
+    <button class="py-3 px-8 border border-stone-500 text-stone-400
+    hover:bg-stone-500 hover:text-stone-300 rounded-lg">Reviews</button>
+  </div>
+
+  <!-- phone number -->
+  <div class="flex h-12 w-fit border-b border-stone-500 mt-10 mx-auto">
+
+    <div class="my-auto px-4 shrink-0 text-xl">
+      <fa-icon [icon]="faMobileRetro" class="text-gray-50"></fa-icon>
+    </div>
+    <div class="my-auto text-left pr-4 shrink-0">
+      <div class="text-sm text-gray-50 font-medium">+1 422 135 12</div>
+    </div>
+
+  </div>
+</div>

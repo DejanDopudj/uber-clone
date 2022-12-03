@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ProfileComponent } from './profile/profile.component';
+import { AccountComponent } from './profile/account.component';
 const routes: Routes = [
-  { path: '', component: ProfileComponent },
+  { path: '', component: AccountComponent },
   { path: '**', redirectTo: '/auth/404' },
 ];
 

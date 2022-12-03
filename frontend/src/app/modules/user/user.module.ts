@@ -1,14 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileComponent } from './profile/profile.component';
+import { AccountComponent } from './profile/account.component';
 import { UserRoutingModule } from './user-routing.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DriverProfileComponent } from './profile/driver-profile/driver-profile.component';
+import { MemberProfileComponent } from './profile/member-profile/member-profile.component';
+import { DriverPageComponent } from './profile/driver-page/driver-page.component';
 
 
 
 @NgModule({
   declarations: [
-    ProfileComponent
+    AccountComponent,
+    DriverProfileComponent,
+    MemberProfileComponent,
+    DriverPageComponent
   ],
   imports: [
     CommonModule,

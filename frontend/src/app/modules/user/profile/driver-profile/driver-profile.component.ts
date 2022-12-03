@@ -1,19 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { faCar, faPaperPlane, faMobileRetro } from '@fortawesome/free-solid-svg-icons';
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  selector: 'app-driver',
+  templateUrl: './driver-profile.component.html'
 })
-export class ProfileComponent implements OnInit {
+export class DriverProfileComponent implements OnInit {
   faCar = faCar;
   faPaperPlane = faPaperPlane;
   faMobileRetro = faMobileRetro;
-  faChevronLeft = faChevronLeft;
   
   isDriverActive = false;
+
   constructor() { }
 
   ngOnInit(): void {
