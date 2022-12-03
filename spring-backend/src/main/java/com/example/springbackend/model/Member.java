@@ -7,11 +7,17 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Data
 public class Member extends User{
 
     Boolean blocked;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "member")
     private List<Note> notes;
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
+    }
 }

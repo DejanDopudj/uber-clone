@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Data
 public class Passenger extends Member {
 
     private String paymentDetails;
@@ -20,4 +19,12 @@ public class Passenger extends Member {
             joinColumns = @JoinColumn(name = "passenger_username", referencedColumnName = "username"),
             inverseJoinColumns = @JoinColumn(name = "route_id", referencedColumnName = "id"))
     private List<Route> favouriteRoutes;
+
+    public String getPaymentDetails() {
+        return paymentDetails;
+    }
+
+    public void setPaymentDetails(String paymentDetails) {
+        this.paymentDetails = paymentDetails;
+    }
 }

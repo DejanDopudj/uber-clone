@@ -38,9 +38,6 @@ public class PassengerService {
     }
 
     public void getLoggedUser(){
-        System.out.println("---------------------------------------------------------------------------------------------");
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        System.out.println(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        System.out.println("---------------------------------------------------------------------------------------------");
     }
 }
