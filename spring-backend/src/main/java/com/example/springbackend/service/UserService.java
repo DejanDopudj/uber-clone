@@ -1,11 +1,13 @@
 package com.example.springbackend.service;
 
+import com.example.springbackend.dto.display.UserDisplayDTO;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.User;
 import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import com.example.springbackend.model.security.CustomOAuth2User;
 import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
