@@ -1,11 +1,17 @@
 package com.example.springbackend.controller;
 
 import com.example.springbackend.dto.JwtAuthenticationRequestDTO;
+import com.example.springbackend.dto.creation.UserCreationDTO;
+import com.example.springbackend.model.Driver;
+import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.User;
 import com.example.springbackend.security.UserTokenState;
+import com.example.springbackend.service.DriverService;
+import com.example.springbackend.service.PassengerService;
 import com.example.springbackend.service.UserService;
 import com.example.springbackend.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,19 +32,36 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private UserService userService;
+    private PassengerService passengerService;
+    @Autowired
+    private DriverService driverService;
 
-    @PostMapping("/login")
+    @PostMapping("/custom-login")
     public ResponseEntity<UserTokenState> createAuthenticationToken(
             @RequestBody JwtAuthenticationRequestDTO authenticationRequest) {
-            System.out.println(authenticationRequest.getUsername());
-            System.out.println(authenticationRequest.getPassword());
+        try{
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getUsername(), authenticationRequest.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             User user = (User) authentication.getPrincipal();
             String jwt = tokenUtils.generateToken(user.getUsername());
             int expiresIn = tokenUtils.getExpiredIn();
+            passengerService.getLoggedUser();
             return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
+        } catch (AuthenticationException ae) {
+            return null;
+        }
+    }
+
+    @PostMapping("/signup-passenger")
+    public ResponseEntity<Passenger> signupPassenger(@RequestBody UserCreationDTO userCreationDTO){
+        Passenger passenger = passengerService.signUp(userCreationDTO);
+        return new ResponseEntity<>(passenger, passenger == null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/signup-driver")
+    public ResponseEntity<Driver> signupDriver(@RequestBody UserCreationDTO userCreationDTO){
+        Driver driver = driverService.signUp(userCreationDTO);
+        return new ResponseEntity<>(driver, driver == null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
     }
 }

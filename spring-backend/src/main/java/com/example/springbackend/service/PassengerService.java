@@ -1,12 +1,16 @@
 package com.example.springbackend.service;
 
+import com.example.springbackend.dto.creation.UserCreationDTO;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.User;
 import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import com.example.springbackend.model.security.CustomOAuth2User;
 import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,18 +19,28 @@ public class PassengerService {
     @Autowired
     private PassengerRepository passengerRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-
-    public void processOAuthPostLogin(CustomOAuth2User customOAuth2User) {
-        Passenger existUser = passengerRepository.findByEmail(customOAuth2User.getEmail());
-
-        if (existUser == null) {
-            Passenger newUser = new Passenger();
-            newUser.setEmail(customOAuth2User.getEmail());
-            newUser.setAuthenticationProvider(AuthenticationProvider.valueOf(customOAuth2User.getOauth2ClientName().toUpperCase()));
-            passengerRepository.save(newUser);
+    public Passenger signUp(UserCreationDTO userCreationDTO) {
+        if(!userService.userExists(userCreationDTO.getEmail())){
+            Passenger passenger = modelMapper.map(userCreationDTO, Passenger.class);
+            passenger.setAuthenticationProvider(AuthenticationProvider.LOCAL);
+            passenger.setPassword(passwordEncoder.encode(userCreationDTO.getPassword()));
+            passenger.setBlocked(false);
+            passengerRepository.save(passenger);
+            return passenger;
         }
+        return null;
+    }
 
+    public void getLoggedUser(){
+        System.out.println("---------------------------------------------------------------------------------------------");
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        System.out.println(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        System.out.println("---------------------------------------------------------------------------------------------");
     }
 }
