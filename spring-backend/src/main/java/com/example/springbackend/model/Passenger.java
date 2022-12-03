@@ -17,7 +17,7 @@ public class Passenger extends Member {
     @ManyToMany()
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "favourite_routes",
-            joinColumns = @JoinColumn(name = "passanger_email", referencedColumnName = "email"),
+            joinColumns = @JoinColumn(name = "passenger_username", referencedColumnName = "username"),
             inverseJoinColumns = @JoinColumn(name = "route_id", referencedColumnName = "id"))
     private List<Route> favouriteRoutes;
 }
