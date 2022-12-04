@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DriverPageComponent } from './driver-page.component';
+import { DriverReviewsComponent } from './driver-reviews.component';
 
-describe('DriverPageComponent', () => {
-  let component: DriverPageComponent;
-  let fixture: ComponentFixture<DriverPageComponent>;
+describe('DriverReviewsComponent', () => {
+  let component: DriverReviewsComponent;
+  let fixture: ComponentFixture<DriverReviewsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DriverPageComponent ]
+      declarations: [ DriverReviewsComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DriverPageComponent);
+    fixture = TestBed.createComponent(DriverReviewsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -4,8 +4,10 @@ import { AccountComponent } from './profile/account.component';
 import { UserRoutingModule } from './user-routing.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DriverProfileComponent } from './profile/driver-profile/driver-profile.component';
-import { MemberProfileComponent } from './profile/member-profile/member-profile.component';
-import { DriverPageComponent } from './profile/driver-page/driver-page.component';
+import { PassengerProfileComponent } from './profile/passenger-profile/passenger-profile.component';
+import { DriverPageComponent } from './profile/driver/driver.component';
+import { DriverDetailsComponent } from './profile/driver-profile/driver-details/driver-details.component';
+import { DriverReviewsComponent } from './profile/driver-profile/driver-reviews/driver-reviews.component';
 
 
 
@@ -13,8 +15,10 @@ import { DriverPageComponent } from './profile/driver-page/driver-page.component
   declarations: [
     AccountComponent,
     DriverProfileComponent,
-    MemberProfileComponent,
-    DriverPageComponent
+    PassengerProfileComponent,
+    DriverPageComponent,
+    DriverDetailsComponent,
+    DriverReviewsComponent
   ],
   imports: [
     CommonModule,

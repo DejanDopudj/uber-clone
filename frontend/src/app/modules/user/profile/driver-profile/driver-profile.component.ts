@@ -1,45 +1,36 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { faCar, faPaperPlane, faMobileRetro, faBabyCarriage, faPaw } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faBars } from '@fortawesome/free-solid-svg-icons';
 import { Driver } from 'src/app/shared/models/driver.model';
 
+enum DriverProfileView {
+  Details = "details",
+  Reviews = "reviews"
+}
+
 @Component({
-  selector: 'app-driver',
+  selector: 'app-driver-profile',
   templateUrl: './driver-profile.component.html'
 })
 export class DriverProfileComponent implements OnInit {
   @Input() driver!: Driver;
+  
+  _selectedView: DriverProfileView = DriverProfileView.Details; 
 
-  faCar = faCar;
-  faPaperPlane = faPaperPlane;
-  faMobileRetro = faMobileRetro;
-  faBabyCarriage = faBabyCarriage;
-  faPaw = faPaw;
+  faBars: IconDefinition = faBars;
+  
+  showDropdown: boolean = false;
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  getDriverRating(): string {
-    if (this.driver.totalRatingSum === 0) return '-';
-    return parseFloat((this.driver.totalRatingSum / this.driver.numberOfReviews).toString()).toFixed(2);
+  set selectedView(value: string) {
+    this._selectedView = value as DriverProfileView;
   }
 
-  getDistanceTravelled(): string {
-    return parseFloat(this.driver.distanceTravelled.toString()).toFixed(2);
-  }
-
-  getCarImage(): string {
-    switch (this.driver.vehicle.vehicleType.name.toLocaleLowerCase()) {
-      case "coupe":
-        return 'assets/icons/car-coupe.png';
-      case "minivan":
-        return 'assets/icons/car-minivan.png';
-      case "station":
-        return 'assets/icons/car-station.png';
-      default:
-        return 'assets/icons/car-coupe.png';
-    }
+  get selectedView() {
+    return this._selectedView;
   }
 
 }

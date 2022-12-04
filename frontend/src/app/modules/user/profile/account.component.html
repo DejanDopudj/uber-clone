@@ -6,5 +6,13 @@
     </div>
   </div>
 
-  <app-driver></app-driver>
+  <div *ngIf="account && account.accountType === 'driver'" class="h-full">
+    <app-driver-profile [driver]="getDriver()" class="h-full"></app-driver-profile>
+  </div>
+
+  <div *ngIf="notFound" class="w-11/12 sm:w-120 mx-auto text-center border
+  border-stone-500 rounded-lg py-16 px-4 sm:p-16 my-20 text-stone-500
+  font-bold text-2xl">
+    Session invalid. <br> Please log in again.
+  </div>
 </div>

@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import { DriverService } from 'src/app/core/http/driver/driver.service';
+import { DriverService } from 'src/app/core/http/user/driver.service';
 import { Driver } from 'src/app/shared/models/driver.model';
 
 @Component({
-  selector: 'app-driver-page',
-  templateUrl: './driver-page.component.html',
+  selector: 'app-driver',
+  templateUrl: './driver.component.html',
 })
 export class DriverPageComponent implements OnInit {
   faChevronLeft = faChevronLeft;

@@ -11,4 +11,5 @@ public class AccountDisplayDTO {
     private String phoneNumber;
     private String city;
     private String profilePicture;
+    private String accountType;
 }

@@ -1,27 +1,20 @@
 package com.example.springbackend.service;
 
-import com.example.springbackend.model.Driver;
-import com.example.springbackend.model.Member;
-import com.example.springbackend.model.Vehicle;
-import com.example.springbackend.model.VehicleType;
-import com.example.springbackend.repository.DriverRepository;
-import com.example.springbackend.repository.UserRepository;
-import com.example.springbackend.repository.VehicleRepository;
-import com.example.springbackend.repository.VehicleTypeRepository;
+import com.example.springbackend.model.*;
+import com.example.springbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 @Service
 public class TestDataSupplierService {
     @Autowired
-    UserRepository userRepository;
-    @Autowired
     DriverRepository driverRepository;
+    @Autowired
+    PassengerRepository passengerRepository;
     @Autowired
     VehicleTypeRepository vehicleTypeRepository;
     @Autowired
@@ -38,16 +31,18 @@ public class TestDataSupplierService {
 
 
     private void addUsers() {
-        Member member = new Member();
-        member.setUsername("member1");
-        member.setEmail("member1@noemail.com");
-        member.setPassword(passwordEncoder.encode("cascaded"));
-        member.setName("Membrane");
-        member.setSurname("Memphis");
-        member.setPhoneNumber("06146014691");
-        member.setCity("Novi Sad");
-        member.setBlocked(false);
-        userRepository.save(member);
+        Passenger passenger = new Passenger();
+        passenger.setUsername("passenger1");
+        passenger.setEmail("passenger1@noemail.com");
+        passenger.setPassword(passwordEncoder.encode("cascaded"));
+        passenger.setName("Membrane");
+        passenger.setSurname("Memphis");
+        passenger.setPhoneNumber("06146014691");
+        passenger.setCity("Novi Sad");
+        passenger.setBlocked(false);
+        passenger.setDistanceTravelled(79.28);
+        passenger.setRidesCompleted(28);
+        passengerRepository.save(passenger);
     }
 
     private void addDrivers(ArrayList<VehicleType> vehicleTypes) {
@@ -73,6 +68,7 @@ public class TestDataSupplierService {
         driver.setRidesCompleted(2153);
         driver.setTotalRatingSum(7814);
         driver.setNumberOfReviews(1693);
+        driver.setBlocked(false);
         driverRepository.save(driver);
     }
     private ArrayList<VehicleType> generateVehicleTypes() {
