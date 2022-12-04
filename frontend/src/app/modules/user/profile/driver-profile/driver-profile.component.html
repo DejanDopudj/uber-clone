@@ -58,6 +58,10 @@
     <div>
       <span class="text-light text-sm">{{ driver.vehicle.make }} · {{ driver.vehicle.model }} · {{ driver.vehicle.colour }}</span>
     </div>
+    <div class="flex justify-center gap-x-3 text-xl">
+      <fa-icon *ngIf="driver.vehicle.babySeat" [icon]="faBabyCarriage" class="text-light" title="Has baby seat"></fa-icon>
+      <fa-icon *ngIf="driver.vehicle.petsAllowed" [icon]="faPaw" class="text-light" title="Pet friendly"></fa-icon>
+    </div>
   </div>
 
   <!-- reviews button -->

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { faCar, faPaperPlane, faMobileRetro } from '@fortawesome/free-solid-svg-icons';
+import { faCar, faPaperPlane, faMobileRetro, faBabyCarriage, faPaw } from '@fortawesome/free-solid-svg-icons';
 import { Driver } from 'src/app/shared/models/driver.model';
 
 @Component({
@@ -12,6 +12,8 @@ export class DriverProfileComponent implements OnInit {
   faCar = faCar;
   faPaperPlane = faPaperPlane;
   faMobileRetro = faMobileRetro;
+  faBabyCarriage = faBabyCarriage;
+  faPaw = faPaw;
 
   constructor() { }
 
