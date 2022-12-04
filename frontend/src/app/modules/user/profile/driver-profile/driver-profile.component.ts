@@ -20,6 +20,15 @@ export class DriverProfileComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  getDriverRating(): string {
+    if (this.driver.totalRatingSum === 0) return '-';
+    return parseFloat((this.driver.totalRatingSum / this.driver.numberOfReviews).toString()).toFixed(2);
+  }
+
+  getDistanceTravelled(): string {
+    return parseFloat(this.driver.distanceTravelled.toString()).toFixed(2);
+  }
+
   getCarImage(): string {
     switch (this.driver.vehicle.vehicleType.name.toLocaleLowerCase()) {
       case "coupe":

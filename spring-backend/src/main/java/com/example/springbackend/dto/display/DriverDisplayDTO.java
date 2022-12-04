@@ -10,6 +10,10 @@ public class DriverDisplayDTO {
     private String phoneNumber;
     private String city;
     private String profilePicture;
+    private double distanceTravelled;
+    private int ridesCompleted;
+    private int totalRatingSum;
+    private int numberOfReviews;
     private VehicleDisplayDTO vehicle;
     private boolean active;
 }

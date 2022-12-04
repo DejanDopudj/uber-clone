@@ -69,6 +69,10 @@ public class TestDataSupplierService {
         driver.setCity("New York City");
         driver.setBlocked(false);
         driver.setVehicle(vehicle);
+        driver.setDistanceTravelled(5251.12);
+        driver.setRidesCompleted(2153);
+        driver.setTotalRatingSum(7814);
+        driver.setNumberOfReviews(1693);
         driverRepository.save(driver);
     }
     private ArrayList<VehicleType> generateVehicleTypes() {

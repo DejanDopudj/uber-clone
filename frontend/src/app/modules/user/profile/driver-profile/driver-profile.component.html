@@ -22,7 +22,11 @@
     </div>
 
     <div class="flex justify-center gap-x-1 mt-1">
-      <div class="text-light text-sm"><span class="text-light text-base">&#9733;</span> 4.69 · 420 ratings</div>
+      <div class="text-light text-sm">
+        <span class="text-light text-base">&#9733;
+          {{ getDriverRating() }} <span>·</span> {{ driver.numberOfReviews }} ratings
+        </span>
+    </div>
     </div>
 
   </div>
@@ -35,7 +39,7 @@
         <fa-icon [icon]="faCar" class="text-white"></fa-icon>
       </div>
       <div class="my-auto text-left shrink-0">
-        <div class="text-sm text-white font-medium">947</div>
+        <div class="text-sm text-white font-medium">{{ driver.ridesCompleted }}</div>
         <div class="text-xs text-light">Rides Completed</div>
       </div>
     </div>
@@ -45,7 +49,7 @@
         <fa-icon [icon]="faPaperPlane" class="text-white"></fa-icon>
       </div>
       <div class="my-auto text-left shrink-0">
-        <div class="text-sm text-white font-medium">5,312 km</div>
+        <div class="text-sm text-white font-medium">{{ getDistanceTravelled() }} km</div>
         <div class="text-xs text-light">Distance Travelled</div>
       </div>
     </div>

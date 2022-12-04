@@ -9,5 +9,9 @@ export interface Driver {
   city: String,
   profilePicture: string,
   vehicle: Vehicle,
+  distanceTravelled: number,
+  ridesCompleted: number,
+  totalRatingSum: number,
+  numberOfReviews: number,
   active: boolean,
 }
