@@ -16,6 +16,13 @@
       (click)="selectedView = 'reviews'">
         Reviews
       </button>
+
+      <button *ngIf="isOwnAccount()" class="py-3 px-8 border border-stone-500 text-stone-400
+      hover:bg-stone-500 hover:text-stone-300 rounded-lg"
+      [ngClass]="selectedView === 'edit' ? 'bg-stone-500 text-stone-300' : ''"
+      (click)="selectedView = 'edit'">
+        Edit
+      </button>
     </div>
 
     <div class="relative block w-fit sm:hidden">
@@ -39,6 +46,13 @@
         [ngClass]="selectedView === 'reviews' ? 'bg-dark text-stone-300' : 'text-dark'"
         (click)="selectedView = 'reviews'">
           Reviews
+        </button>
+
+        <button *ngIf="isOwnAccount()" class="py-3 px-8 border border-dark 
+        hover:bg-dark hover:text-stone-300 rounded-lg w-full"
+        [ngClass]="selectedView === 'edit' ? 'bg-dark text-stone-300' : 'text-dark'"
+        (click)="selectedView = 'edit'">
+          Edit
         </button>
 
       </div>
@@ -65,10 +79,18 @@
       (click)="selectedView = 'reviews'">
         Reviews
       </button>
+
+      <button *ngIf="isOwnAccount()" class="py-3 px-8 border border-stone-500 text-stone-400
+      hover:bg-stone-500 hover:text-stone-300 rounded-lg"
+      [ngClass]="selectedView === 'edit' ? 'bg-stone-500 text-stone-300' : ''"
+      (click)="selectedView = 'edit'">
+        Edit
+      </button>
       
     </div>
 
     <app-driver-details *ngIf="selectedView === 'details'" [driver]="driver"></app-driver-details>
     <app-driver-reviews *ngIf="selectedView === 'reviews'" [driver]="driver"></app-driver-reviews>
+    <app-driver-edit *ngIf="selectedView === 'edit'" [driver]="driver"></app-driver-edit>
   </div>
 </div>

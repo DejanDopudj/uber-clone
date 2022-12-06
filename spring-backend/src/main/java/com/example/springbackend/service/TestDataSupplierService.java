@@ -35,10 +35,10 @@ public class TestDataSupplierService {
         passenger.setUsername("passenger1");
         passenger.setEmail("passenger1@noemail.com");
         passenger.setPassword(passwordEncoder.encode("cascaded"));
-        passenger.setName("Membrane");
+        passenger.setName("Francois");
         passenger.setSurname("Memphis");
-        passenger.setPhoneNumber("06146014691");
-        passenger.setCity("Novi Sad");
+        passenger.setPhoneNumber("+25346014691");
+        passenger.setCity("Marseille");
         passenger.setBlocked(false);
         passenger.setDistanceTravelled(79.28);
         passenger.setRidesCompleted(28);

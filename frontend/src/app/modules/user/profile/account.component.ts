@@ -20,8 +20,6 @@ export class AccountComponent implements OnInit {
         .getAccount()
         .then((response) => {
           this.account = response.data;
-          console.log(this.account)
-          console.log(this.account.accountType)
         })
         .catch((err) => {
           this.notFound = true;
@@ -30,6 +28,10 @@ export class AccountComponent implements OnInit {
 
   getDriver(): Driver {
     return this.account as Driver;
+  }
+
+  getPassenger(): Passenger {
+    return this.account as Passenger;
   }
 
 }

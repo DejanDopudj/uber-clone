@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { AccountComponent } from './profile/account.component';
 import { UserRoutingModule } from './user-routing.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DriverProfileComponent } from './profile/driver-profile/driver-profile.component';
+import { DriverProfileComponent } from './profile/driver/driver-profile/driver-profile.component';
 import { PassengerProfileComponent } from './profile/passenger-profile/passenger-profile.component';
 import { DriverPageComponent } from './profile/driver/driver.component';
-import { DriverDetailsComponent } from './profile/driver-profile/driver-details/driver-details.component';
-import { DriverReviewsComponent } from './profile/driver-profile/driver-reviews/driver-reviews.component';
+import { DriverDetailsComponent } from './profile/driver/driver-profile/driver-details/driver-details.component';
+import { DriverReviewsComponent } from './profile/driver/driver-profile/driver-reviews/driver-reviews.component';
+import { DriverEditComponent } from './profile/driver/driver-profile/driver-edit/driver-edit.component';
+import { PassengerDetailsComponent } from './profile/passenger-profile/passenger-details/passenger-details.component';
+import { PassengerEditComponent } from './profile/passenger-profile/passenger-edit/passenger-edit.component';
 
 
 
@@ -18,7 +21,10 @@ import { DriverReviewsComponent } from './profile/driver-profile/driver-reviews/
     PassengerProfileComponent,
     DriverPageComponent,
     DriverDetailsComponent,
-    DriverReviewsComponent
+    DriverReviewsComponent,
+    DriverEditComponent,
+    PassengerDetailsComponent,
+    PassengerEditComponent
   ],
   imports: [
     CommonModule,
