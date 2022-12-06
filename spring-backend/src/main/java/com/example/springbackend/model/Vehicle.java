@@ -22,6 +22,8 @@ public class Vehicle {
 
     private String colour;
 
+    private String licensePlateNumber;
+
     @ManyToOne
     @JoinColumn
     private VehicleType vehicleType;

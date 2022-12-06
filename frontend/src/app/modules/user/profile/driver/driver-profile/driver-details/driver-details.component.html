@@ -60,8 +60,9 @@
     <!-- car info -->
     <div class="flex-col">
       <img [src]="getCarImage()" class="w-20 fill-gray-300 mx-auto" title="Coupe"/>
-      <div>
-        <span class="text-light text-sm">{{ driver.vehicle.make }} · {{ driver.vehicle.model }} · {{ driver.vehicle.colour }}</span>
+      <div class="text-light text-sm leading-3 mt-1.5">{{ driver.vehicle.make }} · {{ driver.vehicle.model }} · {{ driver.vehicle.colour }}</div>
+      <div class="text-light text-sm font-bold tracking-wide">
+        {{ driver.vehicle.licensePlateNumber }}
       </div>
       <div class="flex justify-center gap-x-3 text-xl">
         <fa-icon *ngIf="driver.vehicle.babySeat" [icon]="faBabyCarriage" class="text-light" title="Has baby seat"></fa-icon>

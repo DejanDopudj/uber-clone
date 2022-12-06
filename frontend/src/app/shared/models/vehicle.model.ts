@@ -7,4 +7,5 @@ export interface Vehicle {
     make: string,
     model: string,
     colour: string,
+    licensePlateNumber: string,
 }

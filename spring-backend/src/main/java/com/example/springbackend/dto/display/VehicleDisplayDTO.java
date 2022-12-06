@@ -9,5 +9,6 @@ public class VehicleDisplayDTO {
     String make;
     String model;
     String colour;
+    String licensePlateNumber;
     VehicleTypeDisplayDTO vehicleType;
 }

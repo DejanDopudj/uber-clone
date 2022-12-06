@@ -66,6 +66,7 @@ public class TestDataSupplierService {
         vehicle.setMake("Checker");
         vehicle.setModel("Marathon A11");
         vehicle.setColour("Yellow");
+        vehicle.setLicensePlateNumber("A31216");
         vehicle.setVehicleType(vehicleTypes.get(0));
         vehicleRepository.save(vehicle);
         Driver driver = new Driver();
