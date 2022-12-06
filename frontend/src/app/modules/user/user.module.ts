@@ -11,6 +11,9 @@ import { DriverReviewsComponent } from './profile/driver/driver-profile/driver-r
 import { DriverEditComponent } from './profile/driver/driver-profile/driver-edit/driver-edit.component';
 import { PassengerDetailsComponent } from './profile/passenger-profile/passenger-details/passenger-details.component';
 import { PassengerEditComponent } from './profile/passenger-profile/passenger-edit/passenger-edit.component';
+import { AdminProfileComponent } from './profile/admin-profile/admin-profile.component';
+import { AdminDetailsComponent } from './profile/admin-profile/admin-details/admin-details.component';
+import { AdminEditComponent } from './profile/admin-profile/admin-edit/admin-edit.component';
 
 
 
@@ -24,7 +27,10 @@ import { PassengerEditComponent } from './profile/passenger-profile/passenger-ed
     DriverReviewsComponent,
     DriverEditComponent,
     PassengerDetailsComponent,
-    PassengerEditComponent
+    PassengerEditComponent,
+    AdminProfileComponent,
+    AdminDetailsComponent,
+    AdminEditComponent
   ],
   imports: [
     CommonModule,

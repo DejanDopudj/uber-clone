@@ -1,6 +1,5 @@
 import { Vehicle } from "./vehicle.model";
 
-
 export interface Driver {
   username: string,
   name: string,

@@ -37,7 +37,6 @@ export class DriverProfileComponent implements OnInit {
   isOwnAccount(): boolean {
     if (window.location.href.includes('account')) return true;
     const session = this.authenticationService.getSession();
-    console.log(session)
     if (session)
       return this.route.snapshot.paramMap.get('username') === session.username;
     return false;

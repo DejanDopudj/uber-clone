@@ -4,7 +4,6 @@ import { Passenger } from 'src/app/shared/models/passenger.model';
 
 enum PassengerProfileView {
   Details = "details",
-  Reviews = "reviews",
   Edit = 'edit'
 }
 

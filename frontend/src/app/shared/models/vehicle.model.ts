@@ -1,6 +1,5 @@
 import { VehicleType } from "./vehicle-type.model";
 
-
 export interface Vehicle {
     babySeat: boolean,
     petsAllowed: boolean,

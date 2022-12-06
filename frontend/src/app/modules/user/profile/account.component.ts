@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AccountService } from 'src/app/core/http/user/account.service';
+import { Admin } from 'src/app/shared/models/admin.model';
 import { Driver } from 'src/app/shared/models/driver.model';
 import { Passenger } from 'src/app/shared/models/passenger.model';
 
@@ -32,6 +33,10 @@ export class AccountComponent implements OnInit {
 
   getPassenger(): Passenger {
     return this.account as Passenger;
+  }
+
+  getAdmin(): Admin {
+    return this.account as Admin;
   }
 
 }

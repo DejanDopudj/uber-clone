@@ -16,6 +16,8 @@ public class TestDataSupplierService {
     @Autowired
     PassengerRepository passengerRepository;
     @Autowired
+    AdminRepository adminRepository;
+    @Autowired
     VehicleTypeRepository vehicleTypeRepository;
     @Autowired
     VehicleRepository vehicleRepository;
@@ -24,11 +26,23 @@ public class TestDataSupplierService {
 
     @Transactional
     public void injectTestData() {
+        addAdmins();
         addUsers();
         ArrayList<VehicleType> vehicleTypes = generateVehicleTypes();
         addDrivers(vehicleTypes);
     }
 
+    private void addAdmins() {
+        Admin admin = new Admin();
+        admin.setUsername("admin1");
+        admin.setEmail("admin1@noemail.com");
+        admin.setPassword(passwordEncoder.encode("cascaded"));
+        admin.setName("Commissioner");
+        admin.setSurname("Gibert");
+        admin.setPhoneNumber("+2624035735");
+        admin.setCity("Marseille");
+        adminRepository.save(admin);
+    }
 
     private void addUsers() {
         Passenger passenger = new Passenger();
