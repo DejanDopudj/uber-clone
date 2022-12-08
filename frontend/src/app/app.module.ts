@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { MapComponent } from './modules/map/map.component';
 import { MapControlsComponent } from './modules/map/map-controls/map-controls.component';
 import { AuthModule } from './modules/auth/auth.module';
+import { AuthenticationService } from './core/authentication/authentication.service';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,7 @@ import { AuthModule } from './modules/auth/auth.module';
   imports: [
     BrowserModule, AppRoutingModule, FontAwesomeModule, AuthModule
   ],
-  providers: [],
+  providers: [AuthenticationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
