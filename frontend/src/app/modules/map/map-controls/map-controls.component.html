@@ -15,7 +15,7 @@
       </div>
 
       <!-- activity -->
-      <div *ngIf="accountType === 'driver'"
+      <div *ngIf="accountType === 'driver' && isActive !== null"
       class="flex flex-col justify-center relative h-11 my-auto w-60 rounded-full mx-auto
       text-center text-xl font-medium tracking-wider pointer-events-auto select-none cursor-pointer"
       [ngClass]="isActive ? 'bg-accent' : 'bg-red-500'" (click)="toggleActivity()">
@@ -23,7 +23,7 @@
         [ngClass]="isActive ? 'bg-accent-light  animate-pulse' : 'bg-transparent animate-none'">
 
         </div>
-        <p class="animate-none text-emerald-50 z-10">{{ isActive ? 'ACTIVE' : 'INACTIVE' }}</p>
+        <p class="animate-none text-white z-10">{{ isActive ? 'ACTIVE' : 'INACTIVE' }}</p>
       </div>
 
       <!-- profile / register -->

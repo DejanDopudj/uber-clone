@@ -20,7 +20,7 @@ export class MapControlsComponent implements OnInit {
   accountType: string = this.authenticationService.getAccountType();
 
   // Driver
-  isActive: boolean = this.driverService.getDriverActivity();
+  isActive: boolean | null = null;
 
 
   faBars = faBars;
@@ -28,7 +28,9 @@ export class MapControlsComponent implements OnInit {
   
   constructor(private driverService: DriverService, private authenticationService: AuthenticationService) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    if (this.accountType === 'driver')
+      this.isActive = await this.driverService.getDriverActivity();
   }
 
   clearMarkers = (): void => {

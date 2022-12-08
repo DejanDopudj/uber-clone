@@ -4,5 +4,4 @@ export interface Session {
   surname: string;
   profilePicture: string | null;
   accountType: string;
-  metadata: any;
 }

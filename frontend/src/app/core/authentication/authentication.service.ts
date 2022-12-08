@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import axios from 'axios';
 import { Session } from 'src/app/shared/models/session.model';
 
 @Injectable({
@@ -6,26 +7,28 @@ import { Session } from 'src/app/shared/models/session.model';
 })
 export class AuthenticationService {
 
-  constructor() { }
+  constructor() { 
+    this.whoami();
+  }
 
   getToken() {
     const token = localStorage.getItem('token');
     return token;
   }
 
-  fetchSessionFromServer() {
-    // getting whoami
-    const session: Session | null = {
-      username: 'driver1',
-      name: 'Travis',
-      surname: 'Bickle',
-      profilePicture: null,
-      accountType: 'driver',
-      metadata: {
-        active: false
+  whoami(): void {
+    axios.get(`/api/users/whoami`, 
+    {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
       }
-    }
-    if (session) this.saveSession(session);
+    })
+    .then((response) => {
+      this.saveSession(response.data);
+    })
+    .catch((err) => {
+      this.logout();
+    });
   }
 
   getSession() : Session | null {
@@ -42,8 +45,13 @@ export class AuthenticationService {
     }
     return "anonymous";
   }
+
+  logout(): void {
+    localStorage.removeItem('session');
+    localStorage.removeItem('token');
+  }
   
-  saveSession(session: Session) {
+  saveSession(session: Session): void {
     localStorage.setItem('session', JSON.stringify(session));
   }
 

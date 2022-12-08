@@ -19,6 +19,12 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getByUsername(username));
     }
 
+    @GetMapping ("/activity")
+    public ResponseEntity<Boolean> getActivity(Authentication auth) {
+        driverService.getActivity(auth);
+        return ResponseEntity.ok(driverService.getActivity(auth));
+    }
+
     @PatchMapping ("/activity")
     public ResponseEntity<Void> getByUsername(Authentication auth) {
         driverService.toggleActivity(auth);

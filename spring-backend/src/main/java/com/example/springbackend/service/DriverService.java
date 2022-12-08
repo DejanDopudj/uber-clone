@@ -50,4 +50,14 @@ public class DriverService {
             throw new UserIsNotDriverException();
         }
     }
+
+    public boolean getActivity(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        if (user instanceof Driver) {
+            return ((Driver) user).getActive();
+        }
+        else {
+            throw new UserIsNotDriverException();
+        }
+    }
 }

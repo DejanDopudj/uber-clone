@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
-import { Session } from 'src/app/shared/models/session.model';
 import { AuthenticationService } from '../../authentication/authentication.service';
 
 @Injectable({
@@ -14,11 +13,15 @@ export class DriverService {
     return axios.get(`/api/drivers/${username}`);
   }
 
-  getDriverActivity(): boolean {
-    const session: Session | null = this.authenticationService.getSession();
-    if (session)
-      return session.metadata?.active || false;
-    return false;
+  async getDriverActivity(): Promise<boolean> {
+    const activity: boolean = await axios.get(`/api/drivers/activity`, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then((res => {
+      return res.data;
+    }));
+    return activity;
   }
 
   toggleActivity(): void {
@@ -27,9 +30,6 @@ export class DriverService {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    })
-    .then((response) => {
-      this.authenticationService.fetchSessionFromServer();
     });
   }
 }
