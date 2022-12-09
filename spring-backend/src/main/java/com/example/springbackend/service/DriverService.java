@@ -22,12 +22,15 @@ public class DriverService {
     private ModelMapper modelMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleService roleService;
 
 
     public Driver signUp(UserCreationDTO userCreationDTO) {
-        if(!userService.userExists(userCreationDTO.getEmail())){
+        if(!userService.userExistsForCustomRegistration(userCreationDTO.getEmail(),userCreationDTO.getUsername())){
             Driver driver = modelMapper.map(userCreationDTO, Driver.class);
             driver.setPassword(passwordEncoder.encode(userCreationDTO.getPassword()));
+            driver.setRoles(roleService.findByName("ROLE_DRIVER"));
             driverRepository.save(driver);
             return driver;
         }
