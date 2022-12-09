@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { faBars, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { DriverService } from 'src/app/core/http/user/driver.service';
 
@@ -21,10 +20,6 @@ export class MapControlsComponent implements OnInit {
 
   // Driver
   isActive: boolean | null = null;
-
-
-  faBars = faBars;
-  faArrowRightToBracket = faArrowRightToBracket;
   
   constructor(private driverService: DriverService, private authenticationService: AuthenticationService) { }
 
@@ -35,10 +30,5 @@ export class MapControlsComponent implements OnInit {
 
   clearMarkers = (): void => {
     this.clear.emit();
-  }
-
-  toggleActivity = (): void => {
-    this.isActive = !this.isActive;
-    this.driverService.toggleActivity();
   }
 }
