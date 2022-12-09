@@ -6,6 +6,7 @@ import com.example.springbackend.dto.display.UserDisplayDTO;
 import com.example.springbackend.model.Driver;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.User;
+import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import com.example.springbackend.repository.DriverRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class DriverService {
     public Driver signUp(UserCreationDTO userCreationDTO) {
         if(!userService.userExistsForCustomRegistration(userCreationDTO.getEmail(),userCreationDTO.getUsername())){
             Driver driver = modelMapper.map(userCreationDTO, Driver.class);
+            driver.setAuthenticationProvider(AuthenticationProvider.LOCAL);
             driver.setPassword(passwordEncoder.encode(userCreationDTO.getPassword()));
             driver.setRoles(roleService.findByName("ROLE_DRIVER"));
             driverRepository.save(driver);
