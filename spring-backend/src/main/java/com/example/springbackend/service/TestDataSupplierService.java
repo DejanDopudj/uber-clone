@@ -22,6 +22,8 @@ public class TestDataSupplierService {
     @Autowired
     VehicleRepository vehicleRepository;
     @Autowired
+    RoleRepository roleRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -84,6 +86,8 @@ public class TestDataSupplierService {
         driver.setTotalRatingSum(7814);
         driver.setNumberOfReviews(1693);
         driver.setAccountStatus(AccountStatus.ACTIVE);
+        driver.setBlocked(false);
+        driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
         driverRepository.save(driver);
     }
     private ArrayList<VehicleType> generateVehicleTypes() {
