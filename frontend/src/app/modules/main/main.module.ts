@@ -6,6 +6,7 @@ import { TopControlsComponent } from './map-controls/top-controls/top-controls.c
 import { MainComponent } from './main.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from 'src/app/app-routing.module';
+import { OrderMenuComponent } from './order-menu/order-menu.component';
 
 
 
@@ -14,7 +15,8 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
     MapComponent,
     MapControlsComponent,
     TopControlsComponent,
-    MainComponent
+    MainComponent,
+    OrderMenuComponent
   ],
   imports: [
     CommonModule,
