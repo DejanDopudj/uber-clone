@@ -41,7 +41,7 @@ export class AuthenticationService {
 
   getAccountType(): string {
     const session: Session | null = this.getSession();
-    if (session){
+    if (session) {
       return session.accountType;
     }
     return "anonymous";

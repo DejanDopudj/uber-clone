@@ -1,6 +1,8 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, Input } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
+import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
+import { SharedInfo } from 'src/app/shared/models/data-transfer-interfaces/shared-info.model';
 
 @Component({
   selector: 'app-map',
@@ -10,6 +12,8 @@ export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
   public chosenRoute: any;
+  @Input() sharedInfo!: SharedInfo;
+  @Input() driverInfo!: DriverInfo;
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
@@ -37,7 +41,7 @@ export class MapComponent implements AfterViewInit {
       lineOptions: {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1},
       altLineOptions: {styles: [{color: '#8aa1ad', weight: 7}], extendToWaypoints: true, missingRouteTolerance: 0.1},
       showAlternatives: true,
-      addWaypoints: true,
+      addWaypoints: this.canUserAlterWaypoints() ? true : false,
       waypoints: [],
       autoRoute: true,
       routeWhileDragging: true,
@@ -58,7 +62,9 @@ export class MapComponent implements AfterViewInit {
       that.chosenRoute = e.route;
     })
     .addTo(this.map);
-    document.getElementById('map')!.style.cursor = 'crosshair';
+
+    if (this.canUserAlterWaypoints())
+      document.getElementById('map')!.style.cursor = 'crosshair';
   }
 
   constructor() { }
@@ -68,11 +74,13 @@ export class MapComponent implements AfterViewInit {
   }
 
   addMarker = (e: any) => {
-    this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
+    if (this.canUserAlterWaypoints())
+      this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
   }
 
   removeMarker(wp: any): void {
-    this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)])
+    if (this.canUserAlterWaypoints())
+      this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)])
   }
 
   clearMarkers(): void {
@@ -85,6 +93,10 @@ export class MapComponent implements AfterViewInit {
     route.waypoints?.forEach((e : any) => {
       L.marker(e.latLng).addTo(this.map);
     });
+  }
+
+  canUserAlterWaypoints(): boolean {
+    return this.sharedInfo.accountType === 'passenger' || this.sharedInfo.accountType === 'anonymous';
   }
 
 }

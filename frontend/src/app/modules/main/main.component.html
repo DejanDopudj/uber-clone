@@ -1,0 +1,19 @@
+<div>
+
+  <app-map 
+  [sharedInfo]="{ accountType: accountType }"
+  [driverInfo]="{ isActive: isActive }"
+  >
+  </app-map>
+  
+  <div *ngIf="mapComponent" class="absolute top-0 left-0 right-0 z-40 pointer-events-none">
+    <app-map-controls 
+    (clear)="clearMarkers()" 
+    [summary]="summary"
+    [sharedInfo]="{ accountType: accountType }"
+    [driverInfo]="{ isActive: isActive }"
+    >
+  </app-map-controls>
+  </div>
+
+</div>
