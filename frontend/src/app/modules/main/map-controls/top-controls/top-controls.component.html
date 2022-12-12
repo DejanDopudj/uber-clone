@@ -1,13 +1,16 @@
 <div>
-  <div class="flex justify-between gap-x-2 sm:gap-x-0 w-11/12 sm:w-88 h-14 px-2 mt-5 mx-auto bg-white
+  <div class="flex justify-between gap-x-2 sm:gap-x-0 w-11/12
+    sm:w-88 h-14 px-2 mt-5 mx-auto bg-dark text-gray-50
     rounded-full shadow-md pointer-events-auto select-none">
       <!-- menu -->
       <div class="flex flex-col justify-center text-center text-xl w-11 h-11 my-auto
-      rounded-full cursor-pointer hover:bg-gray-100 shrink-0">
+      rounded-full cursor-pointer hover:text-light shrink-0">
         <fa-icon [icon]="faBars" class=""></fa-icon>
       </div>
 
-      <div *ngIf="sharedInfo.accountType !== 'driver'" class="flex flex-col justify-center text-center text-xl my-auto rounded-full font-medium">
+      <div *ngIf="sharedInfo.accountType !== 'driver'"
+      class="flex flex-col justify-center text-center text-xl
+      my-auto rounded-full font-medium">
         Suber
       </div>
 
@@ -26,7 +29,7 @@
       <!-- register -->
       <div *ngIf="sharedInfo.accountType === 'anonymous'" routerLink="/register"
       class="flex flex-col justify-center text-center text-xl w-11 h-11 my-auto
-      rounded-full cursor-pointer hover:bg-gray-100">
+      rounded-full cursor-pointer hover:text-light">
         <fa-icon [icon]="faArrowRightToBracket" class=""></fa-icon>
       </div>
 
@@ -35,7 +38,7 @@
         <!-- profile -->
         <div (click)="showProfileDropdown = !showProfileDropdown; clickedProfileDropdown = true;"
         class="flex flex-col justify-center text-center text-xl w-11 h-11 my-auto
-        rounded-full cursor-pointer hover:bg-gray-100 shadow-sm border border-gray-300">
+        rounded-full cursor-pointer hover:text-light shadow-sm border border-gray-300">
           <img src="/assets/images/placeholders/taxi-driver.jpg" alt="" class="w-11 h-11 rounded-full">
         </div>
 

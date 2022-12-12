@@ -1,14 +1,14 @@
 <div class="flex h-full" id="order-menu">
 
-  <div *ngIf="isOpened" class="w-96 bg-dark" id="order-menu-main">
+  <div *ngIf="isOpened" class="w-120 bg-dark" id="order-menu-main">
     
   </div>
 
   <div class="flex flex-col justify-center h-32 w-8 bg-dark
-  my-auto cursor-pointer text-center slide-in"
+  my-auto cursor-pointer text-center slide-in text-light hover:text-gray-300"
   [ngClass]="isOpened ? '-ml-8 rounded-none' : 'rounded-r-full'"
   (click)="toggleOpened()">
-    <fa-icon [icon]="isOpened ? faChevronLeft : faChevronRight" class="text-2xl text-light"></fa-icon>
+    <fa-icon [icon]="isOpened ? faChevronLeft : faChevronRight" class="text-2xl"></fa-icon>
   </div>
 
 </div>
