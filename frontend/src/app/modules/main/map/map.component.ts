@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input } from '@angular/core';
+import { Component, AfterViewInit, Input, Output } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
@@ -80,7 +80,7 @@ export class MapComponent implements AfterViewInit {
 
   removeMarker(wp: any): void {
     if (this.canUserAlterWaypoints())
-      this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)])
+      this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)]);
   }
 
   clearMarkers(): void {

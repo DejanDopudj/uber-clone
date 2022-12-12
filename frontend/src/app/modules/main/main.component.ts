@@ -31,4 +31,8 @@ export class MainComponent implements OnInit {
   get summary(): any {
     return this.mapComponent.chosenRoute?.summary;
   }
+
+  get chosenRoute(): any {
+    return this.mapComponent.chosenRoute;
+  }
 }
