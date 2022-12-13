@@ -1,19 +1,27 @@
-import { Component, AfterViewInit, Input, Output } from '@angular/core';
+import { Component, AfterViewInit, Input } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
+import * as GeoSearch from 'leaflet-geosearch';
+import axios from 'axios';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
 import { SharedInfo } from 'src/app/shared/models/data-transfer-interfaces/shared-info.model';
+
+const service_url = "https://nominatim.openstreetmap.org/reverse?format=json";
+const API_KEY = null;
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
+  styleUrls: ['./map.component.css']
 })
 export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
   public chosenRoute: any;
+  public waypoints: any[] = [];
   @Input() sharedInfo!: SharedInfo;
   @Input() driverInfo!: DriverInfo;
+  private provider!: GeoSearch.OpenStreetMapProvider;
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
@@ -34,7 +42,10 @@ export class MapComponent implements AfterViewInit {
     });
     tiles.addTo(this.map);
 
+    this.provider = new GeoSearch.OpenStreetMapProvider();
+
     this.map.on('click', this.addMarker); 
+
 
     const that = this;
     this.control = L.Routing.control({
@@ -46,8 +57,6 @@ export class MapComponent implements AfterViewInit {
       autoRoute: true,
       routeWhileDragging: true,
       plan: L.Routing.plan([], {
-        draggableWaypoints: true,
-        routeWhileDragging: true,
         createMarker: function(i, wp) {
           return L.marker(wp.latLng, {draggable: true}).on('contextmenu', function(e: any) { 
             that.removeMarker(wp);
@@ -56,7 +65,11 @@ export class MapComponent implements AfterViewInit {
       })
     })
     .on('routesfound', function(e) {
-      that.chosenRoute = e.routes[0];
+      const newRoute = e.routes[0];
+      // a waypoint was dragged
+      if (that.chosenRoute?.waypoints.length === newRoute.waypoints.length)
+        that.updateWaypoints(that.chosenRoute.waypoints, newRoute.waypoints);
+      that.chosenRoute = newRoute;
     })
     .on('routeselected', function(e) {
       that.chosenRoute = e.route;
@@ -73,19 +86,28 @@ export class MapComponent implements AfterViewInit {
     this.initMap();
   }
 
-  addMarker = (e: any) => {
-    if (this.canUserAlterWaypoints())
+  addMarker = async (e: any) => {
+    if (this.canUserAlterWaypoints()) {
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
+      await this.reverseSearchLocation(e.latlng.lat, e.latlng.lng)
+      .then((res) => {
+        this.waypoints.push(res);
+      });
+    }
   }
 
   removeMarker(wp: any): void {
-    if (this.canUserAlterWaypoints())
+    if (this.canUserAlterWaypoints()) {
+      const i = this.control.getWaypoints().findIndex((x: any) => x === wp);
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)]);
+      this.waypoints.splice(i, 1);
+    }
   }
 
   clearMarkers(): void {
     this.control.setWaypoints([]);
     this.chosenRoute = null;
+    this.waypoints = [];
   }
 
   drawRoute(route: L.Routing.IRoute): void {
@@ -98,5 +120,43 @@ export class MapComponent implements AfterViewInit {
   canUserAlterWaypoints(): boolean {
     return this.sharedInfo.accountType === 'passenger' || this.sharedInfo.accountType === 'anonymous';
   }
+
+  async updateWaypoints(oldRouteWaypoints: any[], newRouteWaypoints: any[]): Promise<void> {
+    for (let i = 0; i < oldRouteWaypoints.length; i++) {
+      if (!this.areSameCoordinates(oldRouteWaypoints[i].latLng, newRouteWaypoints[i].latLng)) {
+        await this.reverseSearchLocation(newRouteWaypoints[i].latLng.lat, newRouteWaypoints[i].latLng.lng)
+        .then((res) => {
+          this.waypoints[i] = res;
+        });
+      }
+    }
+  }
+
+  private areSameCoordinates(x: any, y: any): boolean {
+    return x.lat === y.lat && x.lng === y.lng;
+  }
+
+  searchLocation = async (query: string) => {
+    return await this.provider.search({ query: 'bulevar cara lazara 17' }).then((res) => {
+      return res;
+    });
+  }
+
+  reverseSearchLocation = async ( latitude: number, longitude: number, zoom: number = 18 ): Promise<any> => {
+    let url = `${service_url}&lat=${latitude}&lon=${longitude}&zoom=${zoom}`;
+    url = API_KEY ? `${url}&key=${API_KEY}` : url;
+    try {
+        const response = await axios.get(url);
+        return {
+            x: response.data.lon,
+            y: response.data.lat,
+            label: response.data.display_name,
+            bounds: response.data.boundingbox,
+            raw: response.data
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 }

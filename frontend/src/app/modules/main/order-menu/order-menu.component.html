@@ -3,8 +3,8 @@
   <div *ngIf="isOpened" class="flex flex-col w-120 bg-dark py-8 px-10">
     <h1 class="text-3xl font-bold text-gray-50">Order a ride</h1>
 
-    <div *ngIf="chosenRoute" class="flex flex-col gap-y-3 mt-6 max-h-72 overflow-auto">
-      <div *ngFor="let waypoint of chosenRoute.waypoints; let i=index;">
+    <div *ngIf="waypoints" class="flex flex-col gap-y-3 mt-6 max-h-72 overflow-auto">
+      <div *ngFor="let waypoint of waypoints; let i=index;">
         <div class="flex gap-x-4">
           
           <div class="relative flex flex-col justify-center h-10 w-10 shrink-0 text-accent-light
@@ -12,13 +12,16 @@
             <p *ngIf="i > 0"
               class="absolute -top-4 w-full text-center mx-auto font-extrabold">·</p>
             <fa-icon [icon]="getIcon(i)" class="mx-auto" [ngClass]="i === 0 ? 'text-base' : 'text-xl'"></fa-icon>
-            <p *ngIf="i < chosenRoute.waypoints.length - 1"
+            <p *ngIf="i < waypoints.length - 1"
             class="absolute -bottom-4 w-full text-center mx-auto font-extrabold">·</p>
           </div>
           
           <div class="flex flex-col">
-            <div class="text-lg font-medium text-gray-50">{{ i === 0 ? 'Pick Up' : i === chosenRoute.waypoints.length - 1 ? 'Drop Off' : 'Stop ' + i }}</div>
-            <div class="text-sm font-medium text-light">Address of address road, Address</div>
+            <div class="text-lg font-medium text-gray-50">{{ i === 0 ? 'Pick Up' : i === waypoints.length - 1 ? 'Drop Off' : 'Stop ' + i }}</div>
+            <div class="text-sm font-medium text-light">
+              {{ waypoint.raw.address.road ? waypoint.raw.address.road + (waypoint.raw.address.house_number ? ' ' + waypoint.raw.address.house_number : '') + ', ' : '' }}
+              {{ waypoint.raw.address.quarter ? waypoint.raw.address.quarter + ', ' : '' }}{{ waypoint.raw.address.city_district }}
+              </div>
           </div>
 
         </div>

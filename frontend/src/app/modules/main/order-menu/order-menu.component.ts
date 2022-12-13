@@ -7,7 +7,7 @@ import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckere
   styleUrls: ['./order-menu.component.css']
 })
 export class OrderMenuComponent implements OnInit {
-  @Input() chosenRoute: any = [];
+  @Input() waypoints: any[] = [];
 
   faChevronRight: IconDefinition = faChevronRight;
   faChevronLeft: IconDefinition = faChevronLeft;
@@ -33,12 +33,11 @@ export class OrderMenuComponent implements OnInit {
       document.getElementById('order-menu')?.classList.remove('slide-in');
       document.getElementById('order-menu')?.classList.add('slide-out');
     }
-    
   }
 
   getIcon(i: Number) {
     if (i === 0) return this.faCircle;
-    else if (i === this.chosenRoute.waypoints.length - 1) return this.faFlagCheckered;
+    else if (i === this.waypoints.length - 1) return this.faFlagCheckered;
     else return this.faStop;
   }
 }

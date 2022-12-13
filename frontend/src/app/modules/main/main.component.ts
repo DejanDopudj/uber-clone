@@ -32,7 +32,7 @@ export class MainComponent implements OnInit {
     return this.mapComponent.chosenRoute?.summary;
   }
 
-  get chosenRoute(): any {
-    return this.mapComponent.chosenRoute;
+  get waypoints(): any {
+    return this.mapComponent.waypoints;
   }
 }
