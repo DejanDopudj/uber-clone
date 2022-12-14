@@ -91,6 +91,7 @@ export class MapComponent implements AfterViewInit {
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
       await this.reverseSearchLocation(e.latlng.lat, e.latlng.lng)
       .then((res) => {
+        console.log(res)
         this.waypoints.push(res);
       });
     }

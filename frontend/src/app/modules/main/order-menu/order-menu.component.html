@@ -21,8 +21,9 @@
             <div class="flex flex-col">
               <div class="text-lg font-medium text-gray-50">{{ i === 0 ? 'Pick Up' : i === waypoints.length - 1 ? 'Drop Off' : 'Stop ' + i }}</div>
               <div class="text-sm font-medium text-light">
-                {{ waypoint.raw.address.road ? waypoint.raw.address.road + (waypoint.raw.address.house_number ? ' ' + waypoint.raw.address.house_number : '') + ', ' : '' }}
-                {{ waypoint.raw.address.quarter ? waypoint.raw.address.quarter + ', ' : '' }}{{ waypoint.raw.address.city_district }}
+                {{ waypoint.raw.address.road ? waypoint.raw.address.road + (waypoint.raw.address.house_number ? ' ' + waypoint.raw.address.house_number : '') +
+                (waypoint.raw.address.city ? ', ' : '') : '' }}
+                {{ waypoint.raw.address.quarter ? waypoint.raw.address.quarter + (waypoint.raw.address.city ? ', ' : '') : '' }}{{ waypoint.raw.address.city }}
                 </div>
             </div>
           </div>
