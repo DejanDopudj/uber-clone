@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop } from '@fortawesome/free-solid-svg-icons';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-order-menu',
@@ -8,18 +8,33 @@ import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckere
 })
 export class OrderMenuComponent implements OnInit {
   @Input() waypoints: any[] = [];
+  @Output() stopAdded: EventEmitter<string> = new EventEmitter<string>();
+  @Output() stopRemoved: EventEmitter<Number> = new EventEmitter<Number>();
 
   faChevronRight: IconDefinition = faChevronRight;
   faChevronLeft: IconDefinition = faChevronLeft;
   faCircle: IconDefinition = faCircle;
   faStop: IconDefinition = faStop;
+  faPlus: IconDefinition = faPlus;
   faFlagCheckered: IconDefinition = faFlagCheckered;
+  faXmark: IconDefinition = faXmark;
 
   isOpened: boolean = true;
+  isAddNewStopOpened: boolean = true;
+  newStopQuery: string = '';
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  addStop(): void {
+    this.stopAdded.emit(this.newStopQuery);
+    this.newStopQuery = '';
+  }
+
+  removeStop(i: Number): void {
+    this.stopRemoved.emit(i);
   }
 
   toggleOpened(): void {

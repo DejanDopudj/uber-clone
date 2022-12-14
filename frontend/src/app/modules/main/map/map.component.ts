@@ -25,7 +25,7 @@ export class MapComponent implements AfterViewInit {
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
-      iconUrl: './assets/icons/pinpoint-marker.png',
+      iconUrl: './assets/icons/alternative-marker.png',
       iconSize:     [30, 45],
       iconAnchor:   [15, 45],
     });
@@ -136,8 +136,18 @@ export class MapComponent implements AfterViewInit {
     return x.lat === y.lat && x.lng === y.lng;
   }
 
+  async addNewWaypoint(event: string) {
+    const results = await this.searchLocation(event);
+    if (results.length > 0)
+      this.addMarker({ latlng: { lat: results[0].y, lng: results[0].x } });
+  }
+
+  removeWaypoint(event: any) {
+    this.removeMarker(this.control.getWaypoints()[event])
+  }
+
   searchLocation = async (query: string) => {
-    return await this.provider.search({ query: 'bulevar cara lazara 17' }).then((res) => {
+    return await this.provider.search({ query: query }).then((res) => {
       return res;
     });
   }

@@ -24,6 +24,14 @@ export class MainComponent implements OnInit {
       this.isActive = await this.driverService.getDriverActivity();
   }
 
+  addNewStop(event: string): void {
+    this.mapComponent.addNewWaypoint(event);
+  }
+
+  removeStop(event: Number): void {
+    this.mapComponent.removeWaypoint(event);
+  }
+
   clearMarkers(): void {
     this.mapComponent.clearMarkers();
   }

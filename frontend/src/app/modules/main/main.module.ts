@@ -7,6 +7,7 @@ import { MainComponent } from './main.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { OrderMenuComponent } from './order-menu/order-menu.component';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -21,7 +22,8 @@ import { OrderMenuComponent } from './order-menu/order-menu.component';
   imports: [
     CommonModule,
     FontAwesomeModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ]
 })
 export class MainModule { }
