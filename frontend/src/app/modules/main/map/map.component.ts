@@ -91,7 +91,6 @@ export class MapComponent implements AfterViewInit {
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
       await this.reverseSearchLocation(e.latlng.lat, e.latlng.lng)
       .then((res) => {
-        console.log(res)
         this.waypoints.push(res);
       });
     }
@@ -102,6 +101,8 @@ export class MapComponent implements AfterViewInit {
       const i = this.control.getWaypoints().findIndex((x: any) => x === wp);
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)]);
       this.waypoints.splice(i, 1);
+      if (this.waypoints.length < 2) 
+        this.chosenRoute = null;
     }
   }
 
