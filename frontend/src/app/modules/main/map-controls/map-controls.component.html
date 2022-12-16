@@ -1,10 +1,9 @@
 <div class="w-full min-h-screen">
 
   <!-- top controls -->
-  <div *ngIf="sharedInfo && driverInfo"
+  <div *ngIf="driverInfo"
   class="absolute left-0 right-0 top-0">
     <app-top-controls
-    [sharedInfo]="sharedInfo"
     [driverInfo]="driverInfo"
     ></app-top-controls>
   </div>

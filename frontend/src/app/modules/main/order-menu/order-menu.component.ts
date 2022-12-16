@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 
 @Component({
   selector: 'app-order-menu',
@@ -19,13 +20,15 @@ export class OrderMenuComponent implements OnInit {
   faFlagCheckered: IconDefinition = faFlagCheckered;
   faXmark: IconDefinition = faXmark;
 
+  accountType: string = this.authenticationService.getAccountType();
   isOpened: boolean = true;
   isAddNewStopOpened: boolean = true;
   newStopQuery: string = '';
 
-  constructor() { }
+  constructor(private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    console.log(this.accountType)
   }
 
   addStop(): void {

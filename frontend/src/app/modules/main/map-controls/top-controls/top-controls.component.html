@@ -8,14 +8,14 @@
         <fa-icon [icon]="faBars" class=""></fa-icon>
       </div>
 
-      <div *ngIf="sharedInfo.accountType !== 'driver'"
+      <div *ngIf="accountType !== 'driver'"
       class="flex flex-col justify-center text-center text-xl
       my-auto rounded-full font-medium">
         Suber
       </div>
 
       <!-- activity -->
-      <div *ngIf="sharedInfo.accountType === 'driver' && driverInfo.isActive !== null"
+      <div *ngIf="accountType === 'driver' && driverInfo.isActive !== null"
       class="flex flex-col justify-center relative h-11 my-auto w-56 rounded-full mx-auto
       text-center text-xl font-medium tracking-wider pointer-events-auto select-none cursor-pointer"
       [ngClass]="driverInfo.isActive ? 'bg-accent' : 'bg-light'" (click)="toggleActivity()">
@@ -27,13 +27,13 @@
       </div>
 
       <!-- register -->
-      <div *ngIf="sharedInfo.accountType === 'anonymous'" routerLink="/register"
+      <div *ngIf="accountType === 'anonymous'" routerLink="/register"
       class="flex flex-col justify-center text-center text-xl w-11 h-11 my-auto
       rounded-full cursor-pointer hover:text-light">
         <fa-icon [icon]="faArrowRightToBracket" class=""></fa-icon>
       </div>
 
-      <div *ngIf="sharedInfo.accountType !== 'anonymous'"
+      <div *ngIf="accountType !== 'anonymous'"
       class="relative block my-auto">
         <!-- profile -->
         <div (click)="showProfileDropdown = !showProfileDropdown; clickedProfileDropdown = true;"

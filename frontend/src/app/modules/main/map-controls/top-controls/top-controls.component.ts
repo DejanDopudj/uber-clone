@@ -3,14 +3,13 @@ import { IconDefinition, faBars, faArrowRightToBracket, faUser, faPowerOff } fro
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { DriverService } from 'src/app/core/http/user/driver.service';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
-import { SharedInfo } from 'src/app/shared/models/data-transfer-interfaces/shared-info.model';
 
 @Component({
   selector: 'app-top-controls',
   templateUrl: './top-controls.component.html',
 })
 export class TopControlsComponent implements OnInit {
-  @Input() sharedInfo!: SharedInfo;
+  accountType: string = this.authenticationService.getAccountType();
   @Input() driverInfo!: DriverInfo;
 
   faBars: IconDefinition = faBars;

@@ -38,7 +38,7 @@
 
     <!-- add new stop -->
     
-    <div class="flex" [ngClass]="waypoints.length > 0 ? 'mt-4' : 'mt-0'">
+    <div *ngIf="!(accountType === 'anonymous' && waypoints.length == 2)" class="flex" [ngClass]="waypoints.length > 0 ? 'mt-4' : 'mt-0'">
       <input class="appearance-none block w-full bg-gray-200 text-white tracking-wide
       placeholder-light caret-light border-b border-light focus:border-accent-light
       bg-transparent leading-tight outline-none py-1 focus:transition-color duration-300"

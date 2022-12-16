@@ -43,6 +43,7 @@ public class TestDataSupplierService {
         admin.setSurname("Gibert");
         admin.setPhoneNumber("+2624035735");
         admin.setCity("Marseille");
+        admin.setRoles(roleRepository.findByName("ROLE_ADMIN"));
         adminRepository.save(admin);
     }
 
@@ -58,6 +59,7 @@ public class TestDataSupplierService {
         passenger.setAccountStatus(AccountStatus.ACTIVE);
         passenger.setDistanceTravelled(79.28);
         passenger.setRidesCompleted(28);
+        passenger.setRoles(roleRepository.findByName("ROLE_PASSENGER"));
         passengerRepository.save(passenger);
     }
 

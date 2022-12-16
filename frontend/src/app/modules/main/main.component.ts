@@ -10,17 +10,13 @@ import { MapComponent } from './map/map.component';
 export class MainComponent implements OnInit {
   @ViewChild(MapComponent, { static: true }) mapComponent!: MapComponent;
 
-  // All
-  accountType: string = 'anonymous';
-
   // Driver
   isActive: boolean | null = null;
 
   constructor(private driverService: DriverService, private authenticationService: AuthenticationService) { }
 
   async ngOnInit(): Promise<void> {
-    this.accountType = this.authenticationService.getAccountType();
-    if (this.accountType === 'driver')
+    if (this.authenticationService.getAccountType() === 'driver')
       this.isActive = await this.driverService.getDriverActivity();
   }
 

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
-import { SharedInfo } from 'src/app/shared/models/data-transfer-interfaces/shared-info.model';
 
 interface RideSummary {
   totalDistance: number,
@@ -13,7 +12,6 @@ interface RideSummary {
 })
 export class MapControlsComponent implements OnInit {
   @Input() summary!: RideSummary;
-  @Input() sharedInfo!: SharedInfo;
   @Input() driverInfo!: DriverInfo;
   @Output() clear: EventEmitter<any> = new EventEmitter();
 

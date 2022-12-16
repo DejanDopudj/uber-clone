@@ -4,7 +4,7 @@ import 'leaflet-routing-machine';
 import * as GeoSearch from 'leaflet-geosearch';
 import axios from 'axios';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
-import { SharedInfo } from 'src/app/shared/models/data-transfer-interfaces/shared-info.model';
+import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 
 const service_url = "https://nominatim.openstreetmap.org/reverse?format=json";
 const API_KEY = null;
@@ -19,7 +19,7 @@ export class MapComponent implements AfterViewInit {
   private control: any;
   public chosenRoute: any;
   public waypoints: any[] = [];
-  @Input() sharedInfo!: SharedInfo;
+  private accontType: string = this.authenticationService.getAccountType();
   @Input() driverInfo!: DriverInfo;
   private provider!: GeoSearch.OpenStreetMapProvider;
 
@@ -80,7 +80,7 @@ export class MapComponent implements AfterViewInit {
       document.getElementById('map')!.style.cursor = 'crosshair';
   }
 
-  constructor() { }
+  constructor(private authenticationService: AuthenticationService) { }
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -88,6 +88,7 @@ export class MapComponent implements AfterViewInit {
 
   addMarker = async (e: any) => {
     if (this.canUserAlterWaypoints()) {
+      if (this.accontType === 'anonymous' && this.waypoints.length > 1) return;
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x.latLng), e.latlng]);
       await this.reverseSearchLocation(e.latlng.lat, e.latlng.lng)
       .then((res) => {
@@ -120,7 +121,8 @@ export class MapComponent implements AfterViewInit {
   }
 
   canUserAlterWaypoints(): boolean {
-    return this.sharedInfo.accountType === 'passenger' || this.sharedInfo.accountType === 'anonymous';
+    const accountType: string = this.authenticationService.getAccountType();
+    return accountType === 'passenger' || accountType === 'anonymous';
   }
 
   async updateWaypoints(oldRouteWaypoints: any[], newRouteWaypoints: any[]): Promise<void> {

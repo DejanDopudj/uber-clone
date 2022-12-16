@@ -16,6 +16,7 @@ public class DriverController {
     private DriverService driverService;
 
     @GetMapping("/{username}")
+    @PreAuthorize("hasAnyRole('DRIVER', 'PASSENGER', 'ADMIN')")
     public ResponseEntity<DriverDisplayDTO> getByUsername(@PathVariable String username) {
         return ResponseEntity.ok(driverService.getByUsername(username));
     }
