@@ -1,10 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
-
-interface RideSummary {
-  totalDistance: number,
-  totalTime: number,
-}
+import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride-summary.model';
 
 @Component({
   selector: 'app-map-controls',

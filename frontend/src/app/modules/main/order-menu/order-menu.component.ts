@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
+import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride-summary.model';
 
 @Component({
   selector: 'app-order-menu',
@@ -9,6 +10,7 @@ import { AuthenticationService } from 'src/app/core/authentication/authenticatio
 })
 export class OrderMenuComponent implements OnInit {
   @Input() waypoints: any[] = [];
+  @Input() summary!: RideSummary;
   @Output() stopAdded: EventEmitter<string> = new EventEmitter<string>();
   @Output() stopRemoved: EventEmitter<Number> = new EventEmitter<Number>();
 
@@ -19,6 +21,8 @@ export class OrderMenuComponent implements OnInit {
   faPlus: IconDefinition = faPlus;
   faFlagCheckered: IconDefinition = faFlagCheckered;
   faXmark: IconDefinition = faXmark;
+  faStopwatch: IconDefinition = faStopwatch;
+  faRoute: IconDefinition = faRoute;
 
   accountType: string = this.authenticationService.getAccountType();
   isOpened: boolean = true;
@@ -28,7 +32,6 @@ export class OrderMenuComponent implements OnInit {
   constructor(private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
-    console.log(this.accountType)
   }
 
   addStop(): void {

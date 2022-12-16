@@ -51,6 +51,18 @@
       </button>
     </div>
 
+    <div *ngIf="summary" class="flex justify-center font-medium text-sm text-gray-50 mt-4
+    divide-x divide-light">
+      <div class="flex gap-x-1.5 px-2">
+        <fa-icon [icon]="faStopwatch"></fa-icon>
+        <span>{{ (summary.totalTime / 60) + 1 | number: '1.0-0' }} min</span>
+      </div>
+      <div class="flex gap-x-1.5 px-2">
+        <fa-icon [icon]="faRoute"></fa-icon>
+        <span>{{ (summary.totalDistance / 1000) | number: '1.2-2' }} km</span>
+      </div>
+    </div>
+
   </div>
 
   <div class="flex flex-col justify-center h-32 w-8 bg-dark
