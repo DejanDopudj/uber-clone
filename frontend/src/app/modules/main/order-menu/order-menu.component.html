@@ -1,9 +1,9 @@
-<div class="flex h-full" id="order-menu">
+<div class="flex h-full select-none" id="order-menu">
 
-  <div *ngIf="isOpened" class="flex flex-col w-120 bg-dark py-8 px-10">
+  <div *ngIf="isOpened" class="flex flex-col w-120 bg-dark py-8 px-10 overflow-auto hidden-scrollbar">
     <h1 class="text-3xl font-bold text-gray-50">Order a ride</h1>
 
-    <div *ngIf="waypoints" class="flex flex-col gap-y-3 mt-6 max-h-72 overflow-auto">
+    <div *ngIf="waypoints" class="flex flex-col shrink-0 gap-y-3 mt-6 max-h-72 overflow-auto">
       <div *ngFor="let waypoint of waypoints; let i=index;">
         <div class="flex w-full justify-between">
           
@@ -63,8 +63,64 @@
       </div>
     </div>
 
+    <!-- Show when route chosen -->
+    <div *ngIf="waypoints.length > 1" class="mt-12">
+      <!-- car preferences -->
+      <div class="flex flex-col">
+        <!-- car type -->
+        <div class="flex justify-around select-none">
+
+          <div class="flex flex-col justify-end text-center">
+            <img [src]="selectedCarType === 'coupe' ? 'assets/icons/car-coupe.png' : 'assets/icons/car-coupe-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Coupe" (click)="selectedCarType = 'coupe'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'coupe' ? 'text-gray-50' : 'text-light'">Coupe</p>
+          </div>
+
+          <div class="flex flex-col justify-end text-center">
+            <img [src]="selectedCarType === 'minivan' ? 'assets/icons/car-minivan.png' : 'assets/icons/car-minivan-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Minivan" (click)="selectedCarType = 'minivan'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'minivan' ? 'text-gray-50' : 'text-light'">Minivan</p>
+          </div>
+          
+          <div class="flex flex-col justify-end text-center">
+            <img [src]="selectedCarType === 'station' ? 'assets/icons/car-station.png' : 'assets/icons/car-station-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Station" (click)="selectedCarType = 'station'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'station' ? 'text-gray-50' : 'text-light'">Station</p>
+          </div>
+
+        </div>
+
+        <!-- additional options -->
+        <div class="flex mx-auto mt-6 px-4 py-0.5 justify-between gap-x-3">
+
+          <div class="flex gap-x-3 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          [ngClass]="hasBabySeat ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="hasBabySeat = !hasBabySeat">
+            <fa-icon [icon]="faBabyCarriage"title="Has baby seat"
+            class="text-2xl"></fa-icon>
+            <p class="text-lg my-auto">Baby seat</p>
+          </div>
+
+          <div class="flex gap-x-3 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          [ngClass]="isPetFriendly ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="isPetFriendly = !isPetFriendly">
+            <fa-icon [icon]="faPaw" title="Pet friendly"
+            class="text-2xl"></fa-icon>
+            <p class="text-lg my-auto">Pet friendly</p>
+          </div>
+
+        </div>
+
+      </div>
+      
+      <!-- order button -->
+      <button type="submit" class="w-full h-16 bg-accent-light active:bg-accent text-white font-medium tracking-wide mt-12">
+        ORDER RIDE
+      </button>
+    </div>
+    
+
   </div>
 
+  <!-- opening arrow -->
   <div class="flex flex-col justify-center h-32 w-8 bg-dark
   my-auto cursor-pointer text-center slide-in text-light hover:text-gray-300"
   [ngClass]="isOpened ? '-ml-8 rounded-none' : 'rounded-r-full'"

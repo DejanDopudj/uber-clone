@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride-summary.model';
 
@@ -23,11 +23,21 @@ export class OrderMenuComponent implements OnInit {
   faXmark: IconDefinition = faXmark;
   faStopwatch: IconDefinition = faStopwatch;
   faRoute: IconDefinition = faRoute;
+  faBabyCarriage: IconDefinition = faBabyCarriage;
+  faPaw: IconDefinition = faPaw;
 
   accountType: string = this.authenticationService.getAccountType();
   isOpened: boolean = true;
   isAddNewStopOpened: boolean = true;
   newStopQuery: string = '';
+
+  coupeImg: string = 'assets/icons/car-coupe.png';
+  minivanImg: string = 'assets/icons/car-minivan-gray.png';
+  stationImg: string = 'assets/icons/car-station-gray.png';
+
+  selectedCarType: string = 'coupe';
+  hasBabySeat: boolean = false;
+  isPetFriendly: boolean = false;
 
   constructor(private authenticationService: AuthenticationService) { }
 
