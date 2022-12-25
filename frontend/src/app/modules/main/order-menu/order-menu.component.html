@@ -51,16 +51,27 @@
       </button>
     </div>
 
-    <div *ngIf="summary" class="flex justify-center font-medium text-sm text-gray-50 mt-4
-    divide-x divide-light">
-      <div class="flex gap-x-1.5 px-2">
-        <fa-icon [icon]="faStopwatch"></fa-icon>
-        <span>{{ (summary.totalTime / 60) + 1 | number: '1.0-0' }} min</span>
+    <div *ngIf="summary" class="flex flex-col">
+
+      <div class="flex justify-center font-medium text-sm text-gray-50 mt-4
+      divide-x divide-light">
+        <div class="flex gap-x-1.5 px-2 w-1/2 justify-end">
+          <fa-icon [icon]="faStopwatch"></fa-icon>
+          <span>{{ (summary.totalTime / 60) + 1 | number: '1.0-0' }} min</span>
+        </div>
+        <div class="flex gap-x-1.5 px-2 w-1/2 justify-start">
+          <fa-icon [icon]="faRoute"></fa-icon>
+          <span>{{ (summary.totalDistance / 1000) | number: '1.2-2' }} km</span>
+        </div>
       </div>
-      <div class="flex gap-x-1.5 px-2">
-        <fa-icon [icon]="faRoute"></fa-icon>
-        <span>{{ (summary.totalDistance / 1000) | number: '1.2-2' }} km</span>
+      
+      <div class="flex justify-center font-medium text-sm text-gray-50 mt-2">
+        <div class="flex gap-x-1.5">
+          <fa-icon [icon]="faHandHoldingUsd"></fa-icon>
+          <span>{{ calculateRidePrice() }}<b class="font-black text-accent-light">&nbsp;T</b></span>
+        </div>
       </div>
+
     </div>
 
     <!-- Show when route chosen -->
@@ -71,21 +82,21 @@
         <div class="flex justify-around select-none">
 
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedCarType === 'coupe' ? 'assets/icons/car-coupe.png' : 'assets/icons/car-coupe-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Coupe" (click)="selectedCarType = 'coupe'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'coupe' ? 'text-gray-50' : 'text-light'">Coupe</p>
+            <img [src]="selectedVehicleType === 'coupe' ? 'assets/icons/car-coupe.png' : 'assets/icons/car-coupe-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Coupe" (click)="selectedVehicleType = 'coupe'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'coupe' ? 'text-gray-50' : 'text-light'">Coupe</p>
           </div>
 
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedCarType === 'minivan' ? 'assets/icons/car-minivan.png' : 'assets/icons/car-minivan-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Minivan" (click)="selectedCarType = 'minivan'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'minivan' ? 'text-gray-50' : 'text-light'">Minivan</p>
+            <img [src]="selectedVehicleType === 'minivan' ? 'assets/icons/car-minivan.png' : 'assets/icons/car-minivan-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Minivan" (click)="selectedVehicleType = 'minivan'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'minivan' ? 'text-gray-50' : 'text-light'">Minivan</p>
           </div>
           
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedCarType === 'station' ? 'assets/icons/car-station.png' : 'assets/icons/car-station-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Station" (click)="selectedCarType = 'station'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedCarType === 'station' ? 'text-gray-50' : 'text-light'">Station</p>
+            <img [src]="selectedVehicleType === 'station' ? 'assets/icons/car-station.png' : 'assets/icons/car-station-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Station" (click)="selectedVehicleType = 'station'"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'station' ? 'text-gray-50' : 'text-light'">Station</p>
           </div>
 
         </div>
@@ -112,9 +123,16 @@
       </div>
       
       <!-- order button -->
-      <button type="submit" class="w-full h-16 bg-accent-light active:bg-accent text-white font-medium tracking-wide mt-12">
-        ORDER RIDE
-      </button>
+      <div>
+        <button *ngIf="accountType === 'passenger'" type="submit" class="w-full h-16 bg-accent-light active:bg-accent text-white font-medium tracking-wide mt-12">
+          ORDER RIDE
+        </button>
+        <div *ngIf="accountType === 'anonymous'" class="text-light text-center mt-6">
+          You must
+          <span class="text-accent-light cursor-pointer font-bold"><a routerLink="/login">Log In</a></span>
+          before ordering a ride
+        </div>
+      </div>
     </div>
     
 
