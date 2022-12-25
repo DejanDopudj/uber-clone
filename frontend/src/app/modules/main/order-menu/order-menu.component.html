@@ -51,9 +51,9 @@
       </button>
     </div>
 
-    <div *ngIf="summary" class="flex flex-col">
+    <div *ngIf="summary" class="flex flex-col mt-10">
 
-      <div class="flex justify-center font-medium text-sm text-gray-50 mt-4
+      <div class="flex justify-center font-medium text-sm text-gray-50
       divide-x divide-light">
         <div class="flex gap-x-1.5 px-2 w-1/2 justify-end">
           <fa-icon [icon]="faStopwatch"></fa-icon>
@@ -104,18 +104,18 @@
         <!-- additional options -->
         <div class="flex mx-auto mt-6 px-4 py-0.5 justify-between gap-x-3">
 
-          <div class="flex gap-x-3 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          <div class="flex gap-x-2 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
           [ngClass]="hasBabySeat ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="hasBabySeat = !hasBabySeat">
             <fa-icon [icon]="faBabyCarriage"title="Has baby seat"
-            class="text-2xl"></fa-icon>
-            <p class="text-lg my-auto">Baby seat</p>
+            class="text-xl"></fa-icon>
+            <p class="text-base my-auto">Baby seat</p>
           </div>
 
-          <div class="flex gap-x-3 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          <div class="flex gap-x-2 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
           [ngClass]="isPetFriendly ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="isPetFriendly = !isPetFriendly">
             <fa-icon [icon]="faPaw" title="Pet friendly"
-            class="text-2xl"></fa-icon>
-            <p class="text-lg my-auto">Pet friendly</p>
+            class="text-xl"></fa-icon>
+            <p class="text-base my-auto">Pet friendly</p>
           </div>
 
         </div>
