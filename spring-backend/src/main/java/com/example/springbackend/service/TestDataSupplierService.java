@@ -30,8 +30,7 @@ public class TestDataSupplierService {
     public void injectTestData() {
         addAdmins();
         addUsers();
-        ArrayList<VehicleType> vehicleTypes = generateVehicleTypes();
-        addDrivers(vehicleTypes);
+        addDrivers();
     }
 
     private void addAdmins() {
@@ -63,7 +62,7 @@ public class TestDataSupplierService {
         passengerRepository.save(passenger);
     }
 
-    private void addDrivers(ArrayList<VehicleType> vehicleTypes) {
+    private void addDrivers() {
         Vehicle vehicle = new Vehicle();
         vehicle.setBabySeat(true);
         vehicle.setPetsAllowed(true);
@@ -71,7 +70,7 @@ public class TestDataSupplierService {
         vehicle.setModel("Marathon A11");
         vehicle.setColour("Yellow");
         vehicle.setLicensePlateNumber("A31216");
-        vehicle.setVehicleType(vehicleTypes.get(0));
+        vehicle.setVehicleType(vehicleTypeRepository.findByName("COUPE").orElseThrow());
         vehicleRepository.save(vehicle);
         Driver driver = new Driver();
         driver.setUsername("driver1");
@@ -92,13 +91,3 @@ public class TestDataSupplierService {
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
         driverRepository.save(driver);
     }
-    private ArrayList<VehicleType> generateVehicleTypes() {
-        ArrayList<VehicleType> vehicleTypes = new ArrayList<VehicleType>();
-        VehicleType vt1 = new VehicleType();
-        vt1.setPrice(1.535);
-        vt1.setName("Coupe");
-        vehicleTypes.add(vt1);
-        vehicleTypeRepository.save(vt1);
-        return vehicleTypes;
-    }
-}
