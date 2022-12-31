@@ -52,4 +52,5 @@ public class DriverService {
         Driver driver = (Driver) auth.getPrincipal();
         return driver.getActive();
     }
+
 }

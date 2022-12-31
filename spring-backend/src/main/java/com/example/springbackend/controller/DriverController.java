@@ -34,4 +34,5 @@ public class DriverController {
         driverService.toggleActivity(auth);
         return ResponseEntity.ok().build();
     }
+
 }

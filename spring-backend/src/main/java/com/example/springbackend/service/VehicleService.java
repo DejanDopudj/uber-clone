@@ -1,5 +1,6 @@
 package com.example.springbackend.service;
 
+import com.example.springbackend.dto.display.VehiclePositionDisplayDTO;
 import com.example.springbackend.dto.display.VehicleTypeDisplayDTO;
 import com.example.springbackend.model.VehicleType;
 import com.example.springbackend.repository.VehicleRepository;
@@ -24,6 +25,11 @@ public class VehicleService {
         Collection<VehicleType> vehicleTypes = vehicleTypeRepository.findAll();
         return vehicleTypes.stream().map(vehicleType -> modelMapper
                 .map(vehicleType, VehicleTypeDisplayDTO.class)).toList();
+    }
+
+    public Collection<VehiclePositionDisplayDTO> getPositions() {
+        return vehicleRepository.findVehiclesWhoseDriversAreActive().stream().map(vehicle -> modelMapper
+                .map(vehicle, VehiclePositionDisplayDTO.class)).toList();
     }
 
 }

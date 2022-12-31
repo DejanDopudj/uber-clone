@@ -5,6 +5,8 @@ import * as GeoSearch from 'leaflet-geosearch';
 import axios from 'axios';
 import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/driver-info.model';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
+import { SimulatorService } from 'src/app/core/http/simulator/simulator.service';
+import * as moment from 'moment';
 
 const service_url = "https://nominatim.openstreetmap.org/reverse?format=json";
 const API_KEY = null;
@@ -17,11 +19,35 @@ const API_KEY = null;
 export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
+  private simulatorControl: any;
   public chosenRoute: any;
   public waypoints: any[] = [];
   private accontType: string = this.authenticationService.getAccountType();
+  private vehiclePositions: any[] = [];
   @Input() driverInfo!: DriverInfo;
   private provider!: GeoSearch.OpenStreetMapProvider;
+  private vehicleMarkers: any = {};
+  private vehicleRoutes: any = {};
+
+  occupiedTaxiIcon = L.icon({
+    iconUrl: '/assets/icons/occupied-taxi.png',
+    iconSize: [20, 20]
+  })
+
+  unoccupiedTaxiIcon = L.icon({
+    iconUrl: '/assets/icons/unoccupied-taxi.png',
+    iconSize: [20, 20]
+  })
+
+  constructor(private authenticationService: AuthenticationService, private simulatorService: SimulatorService) { }
+
+  ngAfterViewInit(): void {
+    this.initMap();
+    this.getVehiclePositions();
+    setInterval(() => {
+      this.getVehiclePositions();
+    }, 10000);
+  }
 
   private initMap(): void {
     L.Marker.prototype.options.icon = L.icon({
@@ -45,7 +71,6 @@ export class MapComponent implements AfterViewInit {
     this.provider = new GeoSearch.OpenStreetMapProvider();
 
     this.map.on('click', this.addMarker); 
-
 
     const that = this;
     this.control = L.Routing.control({
@@ -80,12 +105,6 @@ export class MapComponent implements AfterViewInit {
       document.getElementById('map')!.style.cursor = 'crosshair';
   }
 
-  constructor(private authenticationService: AuthenticationService) { }
-
-  ngAfterViewInit(): void {
-    this.initMap();
-  }
-
   addMarker = async (e: any) => {
     if (this.canUserAlterWaypoints()) {
       if (this.accontType === 'anonymous' && this.waypoints.length > 1) return;
@@ -118,6 +137,76 @@ export class MapComponent implements AfterViewInit {
     route.waypoints?.forEach((e : any) => {
       L.marker(e.latLng).addTo(this.map);
     });
+  }
+  
+  getVehiclePositions = () => {
+    this.simulatorService.getVehiclePositions()
+      .then((res) => {
+        this.vehiclePositions = res.data;
+        this.drawVehiclePositions();
+      })
+      .catch((err) => {
+        // oopsie
+      });
+  }
+
+  drawVehiclePositions = () => {
+    this.vehiclePositions.forEach(vehicle => {
+      if (this.areSameCoordinates(vehicle.currentCoordinates, vehicle.nextCoordinates)) {
+        if (this.vehicleMarkers[vehicle.id]) this.vehicleMarkers[vehicle.id].removeFrom(this.map);
+        const marker = L.marker(vehicle.currentCoordinates, { icon: this.unoccupiedTaxiIcon }).addTo(this.map);
+        this.vehicleMarkers[vehicle.id] = marker;
+        if (this.vehicleRoutes[vehicle.id]) delete this.vehicleRoutes[vehicle.id];
+      } else {
+        this.getRouteForCoordinates(vehicle);
+        if (!this.vehicleMarkers[vehicle.id]) {
+          const marker = L.marker(vehicle.currentCoordinates, { icon: this.occupiedTaxiIcon }).addTo(this.map);
+          this.vehicleMarkers[vehicle.id] = marker;
+        }
+        if (vehicle.rideActive) {
+          this.vehicleMarkers[vehicle.id].setIcon(this.occupiedTaxiIcon);
+        }
+      }
+    })
+  }
+
+  getRouteForCoordinates = (vehicle: any) => {
+    const that = this;
+    if (!this.vehicleRoutes[vehicle.id]) {
+      const waypoint1 = new L.Routing.Waypoint(L.latLng(vehicle.currentCoordinates), '', {});
+      const waypoint2 = new L.Routing.Waypoint(L.latLng(vehicle.nextCoordinates), '', {});
+      L.Routing.control({
+        show: false,
+        waypoints: [waypoint1, waypoint2],
+        autoRoute: false,
+        routeWhileDragging: false,
+        addWaypoints: false,
+      }).on('routesfound', function (e) {
+        const route = e.routes[0];
+        that.vehicleRoutes[vehicle.id] = route;
+        that.simulateMovement(vehicle);
+        console.clear();
+      }).route();
+    }
+  }
+  
+  simulateMovement = (vehicle: any): void => {
+    if (!vehicle.rideActive) return;
+    let startingMoment = moment(vehicle.coordinatesChangedAt);
+    let currentMoment = moment();
+    const difference = currentMoment.diff(startingMoment, 'seconds');
+    const remainingTime = vehicle.expectedTripTime - difference;
+    if (remainingTime <= 0) return;
+    
+    const finishedPartOfRide = difference / vehicle.expectedTripTime;
+    const startingCoordinate = ~~(this.vehicleRoutes[vehicle.id].coordinates.length * finishedPartOfRide) + 1;
+
+    const coordinatesToDraw =  this.vehicleRoutes[vehicle.id].coordinates.slice(startingCoordinate);
+    coordinatesToDraw.forEach((coord: any, index: number) => {
+      setTimeout(() => {
+        this.vehicleMarkers[vehicle.id].setLatLng([coord.lat, coord.lng]);
+      }, (remainingTime / coordinatesToDraw.length) * 1000 * index)
+    })
   }
 
   canUserAlterWaypoints(): boolean {
@@ -171,6 +260,6 @@ export class MapComponent implements AfterViewInit {
     } catch (error) {
         console.error(error);
     }
-}
+  }
 
 }

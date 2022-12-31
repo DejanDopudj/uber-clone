@@ -1,13 +1,18 @@
 package com.example.springbackend.service;
 
 import com.example.springbackend.model.*;
+import com.example.springbackend.model.helpClasses.Coordinates;
 import com.example.springbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class TestDataSupplierService {
@@ -25,6 +30,14 @@ public class TestDataSupplierService {
     RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public static List<Coordinates<Double, Double>> locations = Arrays.asList(
+            new Coordinates<>(45.241805, 19.798567),
+            new Coordinates<>(45.245749, 19.851122),
+            new Coordinates<>(45.252782, 19.855517),
+            new Coordinates<>(45.264056, 19.829546),
+            new Coordinates<>(45.257006, 19.801482)
+    );
 
     @Transactional
     public void injectTestData() {
@@ -63,6 +76,7 @@ public class TestDataSupplierService {
     }
 
     private void addDrivers() {
+        addOtherDrivers();
         Vehicle vehicle = new Vehicle();
         vehicle.setBabySeat(true);
         vehicle.setPetsAllowed(true);
@@ -70,11 +84,17 @@ public class TestDataSupplierService {
         vehicle.setModel("Marathon A11");
         vehicle.setColour("Yellow");
         vehicle.setLicensePlateNumber("A31216");
+        Random rand = new Random();
+        int i = rand.nextInt(0, locations.size());
+        vehicle.setCurrentCoordinates(locations.get(i));
+        vehicle.setNextCoordinates(locations.get(i));
+        vehicle.setCoordinatesChangedAt(LocalDateTime.now());
         vehicle.setVehicleType(vehicleTypeRepository.findByName("COUPE").orElseThrow());
+        vehicle.setRideActive(false);
         vehicleRepository.save(vehicle);
         Driver driver = new Driver();
-        driver.setUsername("driver1");
-        driver.setEmail("driver1@noemail.com");
+        driver.setUsername("travis");
+        driver.setEmail("travis@noemail.com");
         driver.setPassword(passwordEncoder.encode("cascaded"));
         driver.setName("Travis");
         driver.setSurname("Bickle");
@@ -91,3 +111,41 @@ public class TestDataSupplierService {
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
         driverRepository.save(driver);
     }
+
+    private void addOtherDrivers() {
+        Random rand = new Random();
+        for (int i = 0; i < 5; i++) {
+            Vehicle vehicle = new Vehicle();
+            vehicle.setBabySeat(true);
+            vehicle.setPetsAllowed(true);
+            vehicle.setMake("Peugeot");
+            vehicle.setModel("406");
+            vehicle.setColour("Gray");
+            vehicle.setLicensePlateNumber("A61353");
+            int k = rand.nextInt(0, locations.size());
+            vehicle.setCurrentCoordinates(locations.get(k));
+            vehicle.setNextCoordinates(locations.get(k));
+            vehicle.setCoordinatesChangedAt(LocalDateTime.now());
+            vehicle.setVehicleType(vehicleTypeRepository.findByName("COUPE").orElseThrow());
+            vehicleRepository.save(vehicle);
+            Driver driver = new Driver();
+            driver.setUsername("driver" + i);
+            driver.setEmail("driver" + i + "@noemail.com");
+            driver.setPassword(passwordEncoder.encode("cascaded"));
+            driver.setName("Driver" + i);
+            driver.setSurname("Drivich");
+            driver.setPhoneNumber("+1 422 135 12");
+            driver.setCity("Novi Sad");
+            driver.setActive(true);
+            driver.setVehicle(vehicle);
+            driver.setDistanceTravelled(5251.12 + i);
+            driver.setRidesCompleted(2153 + i);
+            driver.setTotalRatingSum(7814 + i);
+            driver.setNumberOfReviews(1693 + i);
+            driver.setBlocked(false);
+            driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
+            driverRepository.save(driver);
+        }
+    }
+
+}

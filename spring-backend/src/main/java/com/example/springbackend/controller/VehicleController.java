@@ -1,5 +1,6 @@
 package com.example.springbackend.controller;
 
+import com.example.springbackend.dto.display.VehiclePositionDisplayDTO;
 import com.example.springbackend.dto.display.VehicleTypeDisplayDTO;
 import com.example.springbackend.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,10 @@ public class VehicleController {
     @GetMapping("/types")
     public ResponseEntity<Collection<VehicleTypeDisplayDTO>> getAllTypes() {
         return ResponseEntity.ok(vehicleService.getAllTypes());
+    }
+
+    @GetMapping("/positions")
+    public ResponseEntity<Collection<VehiclePositionDisplayDTO>> getPositions() {
+        return ResponseEntity.ok(vehicleService.getPositions());
     }
 }

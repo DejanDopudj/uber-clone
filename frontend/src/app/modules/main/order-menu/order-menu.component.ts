@@ -30,8 +30,7 @@ export class OrderMenuComponent implements OnInit {
   faHandHoldingUsd: IconDefinition = faHandHoldingUsd;
 
   accountType: string = this.authenticationService.getAccountType();
-  isOpened: boolean = true;
-  isAddNewStopOpened: boolean = true;
+  isOpened: boolean = false;
   newStopQuery: string = '';
 
   coupeImg: string = 'assets/icons/car-coupe.png';
