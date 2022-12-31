@@ -1,7 +1,9 @@
-<div class="flex h-full select-none" id="order-menu">
+<div class="absolute bottom-0 left-0 right-0 sm:static flex sm:flex-row flex-col-reverse
+sm:h-full select-none" id="order-menu">
 
-  <div *ngIf="isOpened" class="flex flex-col w-120 bg-dark py-8 px-10 overflow-auto hidden-scrollbar">
-    <h1 class="text-3xl font-bold text-gray-50">Order a ride</h1>
+  <div *ngIf="isOpened" class="sm:static flex flex-col rounded-t-3xl sm:rounded-none
+  w-screen h-140 sm:h-auto sm:w-120 bg-dark py-8 px-10 overflow-auto hidden-scrollbar">
+    <h1 class="text-3xl font-bold text-gray-50 mt-4 sm:mt-0">Order a ride</h1>
 
     <div *ngIf="waypoints" class="flex flex-col shrink-0 gap-y-3 mt-6 max-h-72 overflow-auto">
       <div *ngFor="let waypoint of waypoints; let i=index;">
@@ -104,14 +106,14 @@
         <!-- additional options -->
         <div class="flex mx-auto mt-6 px-4 py-0.5 justify-between gap-x-3">
 
-          <div class="flex gap-x-2 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          <div class="flex gap-x-2 justify-between border border-light border-dashed px-2 sm:px-6 py-1 cursor-pointer"
           [ngClass]="hasBabySeat ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="hasBabySeat = !hasBabySeat">
             <fa-icon [icon]="faBabyCarriage"title="Has baby seat"
             class="text-xl"></fa-icon>
             <p class="text-base my-auto">Baby seat</p>
           </div>
 
-          <div class="flex gap-x-2 justify-between border border-light border-dashed px-6 py-1 cursor-pointer"
+          <div class="flex gap-x-2 justify-between border border-light border-dashed px-2 sm:px-6 py-1 cursor-pointer"
           [ngClass]="isPetFriendly ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="isPetFriendly = !isPetFriendly">
             <fa-icon [icon]="faPaw" title="Pet friendly"
             class="text-xl"></fa-icon>
@@ -139,11 +141,21 @@
   </div>
 
   <!-- opening arrow -->
-  <div class="flex flex-col justify-center h-32 w-8 bg-dark
+  <div class="hidden sm:flex flex-col justify-center h-32 w-8 bg-dark
   my-auto cursor-pointer text-center slide-in text-light hover:text-gray-300"
   [ngClass]="isOpened ? '-ml-8 rounded-none' : 'rounded-r-full'"
   (click)="toggleOpened()">
     <fa-icon [icon]="isOpened ? faChevronLeft : faChevronRight" class="text-2xl"></fa-icon>
+  </div>
+
+  <!-- opening arrow -->
+  <div class="sm:hidden flex justify-center w-screen z-10 slide-in-bottom">
+    <div class="flex flex-col justify-center bg-dark
+    my-auto cursor-pointer text-center text-light hover:text-gray-300"
+    [ngClass]="isOpened ? '-mb-8 rounded-none h-8 w-full mx-10' : 'rounded-t-full h-8 w-44'"
+    (click)="toggleOpened()">
+      <fa-icon [icon]="isOpened ? faChevronDown : faChevronUp" class="text-2xl"></fa-icon>
+    </div>
   </div>
 
 </div>

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IconDefinition, faChevronRight, faChevronLeft, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDown, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideService } from 'src/app/core/http/ride/ride.service';
 import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride-summary.model';
@@ -18,6 +18,8 @@ export class OrderMenuComponent implements OnInit {
 
   faChevronRight: IconDefinition = faChevronRight;
   faChevronLeft: IconDefinition = faChevronLeft;
+  faChevronUp: IconDefinition = faChevronUp;
+  faChevronDown: IconDefinition = faChevronDown;
   faCircle: IconDefinition = faCircle;
   faStop: IconDefinition = faStop;
   faPlus: IconDefinition = faPlus;
@@ -66,16 +68,22 @@ export class OrderMenuComponent implements OnInit {
   }
 
   toggleOpened(): void {
+    let inAnimation = 'slide-in';
+    let outAnimation = 'slide-out';
+    if (window.screen.width < 640) {
+      inAnimation = 'slide-in-bottom';
+      outAnimation = 'slide-out-bottom';
+    }
     if (!this.isOpened) {
       this.isOpened = true;
-      document.getElementById('order-menu')?.classList.remove('slide-out');
-      document.getElementById('order-menu')?.classList.add('slide-in');
+      document.getElementById('order-menu')?.classList.remove(outAnimation);
+      document.getElementById('order-menu')?.classList.add(inAnimation);
       this.loadVehicleTypes();
     }
     else {
-      setTimeout(() => { this.isOpened = false; }, 300);
-      document.getElementById('order-menu')?.classList.remove('slide-in');
-      document.getElementById('order-menu')?.classList.add('slide-out');
+      setTimeout(() => { this.isOpened = false; }, 250);
+      document.getElementById('order-menu')?.classList.remove(inAnimation);
+      document.getElementById('order-menu')?.classList.add(outAnimation);
     }
   }
 

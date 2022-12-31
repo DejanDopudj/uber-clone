@@ -44,9 +44,9 @@ export class MapComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initMap();
     this.getVehiclePositions();
-    setInterval(() => {
-      this.getVehiclePositions();
-    }, 10000);
+    // setInterval(() => {
+    //   this.getVehiclePositions();
+    // }, 10000);
   }
 
   private initMap(): void {
