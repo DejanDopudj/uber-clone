@@ -95,7 +95,7 @@ public class PayPalService {
         order.setPaypalOrderId(orderResponseDTO.getId());
         order.setPaypalOrderStatus(orderResponseDTO.getStatus().toString());
         order.setBalance(Integer.parseInt(orderDTO.getPurchaseUnits().get(0).getAmount().getValue()));
-        order.setUsername((((Passenger) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()));
+        order.setPassenger((Passenger) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         orderRepository.save(order);
     }
 
@@ -111,7 +111,7 @@ public class PayPalService {
                 .build();
         httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         balance = orderRepository.findByPaypalOrderId(orderId).getBalance() * 100;
-        passengerService.addToTokenBalance(balance, order.getUsername());
+        passengerService.addToTokenBalance(balance, order.getPassenger().getUsername());
         order.setPaypalOrderStatus(OrderStatus.APPROVED.toString());
         orderRepository.save(order);
     }
