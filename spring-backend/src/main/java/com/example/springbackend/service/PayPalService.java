@@ -1,9 +1,8 @@
 package com.example.springbackend.config;
 
-import com.example.springbackend.dto.paypal.AccessTokenResponseDTO;
-import com.example.springbackend.dto.paypal.ClientTokenDTO;
-import com.example.springbackend.dto.paypal.OrderDTO;
-import com.example.springbackend.dto.paypal.OrderResponseDTO;
+import com.example.springbackend.dto.paypal.*;
+import com.example.springbackend.model.Order;
+import com.example.springbackend.model.Passenger;
 import com.example.springbackend.repository.OrderRepository;
 import com.example.springbackend.service.PassengerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -71,6 +71,9 @@ public class PayPalService {
     }
 
     public OrderResponseDTO createOrder(OrderDTO orderDTO) throws Exception {
+        var appContext = new PayPalAppContextDTO();
+        appContext.setReturnUrl("http://localhost:8080/api/checkout/success");
+        orderDTO.setApplicationContext(appContext);
         var accessTokenDto = getAccessToken();
         var payload = objectMapper.writeValueAsString(orderDTO);
 
@@ -82,21 +85,35 @@ public class PayPalService {
                 .build();
         var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         var content = response.body();
-        return objectMapper.readValue(content, OrderResponseDTO.class);
-
+        var orderResponse = objectMapper.readValue(content, OrderResponseDTO.class);
+        saveOrder(orderResponse, orderDTO);
+        return orderResponse;
     }
 
-    public void confirmOrder(String paymentId, String username) throws Exception {
+    public void saveOrder(OrderResponseDTO orderResponseDTO, OrderDTO orderDTO){
+        var order = new Order();
+        order.setPaypalOrderId(orderResponseDTO.getId());
+        order.setPaypalOrderStatus(orderResponseDTO.getStatus().toString());
+        order.setBalance(Integer.parseInt(orderDTO.getPurchaseUnits().get(0).getAmount().getValue()));
+        order.setUsername((((Passenger) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()));
+        orderRepository.save(order);
+    }
+
+    public void confirmOrder(String orderId) throws Exception {
         var accessTokenDto = getAccessToken();
+        int balance;
+        var order = orderRepository.findByPaypalOrderId(orderId);
         var request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api-m.sandbox.paypal.com/v2/checkout/orders/"+paymentId+"/capture"))
+                .uri(URI.create("https://api-m.sandbox.paypal.com/v2/checkout/orders/"+orderId+"/capture"))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessTokenDto.getAccessToken())
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
         httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        int balance = orderRepository.findByPaypalOrderId(paymentId).getBalance();
-        passengerService.addToTokenBalance(balance, username);
+        balance = orderRepository.findByPaypalOrderId(orderId).getBalance() * 100;
+        passengerService.addToTokenBalance(balance, order.getUsername());
+        order.setPaypalOrderStatus(OrderStatus.APPROVED.toString());
+        orderRepository.save(order);
     }
 
 

@@ -29,27 +29,13 @@ public class CheckoutController {
     @PostMapping
     @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<OrderResponseDTO> checkout(@RequestBody OrderDTO orderDTO) throws Exception {
-        var appContext = new PayPalAppContextDTO();
-        appContext.setReturnUrl("http://localhost:8080/api/checkout/success");
-        orderDTO.setApplicationContext(appContext);
         var orderResponse = payPalService.createOrder(orderDTO);
-        var order = new Order();
-        order.setPaypalOrderId(orderResponse.getId());
-        order.setPaypalOrderStatus(orderResponse.getStatus().toString());
-        order.setBalance(Integer.parseInt(orderDTO.getPurchaseUnits().get(0).getAmount().getValue()));
-        order.setUsername((((Passenger) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()));
-        orderDAO.save(order);
         return ResponseEntity.ok(orderResponse);
     }
 
     @GetMapping(value = "/success")
     public ResponseEntity<String> paymentSuccess(HttpServletRequest request) throws Exception {
-        var orderId = request.getParameter("token");
-        var payerID = request.getParameter("PayerID");
-        var out = orderDAO.findByPaypalOrderId(orderId);
-        payPalService.confirmOrder(orderId,out.getUsername());
-        out.setPaypalOrderStatus(OrderStatus.APPROVED.toString());
-        orderDAO.save(out);
+        payPalService.confirmOrder(request.getParameter("token"));
         return ResponseEntity.ok().body("Payment success");
     }
 

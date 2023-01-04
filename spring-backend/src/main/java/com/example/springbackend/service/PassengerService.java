@@ -48,7 +48,6 @@ public class PassengerService {
     }
 
     public void addToTokenBalance(int balance, String username){
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Passenger passenger = passengerRepository.findByUsername(username).get();
         passenger.setTokenBalance(passenger.getTokenBalance() + balance);
         passengerRepository.save(passenger);
