@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "orders")
 @Data
 public class Order {
     @Id
@@ -14,6 +15,7 @@ public class Order {
     private String paypalOrderStatus;
     private int balance;
     @ManyToOne
-    @JoinColumn(name = "passenger_id",referencedColumnName = "username")
+    @JoinColumn(name = "passenger_username")
     Passenger passenger;
+
 }
