@@ -4,6 +4,8 @@ import com.example.springbackend.dto.paypal.AccessTokenResponseDTO;
 import com.example.springbackend.dto.paypal.ClientTokenDTO;
 import com.example.springbackend.dto.paypal.OrderDTO;
 import com.example.springbackend.dto.paypal.OrderResponseDTO;
+import com.example.springbackend.repository.OrderRepository;
+import com.example.springbackend.service.PassengerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +26,18 @@ import static com.example.springbackend.util.PayPalEndpoints.*;
 @Component
 @Slf4j
 public class PayPalService {
-    private final HttpClient httpClient;
-    private final PaypalConfig paypalConfig;
-    private final ObjectMapper objectMapper;
+    private HttpClient httpClient;
+    @Autowired
+    private PaypalConfig paypalConfig;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private PassengerService passengerService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
-    public PayPalService(PaypalConfig paypalConfig, ObjectMapper objectMapper) {
-        this.paypalConfig = paypalConfig;
-        this.objectMapper = objectMapper;
+    public PayPalService() {
         httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     }
 
@@ -80,7 +86,7 @@ public class PayPalService {
 
     }
 
-    public void confirmOrder(String paymentId, String payerId) throws Exception {
+    public void confirmOrder(String paymentId, String username) throws Exception {
         var accessTokenDto = getAccessToken();
         var request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-m.sandbox.paypal.com/v2/checkout/orders/"+paymentId+"/capture"))
@@ -88,10 +94,9 @@ public class PayPalService {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessTokenDto.getAccessToken())
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
-        var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("------------------------------------------------------------------");
-        System.out.println(response);
-        System.out.println("------------------------------------------------------------------");
+        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        int balance = orderRepository.findByPaypalOrderId(paymentId).getBalance();
+        passengerService.addToTokenBalance(balance, username);
     }
 
 

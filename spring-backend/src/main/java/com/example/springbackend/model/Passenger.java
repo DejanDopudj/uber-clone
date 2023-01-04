@@ -16,6 +16,8 @@ public class Passenger extends Member {
 
     private int ridesCompleted;
 
+    private int tokenBalance;
+
     @ManyToMany()
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "favourite_routes",
@@ -55,4 +57,11 @@ public class Passenger extends Member {
         this.favouriteRoutes = favouriteRoutes;
     }
 
+    public int getTokenBalance() {
+        return tokenBalance;
+    }
+
+    public void setTokenBalance(int tokenBalance) {
+        this.tokenBalance = tokenBalance;
+    }
 }
