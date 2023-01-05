@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Stomp } from '@stomp/stompjs';
+import * as SockJS from 'sockjs-client';
 
 @Component({
   selector: 'app-chat',
@@ -6,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChatComponent implements OnInit {
   indexOfSelectedChat: number = 0;
+  displayChat = false;
   public newMessage = '';
   user = {
     username: 'Micko',
@@ -76,5 +79,16 @@ export class ChatComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {}
+  changeChatDisplay(): void {
+    this.displayChat = !this.displayChat;
+  }
+
+  ngOnInit(): void {
+    let conn = Stomp.over(new SockJS('http://localhost:8080/ws'));
+    conn.connect({}, function () {
+      conn.subscribe('/topic/private', function (message: any) {
+        console.log(JSON.parse(message.body).connect);
+      });
+    });
+  }
 }
