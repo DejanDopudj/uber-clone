@@ -25,7 +25,10 @@ export class AuthenticationService {
       }
     })
     .then((response) => {
+      let reload: boolean = false;
+      if (!this.getSession()) reload = true;
       this.saveSession(response.data);
+      if (reload) window.location.href="/";
     })
     .catch((err) => {
       this.logout();

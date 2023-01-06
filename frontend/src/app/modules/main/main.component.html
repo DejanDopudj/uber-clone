@@ -14,7 +14,7 @@
     </app-map-controls>
   </div>
 
-  <div *ngIf="mapComponent" class="absolute h-full z-40 left-0 top-0">
+  <div *ngIf="mapComponent && (accountType === 'anonymous' || accountType === 'passenger') && !currentRide" class="absolute h-full z-40 left-0 top-0">
     <app-order-menu
     [waypoints]="waypoints"
     [route]="route"
@@ -22,6 +22,12 @@
     (stopAdded)="addNewStop($event)"
     (stopRemoved)="removeStop($event)"
     ></app-order-menu>
+  </div>
+
+  <div *ngIf="mapComponent && currentRide" class="absolute h-full z-40 left-0 top-0">
+    <app-passenger-ride-details
+    [waypoints]="waypoints"
+    ></app-passenger-ride-details>
   </div>
 
 </div>

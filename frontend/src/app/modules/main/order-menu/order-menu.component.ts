@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDown, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideService } from 'src/app/core/http/ride/ride.service';
+import { PassengerService } from 'src/app/core/http/user/passenger.service';
 import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Component({
@@ -46,7 +47,7 @@ export class OrderMenuComponent implements OnInit {
 
   vehicleTypes: VehicleType[] = [];
 
-  constructor(private authenticationService: AuthenticationService, private rideService: RideService) { }
+  constructor(private authenticationService: AuthenticationService, private rideService: RideService, private passengerService: PassengerService) { }
 
   async ngOnInit(): Promise<void> {
     await this.loadVehicleTypes();
@@ -71,7 +72,8 @@ export class OrderMenuComponent implements OnInit {
       }
     })
     .then((res: any) => {
-      console.log(res);
+      this.passengerService.setCurrentRide(res.data);
+      window.location.href="/";
     })
     .catch((err: any) => {
       console.log(err);

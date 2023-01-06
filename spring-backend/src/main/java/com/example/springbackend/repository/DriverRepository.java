@@ -1,6 +1,7 @@
 package com.example.springbackend.repository;
 
 import com.example.springbackend.model.Driver;
+import com.example.springbackend.model.Ride;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,7 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
     @Query("SELECT d FROM Driver d WHERE d.active = true AND d.currentRide is not null AND d.nextRide is null " +
             "AND d.vehicle.rideActive = true AND " + HAVERSINE_PART_NEXT + " <= 5")
     List<Driver> getCloseBusyDriversWithNoNextRide(@Param("lat") Double lat, @Param("lng") Double lng);
+
+    @Query("SELECT d FROM Driver d WHERE d.currentRide = :ride OR d.nextRide = :ride")
+    Optional<Driver> getDriverForRide(@Param("ride") Ride currentRide);
 }

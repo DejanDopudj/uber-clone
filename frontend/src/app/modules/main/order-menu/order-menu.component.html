@@ -104,7 +104,7 @@ sm:h-full select-none" id="order-menu">
         </div>
 
         <!-- additional options -->
-        <div class="flex mx-auto mt-6 px-4 py-0.5 justify-between gap-x-3">
+        <div *ngIf="accountType === 'passenger'" class="flex mx-auto mt-6 px-4 py-0.5 justify-between gap-x-3">
 
           <div class="flex gap-x-2 justify-between border border-light border-dashed px-2 sm:px-6 py-1 cursor-pointer"
           [ngClass]="hasBabySeat ? 'text-gray-50 border-gray-50' : 'text-light border-light'" (click)="hasBabySeat = !hasBabySeat">

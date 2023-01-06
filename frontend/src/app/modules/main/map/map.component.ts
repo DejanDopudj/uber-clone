@@ -7,6 +7,8 @@ import { DriverInfo } from 'src/app/shared/models/data-transfer-interfaces/drive
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { SimulatorService } from 'src/app/core/http/simulator/simulator.service';
 import * as moment from 'moment';
+import { PassengerService } from 'src/app/core/http/user/passenger.service';
+import { Observable } from 'rxjs';
 
 const service_url = "https://nominatim.openstreetmap.org/reverse?format=json";
 const API_KEY = null;
@@ -39,7 +41,7 @@ export class MapComponent implements AfterViewInit {
     iconSize: [20, 20]
   })
 
-  constructor(private authenticationService: AuthenticationService, private simulatorService: SimulatorService) { }
+  constructor(private authenticationService: AuthenticationService, private simulatorService: SimulatorService, private passengerService: PassengerService) { }
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -108,6 +110,8 @@ export class MapComponent implements AfterViewInit {
 
     if (this.canUserAlterWaypoints())
       document.getElementById('map')!.style.cursor = 'crosshair';
+    else
+      document.getElementById('map')!.style.cursor = 'grab';
   }
 
   addMarker = async (e: any) => {
@@ -204,7 +208,7 @@ export class MapComponent implements AfterViewInit {
         const route = e.routes[0];
         that.vehicleRoutes[vehicle.id] = route;
         that.simulateMovement(vehicle);
-        console.clear();
+        // console.clear();
       }).route();
     }
   }
@@ -231,7 +235,8 @@ export class MapComponent implements AfterViewInit {
 
   canUserAlterWaypoints(): boolean {
     const accountType: string = this.authenticationService.getAccountType();
-    return accountType === 'passenger' || accountType === 'anonymous';
+    if (accountType === 'anonymous') return true;
+    return accountType === 'passenger' && !this.passengerService.getCurrentRide();
   }
 
   async updateWaypoints(oldRouteWaypoints: any[], newRouteWaypoints: any[]): Promise<void> {

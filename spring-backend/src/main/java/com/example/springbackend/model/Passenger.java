@@ -58,7 +58,7 @@ public class Passenger extends Member {
     public void setFavouriteRoutes(List<Route> favouriteRoutes) {
         this.favouriteRoutes = favouriteRoutes;
     }
-    
+
     public int getTokenBalance() {
         return tokenBalance;
     }

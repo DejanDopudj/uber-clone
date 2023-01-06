@@ -1,6 +1,7 @@
 package com.example.springbackend.controller;
 
 import com.example.springbackend.dto.creation.BasicRideCreationDTO;
+import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
 import com.example.springbackend.service.RideService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,7 +23,7 @@ public class RideController {
 
     @PostMapping("/basic")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<Boolean> orderBasicRide(@Valid @RequestBody BasicRideCreationDTO dto, Authentication auth) {
+    public ResponseEntity<RideSimpleDisplayDTO> orderBasicRide(@Valid @RequestBody BasicRideCreationDTO dto, Authentication auth) {
         return ResponseEntity.ok(rideService.orderBasicRide(dto, auth));
     }
 }

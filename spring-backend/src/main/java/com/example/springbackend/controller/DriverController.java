@@ -24,7 +24,6 @@ public class DriverController {
     @GetMapping ("/activity")
     @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<Boolean> getActivity(Authentication auth) {
-        driverService.getActivity(auth);
         return ResponseEntity.ok(driverService.getActivity(auth));
     }
 

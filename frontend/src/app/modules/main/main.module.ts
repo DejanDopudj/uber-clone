@@ -8,6 +8,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { OrderMenuComponent } from './order-menu/order-menu.component';
 import { FormsModule } from '@angular/forms';
+import { PassengerRideDetailsComponent } from './passenger-ride-details/passenger-ride-details.component';
 
 
 
@@ -17,7 +18,8 @@ import { FormsModule } from '@angular/forms';
     MapControlsComponent,
     TopControlsComponent,
     MainComponent,
-    OrderMenuComponent
+    OrderMenuComponent,
+    PassengerRideDetailsComponent
   ],
   imports: [
     CommonModule,

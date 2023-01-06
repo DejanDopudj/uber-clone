@@ -33,7 +33,6 @@ export class RideService {
   }
 
   orderBasicRide(orderData: BasicOrderData): Promise<any> {
-    console.log(orderData)
     return axios.post(`/api/rides/basic`, 
     orderData,
     {

@@ -2,6 +2,8 @@ package com.example.springbackend.service;
 
 import com.example.springbackend.dto.creation.BasicRideCreationDTO;
 import com.example.springbackend.dto.creation.CoordinatesCreationDTO;
+import com.example.springbackend.dto.display.DriverSimpleDisplayDTO;
+import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
 import com.example.springbackend.exception.AdequateDriverNotFoundException;
 import com.example.springbackend.exception.InsufficientFundsException;
 import com.example.springbackend.model.*;
@@ -12,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -27,13 +28,15 @@ public class RideService {
     @Autowired
     PassengerRepository passengerRepository;
     @Autowired
+    PassengerRideRepository passengerRideRepository;
+    @Autowired
     VehicleTypeRepository vehicleTypeRepository;
     @Autowired
     RouteRepository routeRepository;
     @Autowired
     ModelMapper modelMapper;
 
-    public boolean orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
+    public RideSimpleDisplayDTO orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
 
@@ -50,10 +53,23 @@ public class RideService {
         // successful
         passenger.setTokenBalance(passenger.getTokenBalance() - price);
         passengerRepository.save(passenger);
-
         Ride ride = createRide(dto, price, driver);
+        createPassengerRide(passenger, ride);
 
-        return true;
+        // send notification to driver
+
+        RideSimpleDisplayDTO rideDisplayDTO = modelMapper.map(ride, RideSimpleDisplayDTO.class);
+        rideDisplayDTO.setDriver(modelMapper.map(driver, DriverSimpleDisplayDTO.class));
+
+        return rideDisplayDTO;
+    }
+
+    private void createPassengerRide(Passenger passenger, Ride ride) {
+        PassengerRide passengerRide = new PassengerRide();
+        passengerRide.setPassenger(passenger);
+        passengerRide.setRide(ride);
+        passengerRide.setFare(ride.getPrice());
+        passengerRideRepository.save(passengerRide);
     }
 
     private Ride createRide(BasicRideCreationDTO dto, int price, Driver driver) {
@@ -88,8 +104,9 @@ public class RideService {
     }
 
     private Driver findDriver(BasicRideCreationDTO dto) {
-
         CoordinatesCreationDTO startCoordinates = dto.getActualRoute().getWaypoints().get(0);
+
+        // TODO: INCLUDE BABY SEAT AND PET FRIENDLY PARAMS IN DRIVER SEARCH
 
         List<Driver> potentialClosestDriver = driverRepository.getClosestFreeDriver(startCoordinates.getLat(),
                 startCoordinates.getLng(), PageRequest.of(0, 1)).stream().toList();
