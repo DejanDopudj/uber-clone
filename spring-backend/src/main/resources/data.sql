@@ -15,11 +15,11 @@ VALUES ('test', 3);
 INSERT INTO user_role (user_id, role_id)
 VALUES ('admin', 2);
 
-INSERT INTO vehicle_type (name, price)
-VALUES ('COUPE', 100);
+INSERT INTO vehicle_type (name, price, seats)
+VALUES ('COUPE', 100, 4);
 
-INSERT INTO vehicle_type (name, price)
-VALUES ('MINIVAN', 150);
+INSERT INTO vehicle_type (name, price, seats)
+VALUES ('MINIVAN', 150, 6);
 
-INSERT INTO vehicle_type (name, price)
-VALUES ('STATION', 125);
+INSERT INTO vehicle_type (name, price, seats)
+VALUES ('STATION', 125, 4);

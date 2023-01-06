@@ -19,8 +19,8 @@ const API_KEY = null;
 export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
-  private simulatorControl: any;
   public chosenRoute: any;
+  public alternativeRoute: any;
   public waypoints: any[] = [];
   private accontType: string = this.authenticationService.getAccountType();
   private vehiclePositions: any[] = [];
@@ -95,9 +95,14 @@ export class MapComponent implements AfterViewInit {
       if (that.chosenRoute?.waypoints.length === newRoute.waypoints.length)
         that.updateWaypoints(that.chosenRoute.waypoints, newRoute.waypoints);
       that.chosenRoute = newRoute;
+      that.alternativeRoute = e.routes.length > 1 ? e.routes[1] : null;
     })
     .on('routeselected', function(e) {
-      that.chosenRoute = e.route;
+      const previousRoute = that.chosenRoute;
+      if (previousRoute !== e.route) {
+        that.chosenRoute = e.route;
+        that.alternativeRoute = previousRoute;
+      }
     })
     .addTo(this.map);
 
@@ -121,8 +126,10 @@ export class MapComponent implements AfterViewInit {
       const i = this.control.getWaypoints().findIndex((x: any) => x === wp);
       this.control.setWaypoints([...this.control.getPlan().getWaypoints().filter((x: L.Routing.Waypoint) => x !== wp)]);
       this.waypoints.splice(i, 1);
-      if (this.waypoints.length < 2) 
+      if (this.waypoints.length < 2) {
         this.chosenRoute = null;
+        this.alternativeRoute = null;
+      }
     }
   }
 
@@ -133,8 +140,20 @@ export class MapComponent implements AfterViewInit {
   }
 
   drawRoute(route: L.Routing.IRoute): void {
-    L.Routing.line(route, {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1}).addTo(this.map);
-    route.waypoints?.forEach((e : any) => {
+    // maybe no need for 'deep' copy after testing
+    const r: any = {
+      name: 'Route',
+      summary: {...route.summary},
+      coordinates: route.coordinates?.map(latlng => { return {...latlng}}),
+      waypoints: route.waypoints?.map(latlng => { return {...latlng}}),
+      inputWaypoints: route.waypoints?.map(latlng => { return {...latlng}}),
+      waypointIndices: [0, route.coordinates!.length - 1],
+      routesIndex: 0,
+      properties: { isSimplified: true },
+      instructions: [],
+    }
+    L.Routing.line(r, {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1}).addTo(this.map);
+    r.waypoints?.forEach((e : any) => {
       L.marker(e.latLng).addTo(this.map);
     });
   }
@@ -192,6 +211,7 @@ export class MapComponent implements AfterViewInit {
   
   simulateMovement = (vehicle: any): void => {
     if (!vehicle.rideActive) return;
+
     let startingMoment = moment(vehicle.coordinatesChangedAt);
     let currentMoment = moment();
     const difference = currentMoment.diff(startingMoment, 'seconds');

@@ -16,4 +16,6 @@ public class VehicleType {
     private String name;
 
     private double price;
+
+    private int seats;
 }

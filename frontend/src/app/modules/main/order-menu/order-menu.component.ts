@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDown, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideService } from 'src/app/core/http/ride/ride.service';
-import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride-summary.model';
 import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Component({
@@ -12,7 +11,8 @@ import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 })
 export class OrderMenuComponent implements OnInit {
   @Input() waypoints: any[] = [];
-  @Input() summary!: RideSummary;
+  @Input() route!: any;
+  @Input() alternativeRoute!: any;
   @Output() stopAdded: EventEmitter<string> = new EventEmitter<string>();
   @Output() stopRemoved: EventEmitter<Number> = new EventEmitter<Number>();
 
@@ -39,7 +39,8 @@ export class OrderMenuComponent implements OnInit {
   minivanImg: string = 'assets/icons/car-minivan-gray.png';
   stationImg: string = 'assets/icons/car-station-gray.png';
 
-  selectedVehicleType: string = 'coupe';
+  // selectedVehicleType: string = 'coupe';
+  selectedVehicleType!: VehicleType;
   hasBabySeat: boolean = false;
   isPetFriendly: boolean = false;
 
@@ -51,11 +52,41 @@ export class OrderMenuComponent implements OnInit {
     await this.loadVehicleTypes();
   }
 
+  orderRide(): void {
+    const deviateFromRoute: boolean = Math.random() > 0.75 && this.alternativeRoute;
+    const actualRoute: any = deviateFromRoute ? this.alternativeRoute : this.route;
+    this.rideService.orderBasicRide({
+      distance: Number((this.route.summary.totalDistance / 1000).toLocaleString('fullwide', {minimumFractionDigits:2, maximumFractionDigits:2})),
+      babySeat: this.hasBabySeat,
+      petFriendly: this.isPetFriendly,
+      vehicleType: this.selectedVehicleType.name,
+      expectedTimeInSeconds: actualRoute.summary.totalTime,
+      expectedRoute: deviateFromRoute ? {
+        waypoints: this.route.waypoints,
+        coordinates: this.route.coordinates
+      } : null,
+      actualRoute: {
+        waypoints: actualRoute.waypoints.map((waypoint: any) => waypoint.latLng),
+        coordinates: actualRoute.coordinates
+      }
+    })
+    .then((res: any) => {
+      console.log(res);
+    })
+    .catch((err: any) => {
+      console.log(err);
+    });
+  }
+
   calculateRidePrice(): Number {
-    const vehicleType: VehicleType | undefined = this.vehicleTypes.find(x => x.name === this.selectedVehicleType.toUpperCase());
-    if (vehicleType)
-      return Number((vehicleType.price + Number((this.summary.totalDistance / 1000).toFixed(2)) * 120).toFixed(0));
+    if (this.selectedVehicleType)
+      return Number((this.selectedVehicleType.price + Number((this.route.summary?.totalDistance / 1000).toFixed(2)) * 120).toFixed(0));
     return -1;
+  }
+
+  setVehicleType(typeName: string) {
+    const potentialType: VehicleType | undefined = this.vehicleTypes.find(type => type.name === typeName);
+    if (potentialType) this.selectedVehicleType = potentialType;
   }
 
   addStop(): void {
@@ -90,6 +121,7 @@ export class OrderMenuComponent implements OnInit {
   async loadVehicleTypes(): Promise<void> {
     if (this.vehicleTypes.length === 0)
       this.vehicleTypes = await this.rideService.getVehicleTypes();
+      this.selectedVehicleType = this.vehicleTypes[0];
   }
 
   getIcon(i: Number) {

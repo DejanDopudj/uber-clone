@@ -32,8 +32,12 @@ export class MainComponent implements OnInit {
     this.mapComponent.clearMarkers();
   }
 
-  get summary(): any {
-    return this.mapComponent.chosenRoute?.summary;
+  get route(): any {
+    return this.mapComponent.chosenRoute;
+  }
+
+  get alternativeRoute(): any {
+    return this.mapComponent.alternativeRoute;
   }
 
   get waypoints(): any {

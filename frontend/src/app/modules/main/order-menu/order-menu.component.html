@@ -53,17 +53,17 @@ sm:h-full select-none" id="order-menu">
       </button>
     </div>
 
-    <div *ngIf="summary" class="flex flex-col mt-10">
+    <div *ngIf="route" class="flex flex-col mt-10">
 
       <div class="flex justify-center font-medium text-sm text-gray-50
       divide-x divide-light">
         <div class="flex gap-x-1.5 px-2 w-1/2 justify-end">
           <fa-icon [icon]="faStopwatch"></fa-icon>
-          <span>{{ (summary.totalTime / 60) + 1 | number: '1.0-0' }} min</span>
+          <span>{{ (route.summary.totalTime / 60) + 1 | number: '1.0-0' }} min</span>
         </div>
         <div class="flex gap-x-1.5 px-2 w-1/2 justify-start">
           <fa-icon [icon]="faRoute"></fa-icon>
-          <span>{{ (summary.totalDistance / 1000) | number: '1.2-2' }} km</span>
+          <span>{{ (route.summary.totalDistance / 1000) | number: '1.2-2' }} km</span>
         </div>
       </div>
       
@@ -79,26 +79,26 @@ sm:h-full select-none" id="order-menu">
     <!-- Show when route chosen -->
     <div *ngIf="waypoints.length > 1" class="mt-12">
       <!-- car preferences -->
-      <div class="flex flex-col">
+      <div *ngIf="selectedVehicleType" class="flex flex-col">
         <!-- car type -->
         <div class="flex justify-around select-none">
 
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedVehicleType === 'coupe' ? 'assets/icons/car-coupe.png' : 'assets/icons/car-coupe-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Coupe" (click)="selectedVehicleType = 'coupe'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'coupe' ? 'text-gray-50' : 'text-light'">Coupe</p>
+            <img [src]="selectedVehicleType.name === 'COUPE' ? 'assets/icons/car-coupe.png' : 'assets/icons/car-coupe-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Coupe" (click)="setVehicleType('COUPE')"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType.name === 'COUPE' ? 'text-gray-50' : 'text-light'">Coupe</p>
           </div>
 
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedVehicleType === 'minivan' ? 'assets/icons/car-minivan.png' : 'assets/icons/car-minivan-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Minivan" (click)="selectedVehicleType = 'minivan'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'minivan' ? 'text-gray-50' : 'text-light'">Minivan</p>
+            <img [src]="selectedVehicleType.name === 'MINIVAN' ? 'assets/icons/car-minivan.png' : 'assets/icons/car-minivan-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Minivan" (click)="setVehicleType('MINIVAN')"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType.name === 'MINIVAN' ? 'text-gray-50' : 'text-light'">Minivan</p>
           </div>
           
           <div class="flex flex-col justify-end text-center">
-            <img [src]="selectedVehicleType === 'station' ? 'assets/icons/car-station.png' : 'assets/icons/car-station-gray.png'"
-            class="w-16 hover:opacity-90 cursor-pointer" title="Station" (click)="selectedVehicleType = 'station'"/>
-            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType === 'station' ? 'text-gray-50' : 'text-light'">Station</p>
+            <img [src]="selectedVehicleType.name === 'STATION' ? 'assets/icons/car-station.png' : 'assets/icons/car-station-gray.png'"
+            class="w-16 hover:opacity-90 cursor-pointer" title="Station" (click)="setVehicleType('STATION')"/>
+            <p class="text-sm font-medium mt-1" [ngClass]="selectedVehicleType.name === 'STATION' ? 'text-gray-50' : 'text-light'">Station</p>
           </div>
 
         </div>
@@ -126,7 +126,8 @@ sm:h-full select-none" id="order-menu">
       
       <!-- order button -->
       <div>
-        <button *ngIf="accountType === 'passenger'" type="submit" class="w-full h-16 bg-accent-light active:bg-accent text-white font-medium tracking-wide mt-12">
+        <button *ngIf="accountType === 'passenger'" type="submit" class="w-full h-16 bg-accent-light
+        active:bg-accent text-white font-medium tracking-wide mt-12" (click)="orderRide()">
           ORDER RIDE
         </button>
         <div *ngIf="accountType === 'anonymous'" class="text-light text-center mt-6">

@@ -8,7 +8,7 @@
   <div *ngIf="mapComponent" class="absolute top-0 left-0 right-0 z-40 pointer-events-none">
     <app-map-controls 
     (clear)="clearMarkers()" 
-    [summary]="summary"
+    [summary]="route?.summary"
     [driverInfo]="{ isActive: isActive }"
     >
     </app-map-controls>
@@ -17,7 +17,8 @@
   <div *ngIf="mapComponent" class="absolute h-full z-40 left-0 top-0">
     <app-order-menu
     [waypoints]="waypoints"
-    [summary]="summary"
+    [route]="route"
+    [alternativeRoute]="alternativeRoute"
     (stopAdded)="addNewStop($event)"
     (stopRemoved)="removeStop($event)"
     ></app-order-menu>

@@ -29,6 +29,8 @@ public class TestDataSupplierService {
     @Autowired
     RoleRepository roleRepository;
     @Autowired
+    RideRepository rideRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public static List<Coordinates<Double, Double>> locations = Arrays.asList(
@@ -72,11 +74,12 @@ public class TestDataSupplierService {
         passenger.setDistanceTravelled(79.28);
         passenger.setRidesCompleted(28);
         passenger.setRoles(roleRepository.findByName("ROLE_PASSENGER"));
+        passenger.setTokenBalance(690);
         passengerRepository.save(passenger);
     }
 
     private void addDrivers() {
-        addOtherDrivers();
+//        addOtherDrivers();
         Vehicle vehicle = new Vehicle();
         vehicle.setBabySeat(true);
         vehicle.setPetsAllowed(true);
@@ -84,13 +87,14 @@ public class TestDataSupplierService {
         vehicle.setModel("Marathon A11");
         vehicle.setColour("Yellow");
         vehicle.setLicensePlateNumber("A31216");
+        vehicle.setRideActive(true);
         Random rand = new Random();
         int i = rand.nextInt(0, locations.size());
         vehicle.setCurrentCoordinates(locations.get(i));
-        vehicle.setNextCoordinates(locations.get(i));
+        vehicle.setNextCoordinates(locations.get((i+1) % locations.size()));
         vehicle.setCoordinatesChangedAt(LocalDateTime.now());
+        vehicle.setExpectedTripTime(540);
         vehicle.setVehicleType(vehicleTypeRepository.findByName("COUPE").orElseThrow());
-        vehicle.setRideActive(false);
         vehicleRepository.save(vehicle);
         Driver driver = new Driver();
         driver.setUsername("travis");
@@ -100,7 +104,7 @@ public class TestDataSupplierService {
         driver.setSurname("Bickle");
         driver.setPhoneNumber("+1 422 135 12");
         driver.setCity("New York City");
-        driver.setActive(false);
+        driver.setActive(true);
         driver.setVehicle(vehicle);
         driver.setDistanceTravelled(5251.12);
         driver.setRidesCompleted(2153);
@@ -109,6 +113,10 @@ public class TestDataSupplierService {
         driver.setAccountStatus(AccountStatus.ACTIVE);
         driver.setBlocked(false);
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
+        Ride mockRide = new Ride();
+        rideRepository.save(mockRide);
+        driver.setCurrentRide(mockRide);
+        driver.setNextRide(null);
         driverRepository.save(driver);
     }
 
@@ -122,6 +130,7 @@ public class TestDataSupplierService {
             vehicle.setModel("406");
             vehicle.setColour("Gray");
             vehicle.setLicensePlateNumber("A61353");
+            vehicle.setRideActive(false);
             int k = rand.nextInt(0, locations.size());
             vehicle.setCurrentCoordinates(locations.get(k));
             vehicle.setNextCoordinates(locations.get(k));
@@ -144,6 +153,8 @@ public class TestDataSupplierService {
             driver.setNumberOfReviews(1693 + i);
             driver.setBlocked(false);
             driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
+            driver.setCurrentRide(null);
+            driver.setNextRide(null);
             driverRepository.save(driver);
         }
     }
