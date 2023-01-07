@@ -17,7 +17,7 @@ export class TopControlsComponent implements OnInit {
   faUser: IconDefinition = faUser;
   faPowerOff: IconDefinition = faPowerOff;
 
-  showProfileDropdown: boolean = true;
+  showProfileDropdown: boolean = false;
   clickedProfileDropdown: boolean = false;
 
   constructor(private driverService: DriverService, private authenticationService: AuthenticationService) { }

@@ -2,21 +2,16 @@ package com.example.springbackend.service;
 
 import com.example.springbackend.dto.creation.UserCreationDTO;
 import com.example.springbackend.model.AccountStatus;
-import com.example.springbackend.dto.display.DriverSimpleDisplayDTO;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
-import com.example.springbackend.dto.display.RouteDisplayDTO;
 import com.example.springbackend.model.Driver;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.Ride;
 import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import com.example.springbackend.repository.DriverRepository;
 import com.example.springbackend.repository.PassengerRepository;
-import com.example.springbackend.repository.UserRepository;
 import com.example.springbackend.util.TokenUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.example.springbackend.repository.PassengerRideRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +40,6 @@ public class PassengerService {
     @Autowired
     private TokenUtils tokenUtils;
     @Autowired
-    private AuthenticationManager authenticationManager;
     private RideService rideService;
 
     public Passenger signUp(UserCreationDTO userCreationDTO) {

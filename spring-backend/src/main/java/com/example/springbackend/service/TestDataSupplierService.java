@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -111,7 +110,6 @@ public class TestDataSupplierService {
         driver.setTotalRatingSum(7814);
         driver.setNumberOfReviews(1693);
         driver.setAccountStatus(AccountStatus.ACTIVE);
-        driver.setBlocked(false);
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
         Ride mockRide = new Ride();
         rideRepository.save(mockRide);
@@ -151,7 +149,6 @@ public class TestDataSupplierService {
             driver.setRidesCompleted(2153 + i);
             driver.setTotalRatingSum(7814 + i);
             driver.setNumberOfReviews(1693 + i);
-            driver.setBlocked(false);
             driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
             driver.setCurrentRide(null);
             driver.setNextRide(null);

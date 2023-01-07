@@ -34,10 +34,7 @@ export class LoginComponent implements OnInit {
   async onSubmit() {
     const success = await this.authenticationService.login(this.email?.value!, this.password?.value!);
     if(success){   
-      this.router.navigate(['/'])
-      .then(() => {
-        window.location.reload();
-      });
+      this.authenticationService.whoami();
     }
     else{
       this.wrongCredentials = true;
