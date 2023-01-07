@@ -7,19 +7,23 @@ import * as SockJS from 'sockjs-client';
   templateUrl: './chat.component.html',
 })
 export class ChatComponent implements OnInit {
-  indexOfSelectedChat: number = 0;
+  numOfNewMessages = 0;
+  stompClient: any;
+  indexOfSelectedChat: number = 1;
   displayChat = false;
+  shouldScroll = false;
   public newMessage = '';
+  receiver = 'Miladin';
   user = {
-    username: 'Micko',
+    username: 'admin',
     role: 'ADMIN',
   };
   chats = [
     {
-      username: 'Miladin Momcilovic Veliki',
+      username: 'Miladin',
       messages: [
         {
-          sender: 'Micko',
+          sender: 'admin',
           content: 'Ovo je poruka',
           sentDateTime: new Date(),
         },
@@ -29,12 +33,14 @@ export class ChatComponent implements OnInit {
           sentDateTime: new Date(),
         },
       ],
+      lastReadAdmin: new Date(),
+      lastReadMember: new Date(),
     },
     {
       username: 'Marko',
       messages: [
         {
-          sender: 'Miladin',
+          sender: 'Marko',
           content: 'Ovo je poruka',
           sentDateTime: new Date(),
         },
@@ -44,29 +50,44 @@ export class ChatComponent implements OnInit {
           sentDateTime: new Date(),
         },
       ],
+      lastReadAdmin: new Date(),
+      lastReadMember: new Date(),
     },
   ];
   constructor() {}
 
-  addMessage(): void {
+  addMessage(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
     if (this.newMessage.trim() === '') {
       return;
     }
+    let currentDate = new Date();
+    let tempDate = new Date();
+    tempDate.setHours(tempDate.getHours() + 1);
+    this.stompClient.send(
+      '/app/privateMessage',
+      {},
+      JSON.stringify({
+        type: 'CHAT',
+        sender: this.user.username,
+        receiver: this.receiver,
+        content: this.newMessage.trim(),
+        sentDateTime: tempDate,
+      })
+    );
     this.chats[this.indexOfSelectedChat].messages.push({
-      sender: 'Micko',
+      sender: this.user.username,
       content: this.newMessage,
-      sentDateTime: new Date(),
+      sentDateTime: currentDate,
     });
     this.newMessage = '';
+    this.scroll();
+    this.updateLastRead();
   }
 
   onValueChange(event: Event): void {
     const value = (event.target as any).value;
-    if (value === '\n') {
-      let objdiv = document.getElementById('chat-scroll');
-      objdiv!.scrollTop = objdiv!.scrollHeight + 50;
-      return;
-    }
     this.newMessage = value;
   }
 
@@ -74,6 +95,8 @@ export class ChatComponent implements OnInit {
     for (let i = 0; i < this.chats.length; i++) {
       if (this.chats[i].username === username) {
         this.indexOfSelectedChat = i;
+        this.receiver = this.chats[i].username;
+        this.checkIfStillUnreed();
         break;
       }
     }
@@ -81,13 +104,78 @@ export class ChatComponent implements OnInit {
 
   changeChatDisplay(): void {
     this.displayChat = !this.displayChat;
+    if (this.displayChat) {
+      this.scroll();
+      this.checkIfStillUnreed();
+    }
+  }
+
+  checkIfStillUnreed(): void {
+    let chat = this.chats[this.indexOfSelectedChat];
+    this.numOfNewMessages -= this.numberOfUndreadMess(chat);
+    this.updateLastRead();
+  }
+
+  updateLastRead(): void {
+    if (this.user.role === 'ADMIN')
+      this.chats[this.indexOfSelectedChat].lastReadAdmin = new Date();
+    else this.chats[this.indexOfSelectedChat].lastReadMember = new Date();
+  }
+
+  numberOfUndreadMess(chat: any): number {
+    let numOfUnread = 0;
+    let lastRead =
+      this.user.role === 'ADMIN' ? chat.lastReadAdmin : chat.lastReadMember;
+    for (let i = chat.messages.length - 1; i > 0; i--) {
+      if (chat.messages[i].sentDateTime > lastRead) numOfUnread += 1;
+      else break;
+    }
+    return numOfUnread;
+  }
+
+  scroll(): void {
+    setTimeout(() => {
+      let objdiv = document.getElementById('chat-scroll');
+      if (objdiv) objdiv!.scrollTo(0, objdiv!.scrollHeight);
+    }, 25);
+  }
+
+  checkMessages(sender: string): void {
+    if (!this.displayChat) {
+      this.numOfNewMessages += 1;
+    } else if (this.chats[this.indexOfSelectedChat].username !== sender) {
+      this.numOfNewMessages += 1;
+    } else {
+      this.numOfNewMessages = 0;
+    }
   }
 
   ngOnInit(): void {
-    let conn = Stomp.over(new SockJS('http://localhost:8080/ws'));
-    conn.connect({}, function () {
-      conn.subscribe('/topic/private', function (message: any) {
-        console.log(JSON.parse(message.body).connect);
+    let addr = '';
+    if (this.user.role === 'ADMIN') {
+      addr = '/user/admin/private';
+    } else {
+      addr = '/user/' + this.user.username + '/private';
+    }
+    this.stompClient = Stomp.over(new SockJS('http://localhost:8080/ws'));
+    this.stompClient.connect({}, () => {
+      this.stompClient.subscribe(addr, (message: any) => {
+        let messageData = JSON.parse(message.body);
+        let mess = {
+          sender: messageData.sender,
+          content: messageData.content,
+          sentDateTime: new Date(messageData.sentDateTime),
+        };
+        if (messageData.type === 'CHAT') {
+          for (let chat of this.chats) {
+            if (chat.username === messageData.sender) {
+              chat.messages.push(mess);
+            }
+          }
+          this.checkMessages(mess.sender);
+          this.scroll();
+          this.updateLastRead();
+        }
       });
     });
   }

@@ -18,7 +18,10 @@
             <p class="text-sm font-medium text-white">
               {{ chat.username }}
             </p>
-            <p class="text-sm text-gray-400">
+            <p
+              class="text-sm text-gray-400"
+              [ngClass]="{ 'text-blue-500': numberOfUndreadMess(chat) > 0 }"
+            >
               {{ chat.messages[chat.messages.length - 1].content }}
             </p>
           </div>
@@ -30,7 +33,11 @@
         <div
           class="text-lg text-white my-auto ml-4 border-b border-transparent hover:border-gray-500 truncate"
         >
-          {{ chats[indexOfSelectedChat].username }}
+          {{
+            chats[indexOfSelectedChat].username === "admin"
+              ? "Live support"
+              : chats[indexOfSelectedChat].username
+          }}
         </div>
       </div>
       <div
@@ -84,7 +91,7 @@
           placeholder="Type message..."
           rows="1"
           [value]="newMessage"
-          (keydown.enter)="addMessage()"
+          (keydown.enter)="addMessage($event)"
           (input)="onValueChange($event)"
         ></textarea>
       </div>
@@ -114,5 +121,10 @@
         <path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2" />
       </svg>
     </button>
+  </div>
+  <div *ngIf="numOfNewMessages > 0" class="absolute right-5 bottom-14 z-50">
+    <div class="bg-red-600 rounded-2xl w-5 h-5 text-center text-white text-sm">
+      {{ numOfNewMessages }}
+    </div>
   </div>
 </div>
