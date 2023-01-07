@@ -33,14 +33,14 @@ public class Vehicle {
             @AttributeOverride( name = "lat", column = @Column(name = "current_lat")),
             @AttributeOverride( name = "lng", column = @Column(name = "current_lng")),
     })
-    private Coordinates<Double, Double> currentCoordinates;
+    private Coordinates currentCoordinates;
 
     @Embedded
     @AttributeOverrides({
             @AttributeOverride( name = "lat", column = @Column(name = "next_lat")),
             @AttributeOverride( name = "lng", column = @Column(name = "next_lng")),
     })
-    private Coordinates<Double, Double> nextCoordinates;
+    private Coordinates nextCoordinates;
 
     private LocalDateTime coordinatesChangedAt;
 

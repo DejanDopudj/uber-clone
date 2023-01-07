@@ -37,7 +37,7 @@ public class SimulatorService {
         Vehicle vehicle = driver.getVehicle();
         if (vehicle.isRideActive()) return;
 
-        Coordinates<Double, Double> location = getDifferentLocation(vehicle);
+        Coordinates location = getDifferentLocation(vehicle);
 
         vehicle.setNextCoordinates(location);
         vehicle.setCoordinatesChangedAt(LocalDateTime.now());
@@ -53,8 +53,8 @@ public class SimulatorService {
         executorService.schedule(() -> arriveAtLocation(vehicle), estimatedTime, TimeUnit.SECONDS);
     }
 
-    private Coordinates<Double, Double> getDifferentLocation(Vehicle vehicle) {
-        Coordinates<Double, Double> location = vehicle.getCurrentCoordinates();
+    private Coordinates getDifferentLocation(Vehicle vehicle) {
+        Coordinates location = vehicle.getCurrentCoordinates();
         Random rand = new Random();
         while (Math.abs(location.getLat() - vehicle.getCurrentCoordinates().getLat()) < Double.MIN_NORMAL &&
                 Math.abs(location.getLng() - vehicle.getCurrentCoordinates().getLng()) < Double.MIN_NORMAL) {
@@ -71,7 +71,7 @@ public class SimulatorService {
         vehicleRepository.save(vehicle);
     }
 
-    private double calculateDistance(Coordinates<Double, Double> first, Coordinates<Double, Double> second) {
+    private double calculateDistance(Coordinates first, Coordinates second) {
         double lt1 = first.getLat();
         double lt2 = second.getLat();
         double ln1 = first.getLng();

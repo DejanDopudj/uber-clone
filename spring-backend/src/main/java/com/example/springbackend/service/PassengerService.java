@@ -4,6 +4,7 @@ import com.example.springbackend.dto.creation.UserCreationDTO;
 import com.example.springbackend.model.AccountStatus;
 import com.example.springbackend.dto.display.DriverSimpleDisplayDTO;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
+import com.example.springbackend.dto.display.RouteDisplayDTO;
 import com.example.springbackend.model.Driver;
 import com.example.springbackend.model.Passenger;
 import com.example.springbackend.model.Ride;
@@ -45,6 +46,7 @@ public class PassengerService {
     private TokenUtils tokenUtils;
     @Autowired
     private AuthenticationManager authenticationManager;
+    private RideService rideService;
 
     public Passenger signUp(UserCreationDTO userCreationDTO) {
         if(!userService.userExistsForCustomRegistration(userCreationDTO.getEmail(), userCreationDTO.getUsername())){
@@ -77,8 +79,7 @@ public class PassengerService {
         Ride currentRide = passengerRideRepository.getCurrentRide(passenger).orElseThrow();
         Driver driver = driverRepository.getDriverForRide(currentRide).orElseThrow();
 
-        RideSimpleDisplayDTO rideDisplayDTO = modelMapper.map(currentRide, RideSimpleDisplayDTO.class);
-        rideDisplayDTO.setDriver(modelMapper.map(driver, DriverSimpleDisplayDTO.class));
+        RideSimpleDisplayDTO rideDisplayDTO = rideService.createBasicRideSimpleDisplayDTO(currentRide, driver);
         return rideDisplayDTO;
     }
 }

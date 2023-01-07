@@ -2,11 +2,15 @@ package com.example.springbackend.service;
 
 import com.example.springbackend.dto.creation.BasicRideCreationDTO;
 import com.example.springbackend.dto.creation.CoordinatesCreationDTO;
+import com.example.springbackend.dto.creation.RouteCreationDTO;
+import com.example.springbackend.dto.display.CoordinatesDisplayDTO;
 import com.example.springbackend.dto.display.DriverSimpleDisplayDTO;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
+import com.example.springbackend.dto.display.RouteDisplayDTO;
 import com.example.springbackend.exception.AdequateDriverNotFoundException;
 import com.example.springbackend.exception.InsufficientFundsException;
 import com.example.springbackend.model.*;
+import com.example.springbackend.model.helpClasses.Coordinates;
 import com.example.springbackend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Basic;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -57,63 +62,22 @@ public class RideService {
         createPassengerRide(passenger, ride);
 
         // send notification to driver
-
-        RideSimpleDisplayDTO rideDisplayDTO = modelMapper.map(ride, RideSimpleDisplayDTO.class);
-        rideDisplayDTO.setDriver(modelMapper.map(driver, DriverSimpleDisplayDTO.class));
+        RideSimpleDisplayDTO rideDisplayDTO = createBasicRideSimpleDisplayDTO(ride, driver);
 
         return rideDisplayDTO;
-    }
-
-    private void createPassengerRide(Passenger passenger, Ride ride) {
-        PassengerRide passengerRide = new PassengerRide();
-        passengerRide.setPassenger(passenger);
-        passengerRide.setRide(ride);
-        passengerRide.setFare(ride.getPrice());
-        passengerRideRepository.save(passengerRide);
-    }
-
-    private Ride createRide(BasicRideCreationDTO dto, int price, Driver driver) {
-        Ride ride = new Ride();
-        Route actualRoute = modelMapper.map(dto.getActualRoute(), Route.class);
-        routeRepository.save(actualRoute);
-        Route expectedRoute = null;
-        if (dto.getExpectedRoute() != null) {
-            expectedRoute = modelMapper.map(dto.getExpectedRoute(), Route.class);
-            routeRepository.save(expectedRoute);
-        }
-        ride.setDistance(dto.getDistance());
-        ride.setActualRoute(actualRoute);
-        ride.setExpectedRoute(expectedRoute);
-        ride.setCancelled("");
-        ride.setRejected(false);
-        ride.setStartTime(null);
-        ride.setEndTime(null);
-        ride.setCreatedAt(LocalDateTime.now());
-        ride.setDriverInconsistency(false);
-        ride.setPrice(price);
-        rideRepository.save(ride);
-
-        if (driver.getCurrentRide() == null) {
-            driver.setCurrentRide(ride);
-        } else {
-            driver.setNextRide(ride);
-        }
-        driverRepository.save(driver);
-
-        return ride;
     }
 
     private Driver findDriver(BasicRideCreationDTO dto) {
         CoordinatesCreationDTO startCoordinates = dto.getActualRoute().getWaypoints().get(0);
 
-        // TODO: INCLUDE BABY SEAT AND PET FRIENDLY PARAMS IN DRIVER SEARCH
-
         List<Driver> potentialClosestDriver = driverRepository.getClosestFreeDriver(startCoordinates.getLat(),
-                startCoordinates.getLng(), PageRequest.of(0, 1)).stream().toList();
+                startCoordinates.getLng(), dto.isBabySeat(), dto.isPetFriendly(), dto.getVehicleType(),
+                PageRequest.of(0, 1)).stream().toList();
         if (!potentialClosestDriver.isEmpty()) return potentialClosestDriver.get(0);
 
         List<Driver> closeBusyDriversWithNoNextRide = driverRepository
-                .getCloseBusyDriversWithNoNextRide(startCoordinates.getLat(), startCoordinates.getLng());
+                .getCloseBusyDriversWithNoNextRide(startCoordinates.getLat(), startCoordinates.getLng(),
+                        dto.isBabySeat(), dto.isPetFriendly(), dto.getVehicleType());
 
         if (closeBusyDriversWithNoNextRide.isEmpty()) return null;
         else if (closeBusyDriversWithNoNextRide.size() == 1) return closeBusyDriversWithNoNextRide.get(0);
@@ -134,7 +98,76 @@ public class RideService {
         return bestChoice;
     }
 
+    private void createPassengerRide(Passenger passenger, Ride ride) {
+        PassengerRide passengerRide = new PassengerRide();
+        passengerRide.setPassenger(passenger);
+        passengerRide.setRide(ride);
+        passengerRide.setFare(ride.getPrice());
+        passengerRideRepository.save(passengerRide);
+    }
+
+    private Ride createRide(BasicRideCreationDTO dto, int price, Driver driver) {
+        Ride ride = new Ride();
+        Route actualRoute = createRouteFromDto(dto.getActualRoute());
+        routeRepository.save(actualRoute);
+        Route expectedRoute = null;
+        if (dto.getExpectedRoute() != null) {
+            expectedRoute = createRouteFromDto(dto.getExpectedRoute());
+            routeRepository.save(expectedRoute);
+        }
+        ride.setDistance(dto.getDistance());
+        ride.setActualRoute(actualRoute);
+        ride.setExpectedRoute(expectedRoute);
+        ride.setCancelled("");
+        ride.setRejected(false);
+        ride.setStartTime(null);
+        ride.setEndTime(null);
+        ride.setExpectedTime(dto.getExpectedTime());
+        ride.setCreatedAt(LocalDateTime.now());
+        ride.setDriverInconsistency(false);
+        ride.setPrice(price);
+        rideRepository.save(ride);
+
+        if (driver.getCurrentRide() == null) {
+            driver.setCurrentRide(ride);
+        } else {
+            driver.setNextRide(ride);
+        }
+        driverRepository.save(driver);
+
+        return ride;
+    }
+
     private int calculateRidePrice(BasicRideCreationDTO dto, VehicleType vehicleType) {
         return (int) Math.round(vehicleType.getPrice() + dto.getDistance() * 120);
     }
+
+    public RideSimpleDisplayDTO createBasicRideSimpleDisplayDTO(Ride ride, Driver driver) {
+        RideSimpleDisplayDTO rideDisplayDTO = modelMapper.map(ride, RideSimpleDisplayDTO.class);
+        rideDisplayDTO.setDriver(modelMapper.map(driver, DriverSimpleDisplayDTO.class));
+        if (ride.getExpectedRoute() != null)
+            rideDisplayDTO.setRoute(createRouteDisplayDtoFromRoute(ride.getExpectedRoute()));
+        else
+            rideDisplayDTO.setRoute(createRouteDisplayDtoFromRoute(ride.getActualRoute()));
+        return rideDisplayDTO;
+    }
+
+    private Route createRouteFromDto(RouteCreationDTO dto) {
+        Route route = new Route();
+        route.setWaypoints(dto.getWaypoints().stream().map(latLng ->
+                modelMapper.map(latLng, Coordinates.class)).toList());
+        route.setCoordinates(dto.getCoordinates().stream().map(latLng ->
+                modelMapper.map(latLng, Coordinates.class)).toList());
+        return route;
+    }
+
+    private RouteDisplayDTO createRouteDisplayDtoFromRoute(Route route) {
+        RouteDisplayDTO dto = new RouteDisplayDTO();
+        dto.setWaypoints(route.getWaypoints().stream().map(latLng ->
+                modelMapper.map(latLng, CoordinatesDisplayDTO.class)).toList());
+        dto.setCoordinates(route.getCoordinates().stream().map(latLng ->
+                modelMapper.map(latLng, CoordinatesDisplayDTO.class)).toList());
+        return dto;
+    }
+
 }

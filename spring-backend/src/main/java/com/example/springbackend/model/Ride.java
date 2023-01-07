@@ -13,6 +13,7 @@ public class Ride {
     private Integer id;
 
     private Double distance;
+    private int expectedTime;
     private String cancelled;
     private Boolean rejected;
     private LocalDateTime startTime;

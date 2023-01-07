@@ -1,9 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircle, faFlagCheckered, faHandHoldingUsd, faRoute, faStop, faStopwatch, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
-import { RideService } from 'src/app/core/http/ride/ride.service';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
-import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Component({
   selector: 'app-passenger-ride-details',
@@ -25,10 +23,10 @@ export class PassengerRideDetailsComponent implements OnInit {
   faHandHoldingUsd: IconDefinition = faHandHoldingUsd;
 
   accountType: string = this.authenticationService.getAccountType();
-  isOpened: boolean = false;
+  isOpened: boolean = true;
   newStopQuery: string = '';
 
-  coupeImg: string = 'assets/icons/car-coupe.png';
+  coupeImg: string = 'assets/icons/car-coupe-gray.png';
   minivanImg: string = 'assets/icons/car-minivan-gray.png';
   stationImg: string = 'assets/icons/car-station-gray.png';
 
@@ -55,14 +53,30 @@ export class PassengerRideDetailsComponent implements OnInit {
     }
   }
 
-  getIcon(i: Number) {
+  getIcon(i: number): IconDefinition {
     if (i === 0) return this.faCircle;
     else if (i === this.waypoints.length - 1) return this.faFlagCheckered;
     else return this.faStop;
   }
 
-  get ride () {
+  get ride() {
     return this.passengerService.getCurrentRide();
+  }
+
+  get driverRating(): string {
+    if (!this.ride) return ''
+    if (this.ride.driver.totalRatingSum === 0) return '-';
+    return parseFloat((this.ride.driver.totalRatingSum / this.ride.driver.numberOfReviews).toString()).toFixed(2);
+  }
+
+  get vehicleImage(): string {
+    if (this.ride?.driver.vehicle.vehicleType.name === 'COUPE')
+      return this.coupeImg;
+    else if (this.ride?.driver.vehicle.vehicleType.name  === 'MINIVAN')
+      return this.minivanImg;
+    else if (this.ride?.driver.vehicle.vehicleType.name  === 'STATION')
+      return this.stationImg;
+    return this.coupeImg;
   }
 
 }

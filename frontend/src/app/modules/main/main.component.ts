@@ -15,20 +15,23 @@ export class MainComponent implements OnInit {
   // Driver
   isActive: boolean | null = null;
 
+  isMainLoaded: boolean = false;
+
   constructor(private driverService: DriverService, private passengerService: PassengerService, private authenticationService: AuthenticationService) { }
 
   async ngOnInit(): Promise<void> {
     if (this.authenticationService.getAccountType() === 'driver')
       this.isActive = await this.driverService.getDriverActivity();
     if (this.authenticationService.getAccountType() === 'passenger')
-      this.passengerService.fetchCurrentRide();
+      await this.passengerService.fetchCurrentRide();
+    this.isMainLoaded = true;
   }
 
   addNewStop(event: string): void {
     this.mapComponent.addNewWaypoint(event);
   }
 
-  removeStop(event: Number): void {
+  removeStop(event: number): void {
     this.mapComponent.removeWaypoint(event);
   }
 

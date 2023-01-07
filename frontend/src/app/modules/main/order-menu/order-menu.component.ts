@@ -15,7 +15,7 @@ export class OrderMenuComponent implements OnInit {
   @Input() route!: any;
   @Input() alternativeRoute!: any;
   @Output() stopAdded: EventEmitter<string> = new EventEmitter<string>();
-  @Output() stopRemoved: EventEmitter<Number> = new EventEmitter<Number>();
+  @Output() stopRemoved: EventEmitter<number> = new EventEmitter<number>();
 
   faChevronRight: IconDefinition = faChevronRight;
   faChevronLeft: IconDefinition = faChevronLeft;
@@ -61,7 +61,7 @@ export class OrderMenuComponent implements OnInit {
       babySeat: this.hasBabySeat,
       petFriendly: this.isPetFriendly,
       vehicleType: this.selectedVehicleType.name,
-      expectedTimeInSeconds: actualRoute.summary.totalTime,
+      expectedTime: actualRoute.summary.totalTime,
       expectedRoute: deviateFromRoute ? {
         waypoints: this.route.waypoints,
         coordinates: this.route.coordinates
@@ -80,7 +80,7 @@ export class OrderMenuComponent implements OnInit {
     });
   }
 
-  calculateRidePrice(): Number {
+  calculateRidePrice(): number {
     if (this.selectedVehicleType)
       return Number((this.selectedVehicleType.price + Number((this.route.summary?.totalDistance / 1000).toFixed(2)) * 120).toFixed(0));
     return -1;
@@ -96,7 +96,7 @@ export class OrderMenuComponent implements OnInit {
     this.newStopQuery = '';
   }
 
-  removeStop(i: Number): void {
+  removeStop(i: number): void {
     this.stopRemoved.emit(i);
   }
 
@@ -126,7 +126,7 @@ export class OrderMenuComponent implements OnInit {
       this.selectedVehicleType = this.vehicleTypes[0];
   }
 
-  getIcon(i: Number) {
+  getIcon(i: number) {
     if (i === 0) return this.faCircle;
     else if (i === this.waypoints.length - 1) return this.faFlagCheckered;
     else return this.faStop;

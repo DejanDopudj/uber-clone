@@ -33,12 +33,12 @@ public class TestDataSupplierService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public static List<Coordinates<Double, Double>> locations = Arrays.asList(
-            new Coordinates<>(45.241805, 19.798567),
-            new Coordinates<>(45.245749, 19.851122),
-            new Coordinates<>(45.252782, 19.855517),
-            new Coordinates<>(45.264056, 19.829546),
-            new Coordinates<>(45.257006, 19.801482)
+    public static List<Coordinates> locations = Arrays.asList(
+            new Coordinates(45.241805, 19.798567),
+            new Coordinates(45.245749, 19.851122),
+            new Coordinates(45.252782, 19.855517),
+            new Coordinates(45.264056, 19.829546),
+            new Coordinates(45.257006, 19.801482)
     );
 
     @Transactional
@@ -81,7 +81,7 @@ public class TestDataSupplierService {
     private void addDrivers() {
 //        addOtherDrivers();
         Vehicle vehicle = new Vehicle();
-        vehicle.setBabySeat(true);
+        vehicle.setBabySeat(false);
         vehicle.setPetsAllowed(true);
         vehicle.setMake("Checker");
         vehicle.setModel("Marathon A11");

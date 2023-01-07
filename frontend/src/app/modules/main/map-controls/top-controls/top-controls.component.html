@@ -43,19 +43,19 @@
         </div>
 
         <!-- profile dropdown -->
-        <div *ngIf="showProfileDropdown" class="absolute z-20 right-0 top-14 rounded-lg bg-white
-       w-64 p-1.5 flex flex-col font-medium text-gray-700"
+        <div *ngIf="showProfileDropdown" class="absolute z-20 right-0 top-14 rounded-lg bg-dark
+       w-64 p-1.5 px-2 flex flex-col font-medium text-light"
         (click)="clickedProfileDropdown = true">
 
-          <button class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:bg-gray-100"
+          <button class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
           routerLink="/account">
             <fa-icon [icon]="faUser" class="text-xl"></fa-icon>
             <span class="my-auto">Account</span>
           </button>
           
-          <hr class="my-1">
+          <hr class="my-1 border-stone-500">
 
-          <button class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:bg-gray-100"
+          <button class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
           (click)="logout()">
             <fa-icon [icon]="faPowerOff" class="text-xl"></fa-icon>
             <span class="my-auto">Log Out</span>

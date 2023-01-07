@@ -39,15 +39,13 @@ export class PassengerService {
 
   // SOCKET WILL TELL US WHEN THE RIDE IS OVER OR REJECTED SO WE CAN UPDATE THIS
 
-  fetchCurrentRide = () => {
-    axios.get(`/api/passengers/current-ride`, {
+  fetchCurrentRide = async () => {
+    await axios.get(`/api/passengers/current-ride`, {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
     })
     .then((res) => {
-      console.log("CURRENT RIDE")
-      console.log(res.data);
       if (res.data) this.currentRide = res.data;
     })
     .catch((err) => {

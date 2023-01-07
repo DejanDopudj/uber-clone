@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input } from '@angular/core';
+import { Component, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import * as GeoSearch from 'leaflet-geosearch';
@@ -8,7 +8,8 @@ import { AuthenticationService } from 'src/app/core/authentication/authenticatio
 import { SimulatorService } from 'src/app/core/http/simulator/simulator.service';
 import * as moment from 'moment';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
-import { Observable } from 'rxjs';
+import { RideSimple } from 'src/app/shared/models/ride.model';
+import { Route } from 'src/app/shared/models/route.model';
 
 const service_url = "https://nominatim.openstreetmap.org/reverse?format=json";
 const API_KEY = null;
@@ -30,6 +31,16 @@ export class MapComponent implements AfterViewInit {
   private provider!: GeoSearch.OpenStreetMapProvider;
   private vehicleMarkers: any = {};
   private vehicleRoutes: any = {};
+
+  @Input() set isMainLoaded(value: boolean) {
+    const passengerRide: RideSimple | null = this.passengerService.getCurrentRide();
+    if (passengerRide) {
+      this.clearMarkers();
+      this.fillWaypoints();
+      this.setCursorStyle();
+      this.drawRideRoute(passengerRide)
+    }
+  }
 
   occupiedTaxiIcon = L.icon({
     iconUrl: '/assets/icons/occupied-taxi.png',
@@ -108,10 +119,7 @@ export class MapComponent implements AfterViewInit {
     })
     .addTo(this.map);
 
-    if (this.canUserAlterWaypoints())
-      document.getElementById('map')!.style.cursor = 'crosshair';
-    else
-      document.getElementById('map')!.style.cursor = 'grab';
+    this.setCursorStyle();
   }
 
   addMarker = async (e: any) => {
@@ -143,22 +151,22 @@ export class MapComponent implements AfterViewInit {
     this.waypoints = [];
   }
 
-  drawRoute(route: L.Routing.IRoute): void {
+  drawRideRoute(ride: RideSimple): void {
     // maybe no need for 'deep' copy after testing
     const r: any = {
       name: 'Route',
-      summary: {...route.summary},
-      coordinates: route.coordinates?.map(latlng => { return {...latlng}}),
-      waypoints: route.waypoints?.map(latlng => { return {...latlng}}),
-      inputWaypoints: route.waypoints?.map(latlng => { return {...latlng}}),
-      waypointIndices: [0, route.coordinates!.length - 1],
+      summary: { totalDistance: ride.distance * 1000, totalTime: ride.expectedTime },
+      coordinates: ride.route.coordinates?.map(latlng => { return {...latlng}}),
+      waypoints: ride.route.waypoints?.map(latlng => { return {...latlng}}),
+      inputWaypoints: ride.route.waypoints?.map(latlng => { return {...latlng}}),
+      waypointIndices: [0, ride.route.coordinates!.length - 1],
       routesIndex: 0,
       properties: { isSimplified: true },
       instructions: [],
     }
-    L.Routing.line(r, {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: true, missingRouteTolerance: 0.1}).addTo(this.map);
-    r.waypoints?.forEach((e : any) => {
-      L.marker(e.latLng).addTo(this.map);
+    L.Routing.line(r, {styles: [{color: '#006D5B', weight: 4}], extendToWaypoints: false, missingRouteTolerance: 0.1}).addTo(this.map);
+    ride.route.waypoints?.forEach((e : any) => {
+      L.marker({lat: e.lat, lng: e.lng}).addTo(this.map);
     });
   }
   
@@ -285,6 +293,24 @@ export class MapComponent implements AfterViewInit {
     } catch (error) {
         console.error(error);
     }
+  }
+
+  fillWaypoints = async () => {
+    const ride: RideSimple | null = this.passengerService.getCurrentRide();
+    if (!ride) return;
+    for (const latLng of ride.route.waypoints) {
+      await this.reverseSearchLocation(latLng.lat, latLng.lng)
+      .then((res) => {
+        this.waypoints.push(res);
+      });
+    }
+  }
+
+  setCursorStyle = () => {
+    if (this.canUserAlterWaypoints())
+      document.getElementById('map')!.style.cursor = 'crosshair';
+    else
+      document.getElementById('map')!.style.cursor = 'grab';
   }
 
 }

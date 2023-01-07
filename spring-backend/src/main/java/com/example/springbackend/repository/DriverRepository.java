@@ -20,13 +20,29 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
     Optional<Driver> findByUsername(String username);
 
     @Query("SELECT d FROM Driver d WHERE d.active = true AND d.currentRide is null AND d.nextRide is null " +
-            "AND d.vehicle.rideActive = false AND " + HAVERSINE_PART + " <= 5 ORDER BY " + HAVERSINE_PART + " ASC")
-    Page<Driver> getClosestFreeDriver(@Param("lat") Double lat, @Param("lng") Double lng, Pageable page);
+            "AND d.vehicle.rideActive = false AND d.vehicle.babySeat >= :babySeat AND " +
+            "d.vehicle.petsAllowed >= :petFriendly AND d.vehicle.vehicleType.name = :vehicleType AND " +
+            "" + HAVERSINE_PART + " <= 5 ORDER BY " + HAVERSINE_PART + " ASC")
+    Page<Driver> getClosestFreeDriver(
+            @Param("lat") Double lat,
+            @Param("lng") Double lng,
+            @Param("babySeat") boolean babySeat,
+            @Param("petFriendly") boolean petFriendly,
+            @Param("vehicleType") String vehicleType,
+            Pageable page);
 
     @Query("SELECT d FROM Driver d WHERE d.active = true AND d.currentRide is not null AND d.nextRide is null " +
-            "AND d.vehicle.rideActive = true AND " + HAVERSINE_PART_NEXT + " <= 5")
-    List<Driver> getCloseBusyDriversWithNoNextRide(@Param("lat") Double lat, @Param("lng") Double lng);
+            "AND d.vehicle.rideActive = true AND d.vehicle.babySeat >= :babySeat AND " +
+            "d.vehicle.petsAllowed >= :petFriendly AND d.vehicle.vehicleType.name = :vehicleType AND " +
+            "" + HAVERSINE_PART_NEXT + " <= 5")
+    List<Driver> getCloseBusyDriversWithNoNextRide(
+            @Param("lat") Double lat,
+            @Param("lng") Double lng,
+            @Param("babySeat") boolean babySeat,
+            @Param("petFriendly") boolean petFriendly,
+            @Param("vehicleType") String vehicleType
+    );
 
     @Query("SELECT d FROM Driver d WHERE d.currentRide = :ride OR d.nextRide = :ride")
-    Optional<Driver> getDriverForRide(@Param("ride") Ride currentRide);
+    Optional<Driver> getDriverForRide( @Param("ride") Ride currentRide);
 }

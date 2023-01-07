@@ -4,8 +4,8 @@ import { Coordinates } from 'src/app/shared/models/coordinates.model';
 import { AuthenticationService } from '../../authentication/authentication.service';
 
 interface BasicOrderData {
-  distance: Number,
-  expectedTimeInSeconds: Number,
+  distance: number,
+  expectedTime: number,
   babySeat: boolean,
   petFriendly: boolean,
   vehicleType: string,
