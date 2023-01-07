@@ -33,7 +33,8 @@ export class PassengerService {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
     }).then((resp => {
-      window.location= (resp.data.links[1].href);
+      // window.location= (resp.data.links[1].href);
+      window.open(resp.data.links[1].href, '_blank', 'location=yes,height=660,width=520,scrollbars=yes,status=yes');
     }));
   }
 

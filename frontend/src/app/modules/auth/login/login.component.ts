@@ -33,10 +33,10 @@ export class LoginComponent implements OnInit {
 
   async onSubmit() {
     const success = await this.authenticationService.login(this.email?.value!, this.password?.value!);
-    if(success){   
+    if (success) {   
       this.authenticationService.whoami();
     }
-    else{
+    else {
       this.wrongCredentials = true;
     }
   }
