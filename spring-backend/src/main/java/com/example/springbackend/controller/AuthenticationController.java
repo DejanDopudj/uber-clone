@@ -84,7 +84,6 @@ public class AuthenticationController {
 
     @PostMapping("/confirm-password-reset")
     public boolean confirmPasswordReset(@RequestBody PasswordResetDTO passwordResetDTO){
-        System.out.println(passwordResetDTO.getToken());
         return memberService.confirmPasswordReset(passwordResetDTO.getToken(),passwordResetDTO.getNewPassword());
     }
 

@@ -53,7 +53,6 @@ public class MemberService {
         try{
             DecodedJWT decodedJWT = tokenUtils.verifyToken(token);
             Member member = memberRepository.findByUsername(decodedJWT.getSubject()).orElseThrow();
-            System.out.println(member.getUsername());
             member.setPassword(passwordEncoder.encode(newPassword));
             memberRepository.save(member);
             return true;
@@ -63,7 +62,6 @@ public class MemberService {
     }
 
     public boolean passwordReset(String mail){
-        System.out.println("ASDF");
         String jwt = tokenUtils.generateConfirmationToken(mail);
         emailService.sendPasswordResetEmail(mail, jwt);
         return true;
