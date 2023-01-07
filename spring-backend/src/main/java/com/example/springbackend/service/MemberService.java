@@ -31,6 +31,8 @@ public class MemberService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private EmailService emailService;
 
 
     public boolean isUserActive(String username){
@@ -47,16 +49,23 @@ public class MemberService {
         }
     }
 
-    public boolean resetPassword(String oldPassword, String newPassword) {
-        Member member = (Member) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public boolean confirmPasswordReset(String token, String newPassword) {
         try{
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    member.getUsername(), oldPassword));
+            DecodedJWT decodedJWT = tokenUtils.verifyToken(token);
+            Member member = memberRepository.findByUsername(decodedJWT.getSubject()).orElseThrow();
+            System.out.println(member.getUsername());
             member.setPassword(passwordEncoder.encode(newPassword));
             memberRepository.save(member);
             return true;
-        } catch (AuthenticationException ae) {
+        } catch (TokenExpiredException e) {
             return false;
         }
+    }
+
+    public boolean passwordReset(String mail){
+        System.out.println("ASDF");
+        String jwt = tokenUtils.generateConfirmationToken(mail);
+        emailService.sendPasswordResetEmail(mail, jwt);
+        return true;
     }
 }
