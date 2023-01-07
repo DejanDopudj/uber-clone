@@ -22,6 +22,7 @@ public class WSEventListener {
     @EventListener
     public void handleWebSocketConnectListener(final SessionConnectedEvent event) {
         LOGGER.info("Bing, new user connected!");
+
     }
 
     @EventListener
