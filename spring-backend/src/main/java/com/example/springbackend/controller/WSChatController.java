@@ -1,5 +1,7 @@
 package com.example.springbackend.controller;
 
+import com.example.springbackend.service.ChatService;
+import com.example.springbackend.service.MessageService;
 import com.example.springbackend.websocket.WSMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,6 +21,9 @@ public class WSChatController {
         this.template = template;
     }
 
+    @Autowired
+    private MessageService messageService;
+
     @MessageMapping("/chat/publicMessage") // /app/chat/publicMessage
     @SendTo("/topic/public")               // primjer za globalno obavjestenje
     public void sendMessage(String message) {
@@ -26,9 +31,9 @@ public class WSChatController {
     }
 
     @MessageMapping("/privateMessage") // /app/privateMessage
-    public WSMessage recMessage(@Payload final WSMessage message) {
+    public WSMessage sendMessage(@Payload final WSMessage message) {
         this.template.convertAndSendToUser(message.getReceiver(), "/private", message);
-        System.out.println(message.toString());
+        messageService.addMessage(message);
         return message;
     }
 }
