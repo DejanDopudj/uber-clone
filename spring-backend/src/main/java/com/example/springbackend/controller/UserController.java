@@ -1,21 +1,15 @@
 package com.example.springbackend.controller;
 
-import com.example.springbackend.dto.creation.DriverCreationDTO;
 import com.example.springbackend.dto.display.AccountDisplayDTO;
 import com.example.springbackend.dto.update.UserUpdateDTO;
 import com.example.springbackend.dto.display.SessionDisplayDTO;
-import com.example.springbackend.model.Driver;
-import com.example.springbackend.service.DriverService;
 import com.example.springbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)

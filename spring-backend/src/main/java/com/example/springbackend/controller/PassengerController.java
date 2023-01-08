@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 @RestController
@@ -24,7 +23,7 @@ public class PassengerController {
     @PostMapping("")
     public ResponseEntity<Passenger> signupPassenger(@Valid @RequestBody UserCreationDTO userCreationDTO) {
         Passenger passenger = passengerService.signUp(userCreationDTO);
-        return new ResponseEntity<>(passenger, passenger != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(passenger, HttpStatus.CREATED);
     }
 
     @GetMapping("/current-ride")

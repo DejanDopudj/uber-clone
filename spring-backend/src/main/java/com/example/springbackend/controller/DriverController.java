@@ -24,7 +24,7 @@ public class DriverController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Driver> signupDriver(@Valid @RequestBody DriverCreationDTO driverCreationDTO){
         Driver driver = driverService.signUp(driverCreationDTO);
-        return new ResponseEntity<>(driver, driver != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(driver, HttpStatus.CREATED);
     }
 
     @GetMapping("/{username}")
