@@ -2,6 +2,7 @@ package com.example.springbackend.model;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -18,9 +19,10 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id",referencedColumnName = "id")
+    @JsonIgnore
     private Chat chat;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id",referencedColumnName = "username")
-    private User sender;
+//    @ManyToOne
+//    @JoinColumn(name = "sender_id",referencedColumnName = "username")
+    private String sender;
 }

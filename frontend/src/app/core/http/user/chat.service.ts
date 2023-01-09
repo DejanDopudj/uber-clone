@@ -15,4 +15,20 @@ export class ChatService {
   getUserChat(username: string): Promise<any> {
     return axios.get(`/api/chat/${username}`);
   }
+
+  updateChat(username: string, type: string): void {
+    axios
+      .post(
+        `/api/chat/updateRead`,
+        { username: username, type: type },
+        {
+          headers: {
+            Authorization: `Bearer ${this.authenticationService.getToken()}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
 }

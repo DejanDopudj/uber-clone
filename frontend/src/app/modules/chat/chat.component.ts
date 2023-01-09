@@ -4,6 +4,7 @@ import * as SockJS from 'sockjs-client';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { ChatService } from 'src/app/core/http/user/chat.service';
 import { Chat } from 'src/app/shared/models/chat.model';
+import { Message } from 'src/app/shared/models/message.model';
 import { User } from 'src/app/shared/models/user.model';
 
 @Component({
@@ -14,7 +15,7 @@ export class ChatComponent implements OnInit {
   numOfNewMessages: number = 0;
   stompClient: any;
   indexOfSelectedChat: number = 0;
-  displayChat: boolean = false;
+  showChat: boolean = false;
   shouldScroll: boolean = false;
   newMessage: string = '';
   receiver: string = '';
@@ -27,21 +28,26 @@ export class ChatComponent implements OnInit {
 
   ngOnInit(): void {
     this.initChats();
-    if (this.chats.length === 0) return;
-    this.countNumberOfUnreadMessages();
-    this.initWS();
+  }
+
+  ngAfterContentInit(): void {
+    if (this.user.role !== '') {
+      this.initWS();
+      this.countNumberOfUnreadMessages();
+    }
   }
 
   initChats(): void {
     const session = this.authenticationService.getSession();
     if (!session) return;
-    if (session.accountType === 'ADMIN') {
+    if (session.accountType === 'admin') {
       this.user = {
         username: 'admin',
         role: session.accountType,
       };
       this.chatService.getAllChats().then((response) => {
         this.chats = response.data;
+        this.receiver = this.chats[0].member.username;
       });
     } else {
       this.user = {
@@ -49,39 +55,45 @@ export class ChatComponent implements OnInit {
         role: session.accountType,
       };
       this.chatService.getUserChat(this.user.username).then((response) => {
-        this.chats = response.data;
+        this.chats = [response.data];
+        this.receiver = 'admin';
       });
     }
-    this.receiver = this.chats[0].username;
   }
 
   initWS(): void {
     let addr = '';
-    if (this.user.role === 'ADMIN') {
+    if (this.user.role === 'admin') {
       addr = '/user/admin/private';
     } else {
       addr = '/user/' + this.user.username + '/private';
     }
     this.stompClient = Stomp.over(new SockJS('http://localhost:8080/ws'));
-    this.stompClient.connect({}, () => {
-      this.stompClient.subscribe(addr, (message: any) => {
-        let messageData = JSON.parse(message.body);
-        let mess = {
-          sender: messageData.sender,
-          content: messageData.content,
-          sentDateTime: new Date(messageData.sentDateTime),
-        };
-        if (messageData.type === 'CHAT') {
+    this.stompClient.connect({}, () => this.onMessageRecieve(addr));
+  }
+
+  onMessageRecieve(addr: string): void {
+    this.stompClient.subscribe(addr, (message: any) => {
+      let messageData = JSON.parse(message.body);
+      let mess = {
+        sender: messageData.sender,
+        content: messageData.content,
+        sentDateTime: new Date(messageData.sentDateTime),
+      };
+      if (messageData.type === 'CHAT') {
+        if (this.user.role === 'admin') {
           for (let chat of this.chats) {
-            if (chat.username === messageData.sender) {
+            if (chat.member.username === messageData.sender) {
               chat.messages.push(mess);
             }
           }
-          this.checkMessages(mess.sender);
-          this.scroll();
-          this.updateLastRead();
+        } else {
+          this.chats[0].messages.push(mess);
         }
-      });
+        this.checkNewMessage(mess.sender);
+        this.scroll();
+        this.updateLastRead();
+      }
     });
   }
 
@@ -113,6 +125,7 @@ export class ChatComponent implements OnInit {
     this.newMessage = '';
     this.scroll();
     this.updateLastRead();
+    this.checkIfStillHasUnread();
   }
 
   onValueChange(event: Event): void {
@@ -120,43 +133,54 @@ export class ChatComponent implements OnInit {
     this.newMessage = value;
   }
 
-  changeChat(username: String): void {
+  changeChat(username: string): void {
     for (let i = 0; i < this.chats.length; i++) {
-      if (this.chats[i].username === username) {
+      if (this.chats[i].member.username === username) {
         this.indexOfSelectedChat = i;
-        this.receiver = this.chats[i].username;
+        this.receiver = this.chats[i].member.username;
         this.checkIfStillHasUnread();
+        this.scroll();
         break;
       }
     }
   }
 
-  changeChatDisplay(): void {
-    this.displayChat = !this.displayChat;
-    if (this.displayChat) {
+  changeShowChat(): void {
+    this.showChat = !this.showChat;
+    if (this.showChat) {
       this.scroll();
       this.checkIfStillHasUnread();
     }
   }
 
   checkIfStillHasUnread(): void {
+    if (this.user.role !== 'admin') {
+      this.numOfNewMessages = 0;
+      return;
+    }
     let chat = this.chats[this.indexOfSelectedChat];
-    this.numOfNewMessages -= this.getNUmberOfUnread(chat);
+    this.numOfNewMessages -= this.getNumberOfUnread(chat);
     this.updateLastRead();
   }
 
   updateLastRead(): void {
-    if (this.user.role === 'ADMIN')
+    let type = '';
+    if (this.user.role === 'admin') {
       this.chats[this.indexOfSelectedChat].lastReadAdmin = new Date();
-    else this.chats[this.indexOfSelectedChat].lastReadMember = new Date();
+      type = 'admin';
+    } else this.chats[this.indexOfSelectedChat].lastReadMember = new Date();
+    this.chatService.updateChat(
+      this.chats[this.indexOfSelectedChat].member.username,
+      type
+    );
   }
 
-  getNUmberOfUnread(chat: any): number {
+  getNumberOfUnread(chat: Chat): number {
+    if (chat.messages.length == 0) return 0;
     let numOfUnread = 0;
-    let lastRead =
-      this.user.role === 'ADMIN' ? chat.lastReadAdmin : chat.lastReadMember;
     for (let i = chat.messages.length - 1; i > 0; i--) {
-      if (chat.messages[i].sentDateTime > lastRead) numOfUnread += 1;
+      if (chat.messages[i].sentDateTime > new Date(chat.lastReadAdmin))
+        numOfUnread += 1;
       else break;
     }
     return numOfUnread;
@@ -164,7 +188,7 @@ export class ChatComponent implements OnInit {
 
   countNumberOfUnreadMessages(): void {
     for (let chat of this.chats) {
-      this.numOfNewMessages += this.getNUmberOfUnread(chat);
+      this.numOfNewMessages += this.getNumberOfUnread(chat);
     }
   }
 
@@ -172,16 +196,24 @@ export class ChatComponent implements OnInit {
     setTimeout(() => {
       let objdiv = document.getElementById('chat-scroll');
       if (objdiv) objdiv!.scrollTo(0, objdiv!.scrollHeight);
-    }, 25);
+    }, 5);
   }
 
-  checkMessages(sender: string): void {
-    if (!this.displayChat) {
+  checkNewMessage(sender: string): void {
+    if (!this.showChat) {
       this.numOfNewMessages += 1;
-    } else if (this.chats[this.indexOfSelectedChat].username !== sender) {
+    } else if (this.receiver !== sender && this.user.role === 'admin') {
       this.numOfNewMessages += 1;
     } else {
       this.numOfNewMessages = 0;
     }
+  }
+
+  getTime(message: Message): string {
+    message.sentDateTime = new Date(message.sentDateTime);
+    return message.sentDateTime.toLocaleTimeString('en-GB', {
+      hour: 'numeric',
+      minute: 'numeric',
+    });
   }
 }

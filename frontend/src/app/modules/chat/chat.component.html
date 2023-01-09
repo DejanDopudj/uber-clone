@@ -1,26 +1,28 @@
-<div class="mt-auto">
+<div class="mt-auto" *ngIf="user.username != ''">
   <div
-    class="bg-accent z-50 w-120 h-140 rounded-xl overflow-hidden flex absolute right-16 bottom-14"
-    [ngClass]="{ 'w-80': user.role !== 'ADMIN' }"
-    *ngIf="displayChat"
+    class="bg-gray-800 z-50 w-120 h-140 rounded-xl overflow-hidden flex absolute right-16 bottom-24"
+    [ngClass]="{ 'w-80': user.role !== 'admin' }"
+    *ngIf="showChat"
   >
     <div
-      *ngIf="user.role === 'ADMIN'"
-      class="translate-y-12 w-40 bg-accent select-none"
+      *ngIf="user.role === 'admin'"
+      class="translate-y-12 w-30 max-w-[160px] bg-gray-800 select-none overflow-auto overflow-y-scroll hidden-scrollbar"
     >
       <ul role="list" class="w-full">
         <li
           *ngFor="let chat of chats"
-          class="py-4 flex hover:bg-accent-light"
-          (click)="changeMessages(chat.username)"
+          class="py-4 flex hover:bg-gray-600"
+          (click)="changeChat(chat.member.username)"
         >
           <div class="mx-3 truncate">
-            <p class="text-sm font-medium text-white">
-              {{ chat.username }}
+            <p class="text-sm font-medium text-white truncate">
+              {{ chat.member.username }}
             </p>
             <p
-              class="text-sm text-gray-400"
-              [ngClass]="{ 'text-blue-500': numberOfUndreadMess(chat) > 0 }"
+              class="text-sm text-gray-400 truncate p-1"
+              [ngClass]="{
+                'text-gray-300 font-bold': getNumberOfUnread(chat) > 0
+              }"
             >
               {{ chat.messages[chat.messages.length - 1].content }}
             </p>
@@ -28,21 +30,17 @@
         </li>
       </ul>
     </div>
-    <div class="bg-accent-light z-40 w-80 overflow-hidden relative rounded-xl">
-      <div class="flex h-12 bg-accent my-auto justify-between select-none">
+    <div class="bg-gray-600 z-40 w-80 overflow-hidden relative rounded-xl">
+      <div class="flex h-12 bg-gray-800 my-auto justify-between select-none">
         <div
           class="text-lg text-white my-auto ml-4 border-b border-transparent hover:border-gray-500 truncate"
         >
-          {{
-            chats[indexOfSelectedChat].username === "admin"
-              ? "Live support"
-              : chats[indexOfSelectedChat].username
-          }}
+          {{ receiver === "admin" ? "Live support" : receiver }}
         </div>
       </div>
       <div
         id="chat-scroll"
-        class="h-[80%] text-sm overflow-auto overflow-y-scroll"
+        class="h-[80%] text-sm overflow-auto overflow-y-scroll hidden-scrollbar"
       >
         <div
           *ngFor="let msg of chats[indexOfSelectedChat].messages"
@@ -57,12 +55,7 @@
               {{ msg.content }}
             </p>
             <div class="mx-4 text-gray-300 text-xs">
-              {{
-                msg.sentDateTime.toLocaleTimeString("en-GB", {
-                  hour: "numeric",
-                  minute: "numeric"
-                })
-              }}
+              {{ getTime(msg) }}
             </div>
           </div>
           <div *ngIf="msg.sender == user.username" class="text-right">
@@ -73,12 +66,7 @@
               {{ msg.content }}
             </p>
             <div class="mx-4 text-gray-100 text-xs">
-              {{
-                msg.sentDateTime.toLocaleTimeString("en-GB", {
-                  hour: "numeric",
-                  minute: "numeric"
-                })
-              }}
+              {{ getTime(msg) }}
             </div>
           </div>
         </div>
@@ -91,16 +79,16 @@
           placeholder="Type message..."
           rows="1"
           [value]="newMessage"
-          (keydown.enter)="addMessage($event)"
+          (keydown.enter)="createNewMessage($event)"
           (input)="onValueChange($event)"
         ></textarea>
       </div>
     </div>
   </div>
-  <div class="absolute right-6 bottom-6 z-50">
+  <div class="absolute right-6 bottom-16 z-50">
     <button
-      class="bg-accent-light text-white w-10 h-10 rounded-2xl"
-      (click)="changeChatDisplay()"
+      class="bg-gray-600 text-white w-10 h-10 rounded-2xl"
+      (click)="changeShowChat()"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +110,7 @@
       </svg>
     </button>
   </div>
-  <div *ngIf="numOfNewMessages > 0" class="absolute right-5 bottom-14 z-50">
+  <div *ngIf="numOfNewMessages > 0" class="absolute right-5 bottom-24 z-50">
     <div class="bg-red-600 rounded-2xl w-5 h-5 text-center text-white text-sm">
       {{ numOfNewMessages }}
     </div>

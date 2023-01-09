@@ -1,7 +1,8 @@
 import { Message } from './message.model';
+import { User } from './user.model';
 
 export interface Chat {
-  username: string;
+  member: User;
   messages: Array<Message>;
   lastReadAdmin: Date;
   lastReadMember: Date;

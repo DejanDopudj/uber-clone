@@ -23,6 +23,6 @@ public class Chat {
     @JoinColumn(name = "member_username")
     private User member;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "chat")
     private List<Message> messages;
 }

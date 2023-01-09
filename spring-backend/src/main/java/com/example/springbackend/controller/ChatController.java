@@ -1,15 +1,15 @@
 package com.example.springbackend.controller;
 
+import com.example.springbackend.dto.creation.BasicChatUpdateDTO;
+import com.example.springbackend.dto.creation.BasicRideCreationDTO;
 import com.example.springbackend.dto.display.ChatDisplayDTO;
 import com.example.springbackend.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,5 +26,10 @@ public class ChatController {
     @GetMapping("/all")
     public ResponseEntity<List<ChatDisplayDTO>> getAllChats() {
         return ResponseEntity.ok(chatService.getAllChats());
+    }
+
+    @PostMapping("/updateRead")
+    public void updateRead(@Valid @RequestBody BasicChatUpdateDTO dto) {
+        chatService.updateLastRead(dto);
     }
 }

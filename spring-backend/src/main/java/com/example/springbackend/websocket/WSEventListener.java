@@ -37,5 +37,6 @@ public class WSEventListener {
                 .build();
 
         sendingOperations.convertAndSend("/topic/public", message);
+        LOGGER.info("User disconnected!");
     }
 }
