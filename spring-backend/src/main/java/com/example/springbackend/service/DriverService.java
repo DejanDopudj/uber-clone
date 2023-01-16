@@ -3,6 +3,7 @@ package com.example.springbackend.service;
 import com.example.springbackend.dto.creation.DriverCreationDTO;
 import com.example.springbackend.dto.display.DriverDisplayDTO;
 import com.example.springbackend.exception.UserAlreadyExistsException;
+import com.example.springbackend.model.AccountStatus;
 import com.example.springbackend.model.Driver;
 import com.example.springbackend.model.Vehicle;
 import com.example.springbackend.model.helpClasses.AuthenticationProvider;
@@ -84,6 +85,7 @@ public class DriverService {
         driver.setTotalRatingSum(0);
         driver.setCurrentRide(null);
         driver.setNextRide(null);
+        driver.setAccountStatus(AccountStatus.WAITING);
         return driver;
     }
 

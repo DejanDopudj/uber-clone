@@ -28,6 +28,16 @@ export class DriverService {
     return activity;
   }
 
+  async registerDriver(driver: any): Promise<any> {
+    await axios.post(`/api/drivers`, driver, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then((res => {
+      return res.data;
+    }));
+  }
+
   toggleActivity(): void {
     axios.patch(`/api/drivers/activity`, {},
     {

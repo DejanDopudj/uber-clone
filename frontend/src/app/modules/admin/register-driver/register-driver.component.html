@@ -8,7 +8,7 @@
 
   <div *ngIf="accountType === 'admin'">
   
-    <div class="w-11/12 sm:w-96 mx-auto text-left mt-20 mb-12">
+    <div class="w-11/12 sm:w-96 mx-auto text-left mt-20 mb-16">
       <h1 class="text-3xl font-bold text-white">Register a driver</h1>
   
       <form [formGroup]="registerForm" (submit)="onSubmit()">
@@ -217,7 +217,7 @@
     
             </div>
 
-            <div class="flex justify-between gap-x-4 mt-6">
+            <div class="flex justify-between gap-x-4 mt-8">
               <div class="w-full">
                 <label class="block tracking-wide text-light text-xs font-bold mb-1"
                 for="register-vehicle-make">
@@ -306,6 +306,16 @@
         active:bg-accent text-white font-medium tracking-wide">
           REGISTER
         </button>
+        <div class="h-1 mx-auto text-center mt-0.5">
+          <p *ngIf="responseMessage && !errorMessage"
+            class="text-accent-light text italic">
+            {{ responseMessage }}
+          </p>
+          <p *ngIf="errorMessage"
+            class="text-red-400 text italic">
+            {{ errorMessage }}
+          </p>
+        </div>
       </form>
   </div>
   

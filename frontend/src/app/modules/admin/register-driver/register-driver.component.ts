@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { faBabyCarriage, faChevronLeft, faPaw, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
+import { DriverService } from 'src/app/core/http/user/driver.service';
 
 @Component({
   selector: 'app-register-driver',
@@ -16,6 +17,10 @@ export class RegisterDriverComponent implements OnInit {
   selectedVehicleType: string = 'COUPE';
   hasBabySeat: boolean = false;
   isPetFriendly: boolean = false;
+
+  responseMessage: string = '';
+  errorMessage: string = '';
+  
 
   checkPasswords: ValidatorFn = (group: AbstractControl):  ValidationErrors | null => { 
     let pass = group.get('password')?.value;
@@ -66,16 +71,45 @@ export class RegisterDriverComponent implements OnInit {
     ]),
   }, { validators: this.checkPasswords });
 
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(private authenticationService: AuthenticationService, private driverService: DriverService) {
     document.getElementById('register-email')?.focus();
-    console.log(this.accountType)
   }
 
   ngOnInit(): void {
   }
 
   onSubmit() {
-    console.log('submit')
+    if (this.registerForm.valid) {
+      this.driverService.registerDriver(
+        {
+          username: this.email?.value,
+          email: this.email?.value,
+          password: this.password?.value,
+          name: this.name?.value,
+          surname: this.surname?.value,
+          phoneNumber: this.phoneNumber?.value,
+          city: this.city?.value,
+          vehicleType: this.selectedVehicleType,
+          babySeat: this.hasBabySeat,
+          petsAllowed: this.isPetFriendly,
+          make: this.make?.value,
+          model: this.model?.value,
+          colour: this.colour?.value,
+          licensePlateNumber: this.licensePlateNumber?.value
+        }
+      )
+      .then((res) => {
+        this.registerForm.reset();
+        this.responseMessage = 'Registration successful!';
+      })
+      .catch((err) => {
+        if (err.response.data?.message === 'Username or email already exists.') {
+          this.errorMessage = "Email already in use.";
+        } else {
+          this.errorMessage = 'Invalid information.'
+        }
+      })
+    }
   }
 
   get email() {
