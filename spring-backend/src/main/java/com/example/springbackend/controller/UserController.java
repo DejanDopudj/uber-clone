@@ -5,6 +5,7 @@ import com.example.springbackend.dto.update.UserUpdateDTO;
 import com.example.springbackend.dto.display.SessionDisplayDTO;
 import com.example.springbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

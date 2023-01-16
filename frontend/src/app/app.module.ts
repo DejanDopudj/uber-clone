@@ -20,7 +20,7 @@ import { ChatComponent } from './modules/chat/chat.component';
     AuthModule,
     MainModule,
     UserModule,
-    AdminModule
+    AdminModule,
   ],
   providers: [AuthenticationService],
   bootstrap: [AppComponent],
