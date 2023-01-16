@@ -16,7 +16,6 @@ import { AdminDetailsComponent } from './profile/admin-profile/admin-details/adm
 import { AdminEditComponent } from './profile/admin-profile/admin-edit/admin-edit.component';
 
 
-
 @NgModule({
   declarations: [
     AccountComponent,
