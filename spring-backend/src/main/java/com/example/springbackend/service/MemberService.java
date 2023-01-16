@@ -23,9 +23,9 @@ public class MemberService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserService userService;
 
 
     public boolean isUserActive(String username){
@@ -54,9 +54,12 @@ public class MemberService {
         }
     }
 
-    public boolean passwordReset(String mail){
-        String jwt = tokenUtils.generateConfirmationToken(mail);
-        emailService.sendPasswordResetEmail(mail, jwt);
-        return true;
+    public boolean passwordReset(String mail) {
+        if (userService.userExists(mail)) {
+            String jwt = tokenUtils.generateConfirmationToken(mail);
+            emailService.sendPasswordResetEmail(mail, jwt);
+            return true;
+        }
+        return false;
     }
 }

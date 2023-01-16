@@ -28,8 +28,8 @@ export class DriverService {
     return activity;
   }
 
-  async registerDriver(driver: any): Promise<any> {
-    await axios.post(`/api/drivers`, driver, {
+  async register(data: any): Promise<any> {
+    await axios.post(`/api/drivers`, data, {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }

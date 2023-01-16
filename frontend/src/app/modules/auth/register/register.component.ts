@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { PassengerService } from 'src/app/core/http/user/passenger.service';
 
 
 @Component({
@@ -9,6 +10,9 @@ import { faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons
 })
 export class RegisterComponent implements OnInit {
   faChevronLeft: IconDefinition = faChevronLeft;
+
+  registrationSuccessful: boolean = false;
+  errorMessage: string = '';
 
   checkPasswords: ValidatorFn = (group: AbstractControl):  ValidationErrors | null => { 
     let pass = group.get('password')?.value;
@@ -31,6 +35,13 @@ export class RegisterComponent implements OnInit {
       Validators.minLength(2),
       Validators.maxLength(30)
     ]),
+    city: new FormControl('', [
+      Validators.required,
+    ]),
+    phoneNumber: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/[+]?[(]?\d{3}[)]?[-\s.]?\d{3}[-\s.]?\d{4,6}/)
+    ]),
     password: new FormControl('', [
       Validators.required,
       Validators.minLength(8),
@@ -40,7 +51,7 @@ export class RegisterComponent implements OnInit {
     ])
   }, { validators: this.checkPasswords });
 
-  constructor() {
+  constructor(private passengerService: PassengerService) {
     document.getElementById('register-email')?.focus();
   }
 
@@ -48,7 +59,30 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('submit')
+    if (this.registerForm.valid) {
+      this.passengerService.register(
+        {
+          username: this.email?.value,
+          email: this.email?.value,
+          password: this.password?.value,
+          name: this.name?.value,
+          surname: this.surname?.value,
+          phoneNumber: this.phoneNumber?.value,
+          city: this.city?.value,
+        }
+      )
+      .then((res) => {
+        this.registerForm.reset();
+        this.registrationSuccessful = true;
+      })
+      .catch((err) => {
+        if (err.response.data?.message === 'Username or email already exists.') {
+          this.errorMessage = "Email already in use.";
+        } else {
+          this.errorMessage = 'Invalid information.'
+        }
+      })
+    }
   }
 
   get email() {
@@ -59,6 +93,12 @@ export class RegisterComponent implements OnInit {
   }
   get surname() {
     return this.registerForm.get('surname');
+  }
+  get city() {
+    return this.registerForm.get('city');
+  }
+  get phoneNumber() {
+    return this.registerForm.get('phoneNumber');
   }
   get password() {
     return this.registerForm.get('password');

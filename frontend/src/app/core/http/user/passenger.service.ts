@@ -54,6 +54,16 @@ export class PassengerService {
     });
   }
 
+  async register(data: any): Promise<any> {
+    await axios.post(`/api/passengers`, data, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then((res => {
+      return res.data;
+    }));
+  }
+
   getCurrentRide = () => {
     return this.currentRide;
   }

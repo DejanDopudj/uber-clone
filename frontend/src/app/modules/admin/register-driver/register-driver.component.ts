@@ -80,7 +80,7 @@ export class RegisterDriverComponent implements OnInit {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.driverService.registerDriver(
+      this.driverService.register(
         {
           username: this.email?.value,
           email: this.email?.value,

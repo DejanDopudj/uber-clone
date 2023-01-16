@@ -117,6 +117,7 @@ export class AuthenticationService {
         }
       })
       .catch((err) => {
+        console.log(err)
         return false;
       });      
     return successfulLogin;
