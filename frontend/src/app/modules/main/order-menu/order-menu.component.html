@@ -123,12 +123,71 @@ sm:h-full select-none" id="order-menu">
         </div>
 
       </div>
+
+      <!-- split fare -->
+      <div *ngIf="selectedVehicleType" class="mt-10">
+
+        <h3 *ngIf="expandSplitFare"  class="text-xl font-bold text-gray-50 mt-4 sm:mt-0">Linked passengers</h3>
+
+        <div *ngIf="linkedPassengers" class="flex flex-col shrink-0 mt-2 max-h-72 overflow-auto">
+          <div *ngFor="let passengerEmail of linkedPassengers; let i=index;">
+            <div class="flex w-full justify-between">
+              
+              <div class="flex gap-x-3 grow my-auto text-base font-medium
+              text-gray-50">
+                <fa-icon [icon]="faEnvelope" class="text-lg my-auto text-light"></fa-icon>
+                <div>{{ passengerEmail }}</div>
+              </div>
+    
+              <button class="grow-0 w-10 h-10 my-auto p-1 text-gray-50 hover:text-accent-light mx-auto"
+              (click)="unlinkPassenger(i)">
+                <fa-icon [icon]="faXmark"></fa-icon>
+              </button>
+    
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!expandSplitFare" class="text-sm italic text-light hover:text-accent-light
+        cursor-pointer text-center"
+        (click)="expandSplitFare = true">
+          <fa-icon [icon]="faPlus"></fa-icon>
+          <span class="ml-2">Link more passengers for a fare split</span>
+        </div>
+        
+        <form *ngIf="expandSplitFare && linkedPassengers.length < selectedVehicleType.seats" 
+        [formGroup]="splitFareForm" (submit)="linkPassenger()">
+          <div class="flex">
+            <input class="appearance-none block w-full text-white tracking-wide
+            placeholder-light caret-light border-b border-light focus:border-accent-light
+            bg-transparent leading-tight outline-none py-1 focus:transition-color duration-300"
+            type="text" formControlName="splitFareEmail" placeholder="Enter a co-passenger's email">
+            
+            <button type="submit"
+            class="px-2 py-1 text-gray-50 hover:text-accent-light mx-auto">
+              <fa-icon [icon]="faPlus"></fa-icon>
+            </button>
+          </div>
+          <div class="h-1">
+            <p *ngIf="splitFareEmail && splitFareEmail.invalid && splitFareEmail.touched"
+              class="text-yellow-400 text-xs italic">
+              <span *ngIf="splitFareEmail.errors?.['required']">
+                An email is required.
+              </span>
+              <span *ngIf="splitFareEmail.errors?.['pattern']">
+                Email is not valid.
+              </span>
+            </p>
+          </div>
+        </form>
+      </div>
       
       <!-- order button -->
       <div>
         <button *ngIf="accountType === 'passenger'" type="submit" class="w-full h-16 bg-accent-light
-        active:bg-accent text-white font-medium tracking-wide mt-12" (click)="orderRide()">
-          ORDER RIDE
+        active:bg-accent text-white font-medium tracking-wide mt-10" (click)="orderRide()">
+          ORDER RIDE {{linkedPassengers.length > 0 ? 'WITH ' + linkedPassengers.length + ' OTHER PASSENGER'
+          + (linkedPassengers.length === 1 ? '' : 'S') : ''}}
         </button>
         <div *ngIf="accountType === 'anonymous'" class="text-light text-center mt-6">
           You must

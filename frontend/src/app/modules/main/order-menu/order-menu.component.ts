@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDown, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd } from '@fortawesome/free-solid-svg-icons';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDown, faCircle, faFlagCheckered, faStop, faPlus, faXmark, faStopwatch, faRoute, faPaw, faBabyCarriage, faHandHoldingUsd, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideService } from 'src/app/core/http/ride/ride.service';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
@@ -30,11 +31,21 @@ export class OrderMenuComponent implements OnInit {
   faRoute: IconDefinition = faRoute;
   faBabyCarriage: IconDefinition = faBabyCarriage;
   faPaw: IconDefinition = faPaw;
+  faEnvelope: IconDefinition = faEnvelope;
   faHandHoldingUsd: IconDefinition = faHandHoldingUsd;
 
   accountType: string = this.authenticationService.getAccountType();
   isOpened: boolean = false;
   newStopQuery: string = '';
+
+  expandSplitFare: boolean = false;
+  linkedPassengers: string[] = [];
+  splitFareForm = new FormGroup({
+    splitFareEmail: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+    ]),
+  });
 
   coupeImg: string = 'assets/icons/car-coupe.png';
   minivanImg: string = 'assets/icons/car-minivan-gray.png';
@@ -87,7 +98,13 @@ export class OrderMenuComponent implements OnInit {
 
   setVehicleType(typeName: string) {
     const potentialType: VehicleType | undefined = this.vehicleTypes.find(type => type.name === typeName);
-    if (potentialType) this.selectedVehicleType = potentialType;
+    if (potentialType) {
+      this.selectedVehicleType = potentialType;
+      this.splitFareEmail?.reset();
+      if (this.linkedPassengers.length > this.selectedVehicleType.seats) {
+        this.linkedPassengers.splice(this.selectedVehicleType.seats)
+      }
+    }
   }
 
   addStop(): void {
@@ -97,6 +114,19 @@ export class OrderMenuComponent implements OnInit {
 
   removeStop(i: number): void {
     this.stopRemoved.emit(i);
+  }
+
+  linkPassenger(): void {
+    this.splitFareForm.updateValueAndValidity();
+    this.splitFareEmail?.markAsTouched();
+    if (this.splitFareEmail?.value && this.splitFareEmail?.valid) {
+      this.linkedPassengers.push(this.splitFareEmail?.value);
+      this.splitFareEmail.reset();
+    }
+  }
+
+  unlinkPassenger(i: number): void {
+    this.linkedPassengers.splice(i, 1);
   }
 
   toggleOpened(): void {
@@ -129,5 +159,9 @@ export class OrderMenuComponent implements OnInit {
     if (i === 0) return this.faCircle;
     else if (i === this.waypoints.length - 1) return this.faFlagCheckered;
     else return this.faStop;
+  }
+
+  get splitFareEmail() {
+    return this.splitFareForm.get('splitFareEmail');
   }
 }

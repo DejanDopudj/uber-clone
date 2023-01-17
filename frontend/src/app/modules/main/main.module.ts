@@ -7,7 +7,7 @@ import { MainComponent } from './main.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { OrderMenuComponent } from './order-menu/order-menu.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PassengerRideDetailsComponent } from './passenger-ride-details/passenger-ride-details.component';
 
 
@@ -25,7 +25,8 @@ import { PassengerRideDetailsComponent } from './passenger-ride-details/passenge
     CommonModule,
     FontAwesomeModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class MainModule { }
