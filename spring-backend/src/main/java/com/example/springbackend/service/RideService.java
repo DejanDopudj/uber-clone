@@ -6,6 +6,7 @@ import com.example.springbackend.exception.AdequateDriverNotFoundException;
 import com.example.springbackend.exception.InsufficientFundsException;
 import com.example.springbackend.model.*;
 import com.example.springbackend.model.helpClasses.Coordinates;
+import com.example.springbackend.model.helpClasses.ReportParameter;
 import com.example.springbackend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -343,5 +344,9 @@ public class RideService {
             return true;
         }
         return false;
+    }
+
+    public ReportDisplayDTO generateReportPassenger(ReportParameter reportParameter, Authentication authentication) {
+        passengerRideRepository.
     }
 }

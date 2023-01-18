@@ -9,6 +9,8 @@ import com.example.springbackend.dto.display.DetailedRideHistoryPassengerDTO;
 import com.example.springbackend.dto.display.RideHistoryDisplayDTO;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
 import com.example.springbackend.dto.update.UsernameDTO;
+import com.example.springbackend.model.ReportDisplayDTO;
+import com.example.springbackend.model.helpClasses.ReportParameter;
 import com.example.springbackend.service.RideService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -70,5 +72,10 @@ public class RideController {
     @PostMapping("/leave-review")
     public ResponseEntity<Boolean> leaveReview(@Valid @RequestBody ReviewDTO reviewDTO, Authentication authentication ){
         return ResponseEntity.ok(rideService.leaveReview(reviewDTO, authentication));
+    }
+
+    @PostMapping("/generate-report-passenger")
+    public ReportDisplayDTO generateReportPassenger(@RequestParam ReportParameter reportParameter, Authentication authentication ){
+        return rideService.generateReportPassenger(reportParameter, authentication);
     }
 }
