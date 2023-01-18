@@ -55,7 +55,27 @@ public interface PassengerRideRepository extends JpaRepository<PassengerRide, In
     List<Object[]> getPassengersMoneyReport(Date startDate, Date endDate, String username);
 
 
-
+    @Query(value = "SELECT  cast(pr.ride.startTime as date), SUM (pr.ride.distance) \n" +
+            "            FROM \n" +
+            "    PassengerRide pr inner join pr.ride ride where cast(pr.ride.startTime as date) >= ?1 and" +
+            " cast(pr.ride.startTime as date) <= ?2" +
+            "      group by cast(pr.ride.startTime as date) order by" +
+            " cast(pr.ride.startTime as date)")
+    List<Object[]> getAllPassengersDistanceReport(Date startDate, Date endDate);
+    @Query(value = "SELECT  cast(pr.ride.startTime as date),COUNT (pr.ride) \n" +
+            "            FROM \n" +
+            "    PassengerRide pr inner join pr.ride ride where cast(pr.ride.startTime as date) >= ?1 and" +
+            " cast(pr.ride.startTime as date) <= ?2" +
+            "      group by cast(pr.ride.startTime as date) order by" +
+            " cast(pr.ride.startTime as date)")
+    List<Object[]> getAllPassengersRidesReport(Date startDate, Date endDate);
+    @Query(value = "SELECT  cast(pr.ride.startTime as date), SUM(pr.fare)\n" +
+            "            FROM \n" +
+            "    PassengerRide pr inner join pr.ride ride where cast(pr.ride.startTime as date) >= ?1 and" +
+            " cast(pr.ride.startTime as date) <= ?2" +
+            "      group by cast(pr.ride.startTime as date) order by" +
+            " cast(pr.ride.startTime as date)")
+    List<Object[]> getAllPassengersMoneyReport(Date startDate, Date endDate);
 
     @Query("SELECT pr.passenger.username FROM PassengerRide pr WHERE " +
             "pr.ride.id = :rideId")

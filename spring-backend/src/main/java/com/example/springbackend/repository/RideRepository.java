@@ -34,4 +34,26 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
             "      group by cast(ride.startTime as date) order by" +
             " cast(ride.startTime as date)")
     List<Object[]> getDriverMoneyReport(Date startDate, Date endDate, String username);
+
+    @Query(value = "SELECT  cast(ride.startTime as date), SUM(ride.distance)\n" +
+            "            FROM \n" +
+            "    Ride ride where cast(ride.startTime as date) >= ?1 and" +
+            " cast(ride.startTime as date) <= ?2" +
+            "      group by cast(ride.startTime as date) order by" +
+            " cast(ride.startTime as date)")
+    List<Object[]> getAllDriversDistanceReport(Date startDate, Date endDate);
+    @Query(value = "SELECT  cast(ride.startTime as date), count (ride)\n" +
+            "            FROM \n" +
+            "    Ride ride where cast(ride.startTime as date) >= ?1 and" +
+            " cast(ride.startTime as date) <= ?2" +
+            "      group by cast(ride.startTime as date) order by" +
+            " cast(ride.startTime as date)")
+    List<Object[]> getAllDriversRidesReport(Date startDate, Date endDate);
+    @Query(value = "SELECT  cast(ride.startTime as date), SUM(ride.price)\n" +
+            "            FROM \n" +
+            "    Ride ride where cast(ride.startTime as date) >= ?1 and" +
+            " cast(ride.startTime as date) <= ?2" +
+            "      group by cast(ride.startTime as date) order by" +
+            " cast(ride.startTime as date)")
+    List<Object[]> getAllDriversMoneyReport(Date startDate, Date endDate);
 }

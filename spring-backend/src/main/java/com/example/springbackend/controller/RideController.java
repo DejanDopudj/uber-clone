@@ -76,11 +76,20 @@ public class RideController {
     }
 
     @GetMapping("/generate-report-passenger")
+    @PreAuthorize("hasRole('PASSENGER')")
     public ReportDisplayDTO generateReportPassenger(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
         return rideService.generateReportPassenger(startDate, endDate, reportParameter, authentication);
     }
     @GetMapping("/generate-report-driver")
+    @PreAuthorize("hasRole('DRIVER')")
     public ReportDisplayDTO generateReportDriver(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
         return rideService.generateReportDriver(startDate, endDate, reportParameter, authentication);
     }
+    @GetMapping("/generate-report-admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ReportDisplayDTO generateReportAdmin(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, @RequestParam String type, Authentication authentication ){
+        return rideService.generateReportAdmin(startDate, endDate, reportParameter, type, authentication);
+    }
+
+
 }

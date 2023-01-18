@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class ReportDisplayDTO {
     private List<String> xAxisValues;
-    private List<Long> yAxisValues;
+    private List<Double> yAxisValues;
     private String xAxisName;
     private String yAxisName;
 
@@ -22,7 +22,7 @@ public class ReportDisplayDTO {
     public void addXAxisValue(String x){
         xAxisValues.add(x);
     }
-    public void addYAxisValue(Long y){
+    public void addYAxisValue(Double y){
         yAxisValues.add(y);
     }
 }
