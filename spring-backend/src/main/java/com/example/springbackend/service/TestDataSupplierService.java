@@ -59,6 +59,7 @@ public class TestDataSupplierService {
         admin.setPhoneNumber("+2624035735");
         admin.setCity("Marseille");
         admin.setRoles(roleRepository.findByName("ROLE_ADMIN"));
+        admin.setProfilePicture("/default.png");
         adminRepository.save(admin);
     }
 
@@ -128,6 +129,7 @@ public class TestDataSupplierService {
         driver.setNumberOfReviews(1693);
         driver.setAccountStatus(AccountStatus.ACTIVE);
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
+        driver.setProfilePicture("/default.png");
         Ride mockRide = new Ride();
         mockRide.setCreatedAt(LocalDateTime.now());
         mockRide.setStartTime(LocalDateTime.now());
@@ -178,6 +180,7 @@ public class TestDataSupplierService {
             driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
             driver.setCurrentRide(null);
             driver.setNextRide(null);
+            driver.setProfilePicture("/default.png");
             driverRepository.save(driver);
         }
     }
