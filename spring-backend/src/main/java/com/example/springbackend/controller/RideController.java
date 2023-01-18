@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -74,8 +75,8 @@ public class RideController {
         return ResponseEntity.ok(rideService.leaveReview(reviewDTO, authentication));
     }
 
-    @PostMapping("/generate-report-passenger")
-    public ReportDisplayDTO generateReportPassenger(@RequestParam ReportParameter reportParameter, Authentication authentication ){
-        return rideService.generateReportPassenger(reportParameter, authentication);
+    @GetMapping("/generate-report-passenger")
+    public ReportDisplayDTO generateReportPassenger(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
+        return rideService.generateReportPassenger(startDate, endDate, reportParameter, authentication);
     }
 }

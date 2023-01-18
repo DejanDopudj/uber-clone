@@ -18,7 +18,9 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -346,7 +348,37 @@ public class RideService {
         return false;
     }
 
-    public ReportDisplayDTO generateReportPassenger(ReportParameter reportParameter, Authentication authentication) {
-        passengerRideRepository.
+    public ReportDisplayDTO generateReportPassenger(String startDateString, String endDateString, ReportParameter reportParameter, Authentication authentication) {
+        int startYear = Integer.parseInt(startDateString.split("-")[2]);
+        int startMonth = Integer.parseInt(startDateString.split("-")[1]);
+        int startDay = Integer.parseInt(startDateString.split("-")[0]);
+        int endYear = Integer.parseInt(endDateString.split("-")[2]);
+        int endMonth = Integer.parseInt(endDateString.split("-")[1]);
+        int endDay = Integer.parseInt(endDateString.split("-")[0]);
+        Date startDate = new Date(startYear-1900,startMonth,startDay);
+        Date endDate = new Date(endYear-1900,endMonth,endDay);
+        Passenger passenger = (Passenger) authentication.getPrincipal();
+        List<Object[]> queryRet = passengerRideRepository.getPassengersMoneyReport(startDate, endDate, passenger.getUsername());
+        System.out.println(queryRet.size());
+        ReportDisplayDTO reportDisplayDTO = new ReportDisplayDTO();
+        switch(reportParameter){
+            case MONEY_SPENT_EARNED -> {queryRet = passengerRideRepository.getPassengersMoneyReport(startDate, endDate, passenger.getUsername());
+                reportDisplayDTO.setYAxisName("Money spent"); System.out.println("1"); break;}
+            case NUM_OF_RIDES ->  {queryRet = passengerRideRepository.getPassengerRidesReport(startDate, endDate, passenger.getUsername());
+                reportDisplayDTO.setYAxisName("Number of rides"); System.out.println("2"); break;}
+            default -> {queryRet = passengerRideRepository.getPassengerDistanceReport(startDate, endDate, passenger.getUsername());
+            reportDisplayDTO.setYAxisName("Distance traveled"); System.out.println("3");}
+        }
+        System.out.println(queryRet.size());
+        double sumY = 0;
+        reportDisplayDTO.setXAxisName("date");
+        for(Object[] x : queryRet){
+            reportDisplayDTO.addXAxisValue(String.valueOf(x[0]));
+            reportDisplayDTO.addYAxisValue((Long)x[1]);
+            sumY += Double.parseDouble(String.valueOf((Long) x[1]));
+        }
+        reportDisplayDTO.setSum(sumY);
+        reportDisplayDTO.setAverage(sumY/queryRet.size());
+        return reportDisplayDTO;
     }
 }
