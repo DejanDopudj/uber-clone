@@ -95,14 +95,17 @@ export class PassengerEditComponent implements OnInit {
   async onSubmitUserUpdate() {
     if (this.userEditForm.valid)
       if (this.newImage !== '') {
-        this.photoService.storeImage(this.newFile!);
+        let filename = '';
+        await this.photoService.storeImage(this.newFile!).then((res) => {
+          filename = res.data;
+        });
         this.authenticationService.updateUser(
           this.username?.value!,
           this.name?.value!,
           this.surname?.value!,
           this.phoneNumber?.value!,
           this.city?.value!,
-          this.username?.value!
+          filename
         );
       }
   }

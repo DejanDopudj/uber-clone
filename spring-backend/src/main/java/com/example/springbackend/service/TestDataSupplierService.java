@@ -76,16 +76,21 @@ public class TestDataSupplierService {
         passenger.setRidesCompleted(28);
         passenger.setRoles(roleRepository.findByName("ROLE_PASSENGER"));
         passenger.setTokenBalance(1000);
+        passenger.setProfilePicture("/default.png");
         passengerRepository.save(passenger);
         passenger.setTokenBalance(600);
         passenger.setUsername("passenger2@noemail.com");
         passenger.setEmail("passenger2@noemail.com");
+        passenger.setProfilePicture("/default.png");
         passengerRepository.save(passenger);
         passenger.setUsername("passenger3@noemail.com");
         passenger.setEmail("passenger3@noemail.com");
+        passenger.setProfilePicture("/default.png");
         passengerRepository.save(passenger);
         passenger.setUsername("passenger4@noemail.com");
         passenger.setEmail("passenger4@noemail.com");
+        passenger.setTokenBalance(690);
+        passenger.setProfilePicture("/default.png");
         passengerRepository.save(passenger);
     }
 

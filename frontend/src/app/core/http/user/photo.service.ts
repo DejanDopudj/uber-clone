@@ -9,18 +9,14 @@ import { AuthenticationService } from '../../authentication/authentication.servi
 export class PhotoService {
   constructor(private authenticationService: AuthenticationService) {}
 
-  async storeImage(file: File): Promise<any> {
+  storeImage(file: File): Promise<any> {
     const formData = new FormData();
     formData.append('file', file);
-    await axios
-      .post(`/api/image/save`, formData, {
-        headers: {
-          Authorization: `Bearer ${this.authenticationService.getToken()}`,
-        },
-      })
-      .then((res) => {
-        return res.data;
-      });
+    return axios.post(`/api/image/save`, formData, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`,
+      },
+    });
   }
 
   loadImage(photoName: string): Promise<any> {
