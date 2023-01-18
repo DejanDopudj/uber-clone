@@ -79,4 +79,8 @@ public class RideController {
     public ReportDisplayDTO generateReportPassenger(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
         return rideService.generateReportPassenger(startDate, endDate, reportParameter, authentication);
     }
+    @GetMapping("/generate-report-driver")
+    public ReportDisplayDTO generateReportDriver(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
+        return rideService.generateReportDriver(startDate, endDate, reportParameter, authentication);
+    }
 }

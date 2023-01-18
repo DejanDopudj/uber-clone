@@ -381,4 +381,39 @@ public class RideService {
         reportDisplayDTO.setAverage(sumY/queryRet.size());
         return reportDisplayDTO;
     }
+
+    public ReportDisplayDTO generateReportDriver(String startDateString, String endDateString, ReportParameter reportParameter, Authentication authentication) {
+        int startYear = Integer.parseInt(startDateString.split("-")[2]);
+        int startMonth = Integer.parseInt(startDateString.split("-")[1]);
+        int startDay = Integer.parseInt(startDateString.split("-")[0]);
+        int endYear = Integer.parseInt(endDateString.split("-")[2]);
+        int endMonth = Integer.parseInt(endDateString.split("-")[1]);
+        int endDay = Integer.parseInt(endDateString.split("-")[0]);
+        Date startDate = new Date(startYear-1900,startMonth,startDay);
+        Date endDate = new Date(endYear-1900,endMonth,endDay);
+        Driver driver;// = (Driver) authentication.getPrincipal();
+        List<Object[]> queryRet;
+        driver = driverRepository.findByUsername("travis").get();
+        ReportDisplayDTO reportDisplayDTO = new ReportDisplayDTO();
+        System.out.println(driver.getUsername());
+        switch(reportParameter){
+            case MONEY_SPENT_EARNED -> {queryRet = rideRepository.getDriverMoneyReport(startDate, endDate, driver.getUsername());
+                reportDisplayDTO.setYAxisName("Money earned"); System.out.println("1"); break;}
+            case NUM_OF_RIDES ->  {queryRet = rideRepository.getDriverRidesReport(startDate, endDate, driver.getUsername());
+                reportDisplayDTO.setYAxisName("Number of rides"); System.out.println("2"); break;}
+            default -> {queryRet = rideRepository.getDriverDistanceReport(startDate, endDate, driver.getUsername());
+                reportDisplayDTO.setYAxisName("Distance traveled"); System.out.println("3");}
+        }
+        System.out.println(queryRet.size());
+        double sumY = 0;
+        reportDisplayDTO.setXAxisName("date");
+        for(Object[] x : queryRet){
+            reportDisplayDTO.addXAxisValue(String.valueOf(x[0]));
+            reportDisplayDTO.addYAxisValue((Long)x[1]);
+            sumY += Double.parseDouble(String.valueOf((Long) x[1]));
+        }
+        reportDisplayDTO.setSum(sumY);
+        reportDisplayDTO.setAverage(sumY/queryRet.size());
+        return reportDisplayDTO;
+    }
 }

@@ -46,26 +46,15 @@ public interface PassengerRideRepository extends JpaRepository<PassengerRide, In
             "      group by cast(pr.ride.startTime as date) order by" +
             " cast(pr.ride.startTime as date)")
     List<Object[]> getPassengerRidesReport(Date startDate, Date endDate, String username);
-@Query(value = "SELECT  cast(pr.ride.startTime as date), SUM(pr.fare)\n" +
-        "            FROM \n" +
-        "    PassengerRide pr inner join pr.ride ride where cast(pr.ride.startTime as date) >= ?1 and" +
-        " cast(pr.ride.startTime as date) <= ?2 and pr.passenger.username = ?3" +
-        "      group by cast(pr.ride.startTime as date) order by" +
-        " cast(pr.ride.startTime as date)")
-List<Object[]> getPassengersMoneyReport(Date startDate, Date endDate, String username);
-/*
-    @Query("SELECT  function('date_trunc', 'day',pr.ride.startTime), SUM (pr.ride.distance) FROM PassengerRide pr where pr.ride.startTime > ?1 and pr.ride.endTime < ?2 and pr.ride.driver.username = ?3"+
-            "group by function('date_trunc', 'day',pr.ride.startTime) order by function('date_trunc','day',pr.ride.startTime)")
-    List<Object[]> getDriversDistanceReport(LocalDateTime startDate, LocalDateTime endDate, String username);
+    @Query(value = "SELECT  cast(pr.ride.startTime as date), SUM(pr.fare)\n" +
+            "            FROM \n" +
+            "    PassengerRide pr inner join pr.ride ride where cast(pr.ride.startTime as date) >= ?1 and" +
+            " cast(pr.ride.startTime as date) <= ?2 and pr.passenger.username = ?3" +
+            "      group by cast(pr.ride.startTime as date) order by" +
+            " cast(pr.ride.startTime as date)")
+    List<Object[]> getPassengersMoneyReport(Date startDate, Date endDate, String username);
 
-    @Query("SELECT  function('date_trunc', 'day',pr.ride.startTime), COUNT (pr.ride) FROM PassengerRide pr  where pr.ride.startTime > ?1 and pr.ride.endTime < ?2 and pr.ride.driver.username = ?3"+
-            "group by function('date_trunc', 'day',pr.ride.startTime) order by function('date_trunc','day',pr.ride.startTime)")
-    List<Object[]> getDriversRidesReport(LocalDateTime startDate, LocalDateTime endDate, String username);
 
-    @Query("SELECT  function('date_trunc', 'day',pr.ride.startTime), SUM (pr.fare) FROM PassengerRide pr where pr.ride.startTime > ?1 and pr.ride.endTime < ?2 and pr.ride.driver.username = ?3"+
-            "group by function('date_trunc', 'day',pr.ride.startTime) order by function('date_trunc','day',pr.ride.startTime)")
-    List<Object[]> getDriversMoneyReport(LocalDateTime startDate, LocalDateTime endDate, String username);
-*/
 
 
     @Query("SELECT pr.passenger.username FROM PassengerRide pr WHERE " +
