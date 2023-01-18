@@ -3,6 +3,7 @@ package com.example.springbackend.controller;
 import com.example.springbackend.dto.creation.DriverCreationDTO;
 import com.example.springbackend.dto.display.DriverDisplayDTO;
 import com.example.springbackend.model.Driver;
+import com.example.springbackend.dto.update.DriverUpdateDTO;
 import com.example.springbackend.service.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,4 +47,10 @@ public class DriverController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/update")
+    public ResponseEntity<Boolean> updateUser(@RequestBody DriverUpdateDTO driverUpdateDTO){
+        boolean successfulUpdate = driverService.updateDriver(driverUpdateDTO);
+        HttpStatus returnStatus = successfulUpdate ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(successfulUpdate, returnStatus);
+    }
 }

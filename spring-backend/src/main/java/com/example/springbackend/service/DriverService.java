@@ -4,6 +4,7 @@ import com.example.springbackend.dto.creation.DriverCreationDTO;
 import com.example.springbackend.dto.display.DriverDisplayDTO;
 import com.example.springbackend.exception.UserAlreadyExistsException;
 import com.example.springbackend.model.AccountStatus;
+import com.example.springbackend.dto.update.DriverUpdateDTO;
 import com.example.springbackend.model.Driver;
 import com.example.springbackend.model.Vehicle;
 import com.example.springbackend.model.helpClasses.AuthenticationProvider;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
+import java.util.Optional;
 
 @Service
 public class DriverService {
@@ -73,7 +75,6 @@ public class DriverService {
         return driver.getActive();
     }
 
-
     private Driver createDriverFromDto(DriverCreationDTO dto) {
         Driver driver = modelMapper.map(dto, Driver.class);
         driver.setAuthenticationProvider(AuthenticationProvider.LOCAL);
@@ -106,4 +107,19 @@ public class DriverService {
         vehicle.setRideActive(false);
         return vehicle;
     }
+    public boolean updateDriver(DriverUpdateDTO driverUpdateDTO) {
+        Optional<Driver> opetDriver = driverRepository.findByUsername(driverUpdateDTO.getUsername());
+        if(opetDriver.isPresent()){
+            Driver driver = opetDriver.get();
+            driver.setCity(driverUpdateDTO.getCity());
+            driver.setName(driverUpdateDTO.getName());
+            driver.setSurname(driverUpdateDTO.getSurname());
+            driver.setPhoneNumber(driverUpdateDTO.getPhoneNumber());
+            driver.setProfilePicture(driverUpdateDTO.getProfilePicture());
+            driverRepository.save(driver);
+            return true;
+        }
+        return false;
+    }
+
 }
