@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Coordinates } from 'src/app/shared/models/coordinates.model';
 import { AuthenticationService } from '../../authentication/authentication.service';
 
-interface BasicOrderData {
+interface RideOrderData {
   distance: number,
   expectedTime: number,
   babySeat: boolean,
@@ -16,7 +16,8 @@ interface BasicOrderData {
   expectedRoute: {
     coordinates: Coordinates[],
     waypoints: Coordinates[]
-  } | null
+  } | null,
+  usersToPay: string[]
 }
 
 @Injectable({
@@ -32,16 +33,64 @@ export class RideService {
     }));
   }
 
-  orderBasicRide(orderData: BasicOrderData): Promise<any> {
+  orderBasicRide(orderData: RideOrderData): Promise<any> {
     return axios.post(`/api/rides/basic`, 
     orderData,
     {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    }).then((res => {
+    }).then(res => {
       return res.data;
-    }));
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+
+  orderSplitFareRide(orderData: RideOrderData): Promise<any> {
+    return axios.post(`/api/rides/split-fare`, 
+    orderData,
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then(res => {
+      return res.data;
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+
+  confirmRide(rideId: number) {
+    return axios.patch(`/api/rides/confirm`, 
+    {
+      rideId
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then(res => {
+      return res.data;
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+
+  rejectRide(rideId: number) {
+    return axios.patch(`/api/rides/reject`, 
+    {
+      rideId
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    }).then(res => {
+      return res.data;
+    }).catch(err => {
+      console.log(err);
+    })
   }
 
 }

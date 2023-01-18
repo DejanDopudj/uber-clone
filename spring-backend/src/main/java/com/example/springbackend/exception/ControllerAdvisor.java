@@ -43,6 +43,14 @@ public class ControllerAdvisor {
                 "Username or email already exists.");
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(LinkedPassengersNotAllDistinctException.class)
+    public ExceptionResponseBody handleLinkedPassengersNotAllDistinctException(LinkedPassengersNotAllDistinctException ex) {
+        return new ExceptionResponseBody(
+                HttpStatus.BAD_REQUEST.value(),
+                "Not all linked passengers are distinct.");
+    }
+
     @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
     @ExceptionHandler(InsufficientFundsException.class)
     public ExceptionResponseBody handleInsufficientFundsException(InsufficientFundsException ex) {

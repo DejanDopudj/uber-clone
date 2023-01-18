@@ -46,6 +46,7 @@ export class PassengerService {
       }
     })
     .then((res) => {
+      console.log(res.data)
       if (res.data) this.currentRide = res.data;
     })
     .catch((err) => {

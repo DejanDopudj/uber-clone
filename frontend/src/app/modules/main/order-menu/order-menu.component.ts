@@ -9,7 +9,7 @@ import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 @Component({
   selector: 'app-order-menu',
   templateUrl: './order-menu.component.html',
-  styleUrls: ['./order-menu.component.css']
+  styleUrls: ['./order-menu.component.css', './order-menu-modal.component.scss']
 })
 export class OrderMenuComponent implements OnInit {
   @Input() waypoints: any[] = [];
@@ -57,7 +57,13 @@ export class OrderMenuComponent implements OnInit {
 
   vehicleTypes: VehicleType[] = [];
 
-  constructor(private authenticationService: AuthenticationService, private rideService: RideService, private passengerService: PassengerService) { }
+  showSplitFareSuccessModal: boolean = false;
+
+  constructor(
+      private authenticationService: AuthenticationService,
+      private rideService: RideService,
+      private passengerService: PassengerService
+    ) { }
 
   async ngOnInit(): Promise<void> {
     await this.loadVehicleTypes();
@@ -66,7 +72,7 @@ export class OrderMenuComponent implements OnInit {
   orderRide(): void {
     const deviateFromRoute: boolean = Math.random() > 0.75 && this.alternativeRoute;
     const actualRoute: any = deviateFromRoute ? this.alternativeRoute : this.route;
-    this.rideService.orderBasicRide({
+    const orderData: any = {
       distance: Number((this.route.summary.totalDistance / 1000).toLocaleString('fullwide', {minimumFractionDigits:2, maximumFractionDigits:2})),
       babySeat: this.hasBabySeat,
       petFriendly: this.isPetFriendly,
@@ -79,15 +85,25 @@ export class OrderMenuComponent implements OnInit {
       actualRoute: {
         waypoints: actualRoute.waypoints.map((waypoint: any) => waypoint.latLng),
         coordinates: actualRoute.coordinates
-      }
-    })
-    .then((res: any) => {
-      this.passengerService.setCurrentRide(res.data);
-      window.location.href="/";
-    })
-    .catch((err: any) => {
-      console.log(err);
-    });
+      },
+      usersToPay: this.linkedPassengers
+    };
+    
+    console.log(orderData)
+    if (orderData.usersToPay.length > 0) {
+      this.rideService.orderSplitFareRide(orderData)
+      .then(res => {
+        if (res)
+          this.showSplitFareSuccessModal = true;
+      });
+    }
+    else {
+      this.rideService.orderBasicRide(orderData)
+      .then(res => {
+        this.passengerService.setCurrentRide(res.data);
+        window.location.href="/";
+      });
+    }
   }
 
   calculateRidePrice(): number {
@@ -147,6 +163,11 @@ export class OrderMenuComponent implements OnInit {
       document.getElementById('order-menu')?.classList.remove(inAnimation);
       document.getElementById('order-menu')?.classList.add(outAnimation);
     }
+  }
+
+  confirmRideResponse(): void {
+    this.showSplitFareSuccessModal = false;
+    window.location.href="/";
   }
 
   async loadVehicleTypes(): Promise<void> {

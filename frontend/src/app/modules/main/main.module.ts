@@ -9,6 +9,7 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import { OrderMenuComponent } from './order-menu/order-menu.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PassengerRideDetailsComponent } from './passenger-ride-details/passenger-ride-details.component';
+import { SplitFareWaitComponent } from './modals/split-fare-wait/split-fare-wait.component';
 
 
 
@@ -19,7 +20,8 @@ import { PassengerRideDetailsComponent } from './passenger-ride-details/passenge
     TopControlsComponent,
     MainComponent,
     OrderMenuComponent,
-    PassengerRideDetailsComponent
+    PassengerRideDetailsComponent,
+    SplitFareWaitComponent
   ],
   imports: [
     CommonModule,
