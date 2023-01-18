@@ -18,8 +18,8 @@ public class Ride {
     private String driverCancelled;
     private Boolean rejected;
     private Boolean passengersConfirmed;
-    private LocalDate startTime;
-    private LocalDate endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private LocalDateTime createdAt;
     private Boolean driverInconsistency;
     private int price;

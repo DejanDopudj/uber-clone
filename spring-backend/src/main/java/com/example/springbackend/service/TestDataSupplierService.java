@@ -124,8 +124,8 @@ public class TestDataSupplierService {
         driver.setRoles(roleRepository.findByName("ROLE_DRIVER"));
         Ride mockRide = new Ride();
         mockRide.setCreatedAt(LocalDateTime.now());
-        mockRide.setStartTime(LocalDate.now());
-        mockRide.setEndTime(LocalDate.now());
+        mockRide.setStartTime(LocalDateTime.now());
+        mockRide.setEndTime(LocalDateTime.now());
         rideRepository.save(mockRide);
         driver.setCurrentRide(mockRide);
         driver.setNextRide(null);
