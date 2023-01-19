@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { faCity } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { Session } from 'src/app/shared/models/session.model';
+import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Injectable({
   providedIn: 'root',
@@ -139,13 +140,55 @@ export class AuthenticationService {
       .post('http://localhost:8080/api/users/update', formData)
       .then((resp) => {
         if (resp.data) {
-          window.localStorage.setItem('token', resp.data['accessToken']);
-          axios.defaults.headers.common[
-            'Authorization'
-          ] = `Bearer ${localStorage.getItem('token')}`;
           return true;
         } else {
           console.log('Bad credentials');
+          return false;
+        }
+      })
+      .catch((err) => {
+        return false;
+      });
+    return successfulLogin;
+  }
+
+  sendUpdateRequest(
+    username: string,
+    name: string,
+    surname: string,
+    phoneNumber: string,
+    city: string,
+    profilePicture: string,
+    vehicleType: string,
+    babySeat: boolean,
+    petsAllowed: boolean,
+    make: string,
+    model: string,
+    colour: string,
+    licensePlateNumber: string
+  ) {
+    const formData = {
+      username: username,
+      name: name,
+      surname: surname,
+      phoneNumber: phoneNumber,
+      city: city,
+      profilePicture: profilePicture,
+      vehicleType: vehicleType,
+      babySeat: babySeat,
+      petsAllowed: petsAllowed,
+      make: make,
+      model: model,
+      colour: colour,
+      licensePlateNumber: licensePlateNumber,
+    };
+    console.log('aaaaa');
+    const successfulLogin = axios
+      .post('http://localhost:8080/api/preupdate/sendUpdateRequest', formData)
+      .then((resp) => {
+        if (resp.data) {
+          return true;
+        } else {
           return false;
         }
       })
