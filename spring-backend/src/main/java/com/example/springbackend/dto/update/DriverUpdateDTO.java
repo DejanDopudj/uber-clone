@@ -5,11 +5,18 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class DriverUpdateDTO {
-    private String username;
-    private String name;
-    private String surname;
-    private String phoneNumber;
-    private String city;
-    private String profilePicture;
+public class DriverUpdateDTO extends UserUpdateDTO {
+    private Boolean babySeat;
+
+    private Boolean petsAllowed;
+
+    private String make;
+
+    private String model;
+
+    private String colour;
+
+    private String licensePlateNumber;
+
+    private String vehicleType;
 }

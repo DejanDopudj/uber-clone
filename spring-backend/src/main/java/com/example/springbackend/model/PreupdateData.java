@@ -6,7 +6,6 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name="preupdateData")
 public class PreupdateData {
     @Id
@@ -16,4 +15,11 @@ public class PreupdateData {
     private String phoneNumber;
     private String city;
     private String profilePicture;
+    private Boolean babySeat;
+    private Boolean petsAllowed;
+    private String make;
+    private String model;
+    private String colour;
+    private String licensePlateNumber;
+    private String vehicleType;
 }

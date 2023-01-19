@@ -25,6 +25,13 @@ public class PreupdateService {
             pd.setUsername(driverUpdateDTO.getUsername());
             pd.setPhoneNumber(driverUpdateDTO.getPhoneNumber());
             pd.setProfilePicture(driverUpdateDTO.getProfilePicture());
+            pd.setMake(driverUpdateDTO.getMake());
+            pd.setColour(driverUpdateDTO.getColour());
+            pd.setBabySeat(driverUpdateDTO.getBabySeat());
+            pd.setPetsAllowed(driverUpdateDTO.getPetsAllowed());
+            pd.setModel(driverUpdateDTO.getModel());
+            pd.setVehicleType(driverUpdateDTO.getVehicleType());
+            pd.setLicensePlateNumber(driverUpdateDTO.getLicensePlateNumber());
             preupdateDataRepository.save(pd);
             return true;
         } catch (Exception e) {

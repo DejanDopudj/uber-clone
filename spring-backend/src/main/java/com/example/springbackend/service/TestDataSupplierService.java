@@ -114,12 +114,12 @@ public class TestDataSupplierService {
         vehicle.setVehicleType(vehicleTypeRepository.findByName("COUPE").orElseThrow());
         vehicleRepository.save(vehicle);
         Driver driver = new Driver();
-        driver.setUsername("travis");
+        driver.setUsername("travis@noemail.com");
         driver.setEmail("travis@noemail.com");
         driver.setPassword(passwordEncoder.encode("cascaded"));
         driver.setName("Travis");
         driver.setSurname("Bickle");
-        driver.setPhoneNumber("+1 422 135 12");
+        driver.setPhoneNumber("+142213512");
         driver.setCity("New York City");
         driver.setActive(true);
         driver.setVehicle(vehicle);
