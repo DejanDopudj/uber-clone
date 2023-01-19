@@ -44,6 +44,14 @@ public class ControllerAdvisor {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UserDoesNotExistException.class)
+    public ExceptionResponseBody handleUserDoesNotExistException(UserDoesNotExistException ex) {
+        return new ExceptionResponseBody(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(LinkedPassengersNotAllDistinctException.class)
     public ExceptionResponseBody handleLinkedPassengersNotAllDistinctException(LinkedPassengersNotAllDistinctException ex) {
         return new ExceptionResponseBody(

@@ -5,16 +5,20 @@ import com.example.springbackend.dto.display.*;
 import com.example.springbackend.exception.AdequateDriverNotFoundException;
 import com.example.springbackend.exception.InsufficientFundsException;
 import com.example.springbackend.exception.LinkedPassengersNotAllDistinctException;
+import com.example.springbackend.exception.UserDoesNotExistException;
 import com.example.springbackend.model.*;
 import com.example.springbackend.model.helpClasses.Coordinates;
 import com.example.springbackend.model.helpClasses.ReportParameter;
 import com.example.springbackend.repository.*;
 import org.hibernate.sql.OracleJoinFragment;
+import com.example.springbackend.websocket.MessageType;
+import com.example.springbackend.websocket.WSMessage;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -52,12 +56,17 @@ public class RideService {
     AdminRepository adminRepository;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    UserService userService;
+    private final SimpMessagingTemplate template;
+    @Autowired
+    RideService(SimpMessagingTemplate template) {
+        this.template = template;
+    }
 
     public Boolean orderSplitFareRide(SplitFareRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
-
-        System.out.println(dto.getActualRoute().getWaypoints().toString());
 
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         int price = calculateRidePrice(dto, vehicleType);
@@ -65,6 +74,11 @@ public class RideService {
         if (dto.getUsersToPay().stream().distinct().count() != dto.getUsersToPay().size()) {
             throw new LinkedPassengersNotAllDistinctException();
         }
+        dto.getUsersToPay().stream().forEach(email -> {
+            if (!userService.userExists(email)) {
+                throw new UserDoesNotExistException("A co-passenger's email does not exist in the system.");
+            }
+        });
         int fare = (int) Math.ceil(price/dto.getUsersToPay().size());
         Ride ride = createSplitFareRide(dto, price);
         if (passenger.getTokenBalance() < fare) {
@@ -73,6 +87,11 @@ public class RideService {
         passenger.setTokenBalance(passenger.getTokenBalance() - fare);
         passengerRepository.save(passenger);
         createPassengerRideForUsers(dto, ride, fare, passenger);
+
+        dto.getUsersToPay().stream().forEach(username -> {
+            if (!username.equals(passenger.getUsername()))
+                sendRefreshMessage(username);
+        });
 
         executorService.schedule(() -> processSplitFareRide(dto, fare, ride), 30, TimeUnit.SECONDS);
         return true;
@@ -122,16 +141,20 @@ public class RideService {
         passengerRepository.save(passenger);
         List<String> usersToPay = passengerRideRepository.getPassengersForRide(dto.getRideId());
         boolean fullyPaid = true;
-        for(String username : usersToPay){
+        for (String username : usersToPay) {
             PassengerRide passengerRide = passengerRideRepository.findByRideAndPassengerUsername(ride, username).get();
-            if(!passengerRide.isAgreed()){
+            if (!passengerRide.isAgreed()) {
                 fullyPaid = false;
             }
         }
-        if(fullyPaid){
+        if(fullyPaid) {
             ride.setPassengersConfirmed(true);
             BasicRideCreationDTO basicRideCreationDTO = modelMapper.map(ride, BasicRideCreationDTO.class);
             basicRideCreationDTO.setVehicleType(ride.getVehicleType());
+
+            for (String username : usersToPay) {
+                sendRefreshMessage(username);
+            }
 
             Driver driver = findDriver(basicRideCreationDTO);
             ride.setDriver(driver);
@@ -165,6 +188,8 @@ public class RideService {
         if (!ride.getPassengersConfirmed() && !currentPassengerRide.isAgreed()) {
             for (PassengerRide passengerRide : passengerRides) {
                 Passenger ridePassenger = passengerRide.getPassenger();
+                if (!ridePassenger.getUsername().equals(passenger.getUsername()))
+                    sendRefreshMessage(ridePassenger.getUsername());
                 if (passengerRide.isAgreed()) {
                     ridePassenger.setTokenBalance(ridePassenger.getTokenBalance() + passengerRide.getFare());
                     passengerRepository.save(ridePassenger);
@@ -172,8 +197,6 @@ public class RideService {
             }
             ride.setRejected(true);
             rideRepository.save(ride);
-
-            //TODO: send notifications to all parties
 
             return true;
         }
@@ -476,5 +499,16 @@ public class RideService {
         reportDisplayDTO.setSum(sumY);
         reportDisplayDTO.setAverage(sumY/queryRet.size());
         return reportDisplayDTO;
+    }
+
+    private void sendRefreshMessage(String receiverUsername) {
+        WSMessage message = WSMessage.builder()
+                .type(MessageType.RIDE_UPDATE)
+                .sender("server")
+                .receiver(receiverUsername)
+                .content("REFRESH")
+                .sentDateTime(LocalDateTime.now())
+                .build();
+        this.template.convertAndSendToUser(receiverUsername, "/private/ride", message);
     }
 }

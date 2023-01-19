@@ -15,11 +15,27 @@ export class SocketService {
   initWS(): Promise<void> {
     const session: Session | null = this.authenticationService.getSession();
     if (!session) return new Promise((resolve) => { resolve() });
-    return new Promise((resolve) => {
-      this.stompClient = Stomp.over(new SockJS('http://localhost:8080/ws'));
-      this.stompClient.connect({}, () => { resolve() });
-    });
+    if (session.accountType !== 'anonymous')
+      return new Promise((resolve) => {
+        this.stompClient = Stomp.over(new SockJS('http://localhost:8080/ws'));
+        this.stompClient.connect({}, () => { 
+          this.subscribeToRideUpdates(session);
+          resolve();
+        });
+      });
+    return new Promise((resolve) => { resolve() });
   }
 
+  subscribeToRideUpdates(session: Session): void {
+    let addr: string = '';
+    if (session.accountType === 'passenger') {
+      addr = `/user/${ session.username }/private/ride`;
+    }
+    this.stompClient.subscribe(addr, (message: any) => {
+      let messageData = JSON.parse(message.body);
+      if (messageData.type === 'RIDE_UPDATE' && messageData.content === 'REFRESH')
+        window.location.href="/";
+    });
+  }
 
 }

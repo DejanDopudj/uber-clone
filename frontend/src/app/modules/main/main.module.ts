@@ -10,6 +10,7 @@ import { OrderMenuComponent } from './order-menu/order-menu.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PassengerRideDetailsComponent } from './passenger-ride-details/passenger-ride-details.component';
 import { SplitFareWaitComponent } from './modals/split-fare-wait/split-fare-wait.component';
+import { SharedModule } from 'src/app/shared/module/shared/shared.module';
 
 
 
@@ -28,7 +29,8 @@ import { SplitFareWaitComponent } from './modals/split-fare-wait/split-fare-wait
     FontAwesomeModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SharedModule
   ]
 })
 export class MainModule { }

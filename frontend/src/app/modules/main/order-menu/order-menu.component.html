@@ -241,4 +241,12 @@ sm:h-full select-none" id="order-menu">
     </div>
   </div>
 
+  <div *ngIf="showErrorModal">
+    <app-error-modal
+      [title]="errorTitle"
+      [description]="errorMessage"
+      (onClose)="closeErrorModal()"
+    ></app-error-modal>
+  </div>
+
 </div>

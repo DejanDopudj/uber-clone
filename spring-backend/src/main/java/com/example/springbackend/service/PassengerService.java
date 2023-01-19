@@ -9,14 +9,18 @@ import com.example.springbackend.model.helpClasses.AuthenticationProvider;
 import com.example.springbackend.repository.DriverRepository;
 import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.util.TokenUtils;
+import com.example.springbackend.websocket.MessageType;
+import com.example.springbackend.websocket.WSMessage;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.springbackend.repository.PassengerRideRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -42,6 +46,7 @@ public class PassengerService {
     private TokenUtils tokenUtils;
     @Autowired
     private RideService rideService;
+
 
     public Passenger signUp(UserCreationDTO userCreationDTO) {
         if(!userService.userExistsForCustomRegistration(userCreationDTO.getEmail(), userCreationDTO.getUsername())){

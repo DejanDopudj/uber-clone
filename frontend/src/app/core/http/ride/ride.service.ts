@@ -40,11 +40,7 @@ export class RideService {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    }).then(res => {
-      return res.data;
-    }).catch(err => {
-      console.log(err);
-    })
+    });
   }
 
   orderSplitFareRide(orderData: RideOrderData): Promise<any> {
@@ -54,11 +50,7 @@ export class RideService {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    }).then(res => {
-      return res.data;
-    }).catch(err => {
-      console.log(err);
-    })
+    });
   }
 
   confirmRide(rideId: number) {

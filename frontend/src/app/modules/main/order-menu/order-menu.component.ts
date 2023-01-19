@@ -59,6 +59,10 @@ export class OrderMenuComponent implements OnInit {
 
   showSplitFareSuccessModal: boolean = false;
 
+  showErrorModal: boolean = false;
+  errorTitle: string = ''
+  errorMessage: string = '';
+
   constructor(
       private authenticationService: AuthenticationService,
       private rideService: RideService,
@@ -79,7 +83,7 @@ export class OrderMenuComponent implements OnInit {
       vehicleType: this.selectedVehicleType.name,
       expectedTime: actualRoute.summary.totalTime,
       expectedRoute: deviateFromRoute ? {
-        waypoints: this.route.waypoints,
+        waypoints: this.route.waypoints.map((waypoint: any) => waypoint.latLng),
         coordinates: this.route.coordinates
       } : null,
       actualRoute: {
@@ -88,13 +92,24 @@ export class OrderMenuComponent implements OnInit {
       },
       usersToPay: this.linkedPassengers
     };
-    
-    console.log(orderData)
     if (orderData.usersToPay.length > 0) {
       this.rideService.orderSplitFareRide(orderData)
       .then(res => {
         if (res)
           this.showSplitFareSuccessModal = true;
+      })
+      .catch(err => {
+        if (err.response.data?.message) {
+          this.errorTitle = 'Error';
+          this.errorMessage = err.response.data?.message;
+        } else if (err.response.data?.distance) {
+          this.errorTitle = 'Error';
+          this.errorMessage = err.response.data?.distance;
+        } else {
+          this.errorTitle = 'Oops!';
+          this.errorMessage = 'Something went wrong...';
+        }
+        this.showErrorModal = true;
       });
     }
     else {
@@ -102,6 +117,19 @@ export class OrderMenuComponent implements OnInit {
       .then(res => {
         this.passengerService.setCurrentRide(res.data);
         window.location.href="/";
+      })
+      .catch(err => {
+        if (err.response.data?.message) {
+          this.errorTitle = 'Error';
+          this.errorMessage = err.response.data?.message;
+        } else if (err.response.data?.distance) {
+          this.errorTitle = 'Error';
+          this.errorMessage = err.response.data?.distance;
+        } else {
+          this.errorTitle = 'Oops!';
+          this.errorMessage = 'Something went wrong...';
+        }
+        this.showErrorModal = true;
       });
     }
   }
@@ -184,5 +212,11 @@ export class OrderMenuComponent implements OnInit {
 
   get splitFareEmail() {
     return this.splitFareForm.get('splitFareEmail');
+  }
+
+  closeErrorModal () {
+    this.showErrorModal = false;
+    this.errorMessage = '';
+    this.errorTitle = '';
   }
 }
