@@ -62,11 +62,7 @@ export class RideService {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    }).then(res => {
-      return res.data;
-    }).catch(err => {
-      console.log(err);
-    })
+    });
   }
 
   rejectRide(rideId: number) {
@@ -78,11 +74,7 @@ export class RideService {
       headers: {
         Authorization: `Bearer ${this.authenticationService.getToken()}`
       }
-    }).then(res => {
-      return res.data;
-    }).catch(err => {
-      console.log(err);
-    })
+    });
   }
 
 }

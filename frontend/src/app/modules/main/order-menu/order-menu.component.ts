@@ -4,6 +4,9 @@ import { IconDefinition, faChevronRight, faChevronLeft, faChevronUp, faChevronDo
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { RideService } from 'src/app/core/http/ride/ride.service';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
+import { SocketService } from 'src/app/core/socket/socket.service';
+import { RideSimple } from 'src/app/shared/models/ride.model';
+import { Session } from 'src/app/shared/models/session.model';
 import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Component({
@@ -95,21 +98,19 @@ export class OrderMenuComponent implements OnInit {
     if (orderData.usersToPay.length > 0) {
       this.rideService.orderSplitFareRide(orderData)
       .then(res => {
-        if (res)
           this.showSplitFareSuccessModal = true;
+          setTimeout(() => {
+            this.confirmRideResponse();
+          }, 2000);
       })
       .catch(err => {
         if (err.response.data?.message) {
-          this.errorTitle = 'Error';
-          this.errorMessage = err.response.data?.message;
+          this.openErrorModal('Error', err.response.data?.message);
         } else if (err.response.data?.distance) {
-          this.errorTitle = 'Error';
-          this.errorMessage = err.response.data?.distance;
+          this.openErrorModal('Error', err.response.data?.distance);
         } else {
-          this.errorTitle = 'Oops!';
-          this.errorMessage = 'Something went wrong...';
+          this.openErrorModal('Oops!', 'Something went wrong...');
         }
-        this.showErrorModal = true;
       });
     }
     else {
@@ -120,16 +121,12 @@ export class OrderMenuComponent implements OnInit {
       })
       .catch(err => {
         if (err.response.data?.message) {
-          this.errorTitle = 'Error';
-          this.errorMessage = err.response.data?.message;
+          this.openErrorModal('Error', err.response.data?.message);
         } else if (err.response.data?.distance) {
-          this.errorTitle = 'Error';
-          this.errorMessage = err.response.data?.distance;
+          this.openErrorModal('Error', err.response.data?.distance);
         } else {
-          this.errorTitle = 'Oops!';
-          this.errorMessage = 'Something went wrong...';
+          this.openErrorModal('Oops!', 'Something went wrong...');
         }
-        this.showErrorModal = true;
       });
     }
   }
@@ -212,6 +209,13 @@ export class OrderMenuComponent implements OnInit {
 
   get splitFareEmail() {
     return this.splitFareForm.get('splitFareEmail');
+  }
+  
+  openErrorModal (errorTitle: string, errorMessage: string): void {
+    this.showErrorModal = true;
+    this.errorTitle = errorTitle;
+    this.errorMessage = errorMessage;
+    this.showErrorModal = true;
   }
 
   closeErrorModal () {

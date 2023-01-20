@@ -10,7 +10,6 @@ import com.example.springbackend.model.*;
 import com.example.springbackend.model.helpClasses.Coordinates;
 import com.example.springbackend.model.helpClasses.ReportParameter;
 import com.example.springbackend.repository.*;
-import org.hibernate.sql.OracleJoinFragment;
 import com.example.springbackend.websocket.MessageType;
 import com.example.springbackend.websocket.WSMessage;
 import org.modelmapper.ModelMapper;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -134,12 +132,22 @@ public class RideService {
     public Object confirmRide(RideIdDTO dto, Authentication auth) {
         Ride ride = rideRepository.findById(dto.getRideId()).get();
         Passenger passenger = (Passenger) auth.getPrincipal();
+        List<String> usersToPay = passengerRideRepository.getPassengersForRide(dto.getRideId());
+
         PassengerRide currentPR = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).get();
+        if (passenger.getTokenBalance() < currentPR.getFare()) {
+            for (String username : usersToPay) {
+                sendErrorMessage(username, "Ride is cancelled due to insufficient funds.");
+            }
+            ride.setRejected(true);
+            rideRepository.save(ride);
+            throw new InsufficientFundsException();
+        }
         currentPR.setAgreed(true);
         passenger.setTokenBalance(passenger.getTokenBalance() - currentPR.getFare());
         passengerRideRepository.save(currentPR);
         passengerRepository.save(passenger);
-        List<String> usersToPay = passengerRideRepository.getPassengersForRide(dto.getRideId());
+
         boolean fullyPaid = true;
         for (String username : usersToPay) {
             PassengerRide passengerRide = passengerRideRepository.findByRideAndPassengerUsername(ride, username).get();
@@ -152,30 +160,29 @@ public class RideService {
             BasicRideCreationDTO basicRideCreationDTO = modelMapper.map(ride, BasicRideCreationDTO.class);
             basicRideCreationDTO.setVehicleType(ride.getVehicleType());
 
-            for (String username : usersToPay) {
-                sendRefreshMessage(username);
-            }
-
             Driver driver = findDriver(basicRideCreationDTO);
             ride.setDriver(driver);
             rideRepository.save(ride);
 
-            //TODO: send notifications
             if (driver == null) {
-                //TODO: send notifications
+                for (String username : usersToPay) {
+                    sendErrorMessage(username, "Adequate driver was not found.");
+                }
                 ride.setRejected(true);
                 rideRepository.save(ride);
                 throw new AdequateDriverNotFoundException();
             } else {
+                //TODO: send notifications to driver
+                for (String username : usersToPay) {
+                    sendRefreshMessage(username);
+                }
                 if (driver.getCurrentRide() == null) {
                     driver.setCurrentRide(ride);
                 } else {
                     driver.setNextRide(ride);
                 }
+                driverRepository.save(driver);
             }
-
-            driverRepository.save(driver);
-
         }
         return null;
     }
@@ -499,6 +506,17 @@ public class RideService {
         reportDisplayDTO.setSum(sumY);
         reportDisplayDTO.setAverage(sumY/queryRet.size());
         return reportDisplayDTO;
+    }
+
+    private void sendErrorMessage(String receiverUsername, String content) {
+        WSMessage message = WSMessage.builder()
+                .type(MessageType.RIDE_UPDATE)
+                .sender("server")
+                .receiver(receiverUsername)
+                .content(content)
+                .sentDateTime(LocalDateTime.now())
+                .build();
+        this.template.convertAndSendToUser(receiverUsername, "/private/ride/error", message);
     }
 
     private void sendRefreshMessage(String receiverUsername) {
