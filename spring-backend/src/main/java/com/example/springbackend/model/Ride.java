@@ -16,7 +16,9 @@ public class Ride {
     private Double distance;
     private int expectedTime;
     private String driverCancelled;
-    private Boolean rejected;
+    private RideStatus status;
+    private String startAddress;
+    private String destinationAddress;
     private Boolean passengersConfirmed;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

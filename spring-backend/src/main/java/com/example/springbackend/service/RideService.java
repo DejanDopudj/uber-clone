@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.Optional;
 
 @Service
@@ -139,7 +137,7 @@ public class RideService {
             for (String username : usersToPay) {
                 sendErrorMessage(username, "Ride is cancelled due to insufficient funds.");
             }
-            ride.setRejected(true);
+            ride.setStatus(RideStatus.CANCELLED);
             rideRepository.save(ride);
             throw new InsufficientFundsException();
         }
@@ -168,7 +166,7 @@ public class RideService {
                 for (String username : usersToPay) {
                     sendErrorMessage(username, "Adequate driver was not found.");
                 }
-                ride.setRejected(true);
+                ride.setStatus(RideStatus.CANCELLED);
                 rideRepository.save(ride);
                 throw new AdequateDriverNotFoundException();
             } else {
@@ -182,6 +180,8 @@ public class RideService {
                     driver.setNextRide(ride);
                 }
                 driverRepository.save(driver);
+                ride.setStatus(RideStatus.DRIVER_ARRIVING);
+                rideRepository.save(ride);
             }
         }
         return null;
@@ -202,7 +202,7 @@ public class RideService {
                     passengerRepository.save(ridePassenger);
                 }
             }
-            ride.setRejected(true);
+            ride.setStatus(RideStatus.CANCELLED);
             rideRepository.save(ride);
 
             return true;
@@ -227,7 +227,7 @@ public class RideService {
         // successful
         passenger.setTokenBalance(passenger.getTokenBalance() - price);
         passengerRepository.save(passenger);
-        Ride ride = createRide(dto, price, driver);
+        Ride ride = createBasicRide(dto, price, driver);
         PassengerRide passengerRide = createPassengerRide(passenger, ride);
 
         //TODO: send notifications
@@ -277,7 +277,7 @@ public class RideService {
         return passengerRide;
     }
 
-    private Ride createRide(BasicRideCreationDTO dto, int price, Driver driver) {
+    private Ride createBasicRide(BasicRideCreationDTO dto, int price, Driver driver) {
         Ride ride = new Ride();
         Route actualRoute = createRouteFromDto(dto.getActualRoute());
         routeRepository.save(actualRoute);
@@ -289,8 +289,8 @@ public class RideService {
         ride.setDistance(dto.getDistance());
         ride.setActualRoute(actualRoute);
         ride.setExpectedRoute(expectedRoute);
-        ride.setDriverCancelled("");
-        ride.setRejected(false);
+        ride.setDriverCancelled(null);
+        ride.setStatus(RideStatus.DRIVER_ARRIVING);
         ride.setStartTime(null);
         ride.setEndTime(null);
         ride.setExpectedTime(dto.getExpectedTime());
@@ -324,7 +324,7 @@ public class RideService {
         ride.setActualRoute(actualRoute);
         ride.setExpectedRoute(expectedRoute);
         ride.setDriverCancelled("");
-        ride.setRejected(false);
+        ride.setStatus(RideStatus.PENDING_CONFIRMATION);
         ride.setStartTime(null);
         ride.setEndTime(null);
         ride.setExpectedTime(dto.getExpectedTime());
