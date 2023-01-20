@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { PhotoService } from 'src/app/core/http/user/photo.service';
@@ -10,6 +10,8 @@ import { Admin } from 'src/app/shared/models/admin.model';
 })
 export class AdminEditComponent implements OnInit {
   @Input() admin!: Admin;
+
+  @Output() changeView = new EventEmitter<void>();
 
   currentImage = '';
   newImage: any = '';
@@ -92,21 +94,24 @@ export class AdminEditComponent implements OnInit {
   }
 
   async onSubmitUserUpdate() {
-    if (this.userEditForm.valid)
+    if (this.userEditForm.valid) {
+      let filename = '';
       if (this.newImage !== '') {
-        let filename = '';
         await this.photoService.storeImage(this.newFile!).then((res) => {
           filename = res.data;
         });
-        this.authenticationService.updateUser(
-          this.username?.value!,
-          this.name?.value!,
-          this.surname?.value!,
-          this.phoneNumber?.value!,
-          this.city?.value!,
-          filename
-        );
       }
+      if (filename === '') filename = this.admin.profilePicture;
+      this.authenticationService.updateUser(
+        this.username?.value!,
+        this.name?.value!,
+        this.surname?.value!,
+        this.phoneNumber?.value!,
+        this.city?.value!,
+        filename
+      );
+      this.changeView.emit();
+    }
   }
 
   readURL(event: any): void {

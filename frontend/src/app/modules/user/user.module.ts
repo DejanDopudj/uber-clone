@@ -15,6 +15,7 @@ import { AdminProfileComponent } from './profile/admin-profile/admin-profile.com
 import { AdminDetailsComponent } from './profile/admin-profile/admin-details/admin-details.component';
 import { AdminEditComponent } from './profile/admin-profile/admin-edit/admin-edit.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/module/shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FontAwesomeModule,
     FormsModule,
     ReactiveFormsModule,
+    SharedModule,
   ],
 })
 export class UserModule {}

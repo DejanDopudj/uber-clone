@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Passenger } from 'src/app/shared/models/passenger.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
@@ -13,6 +13,8 @@ export class PassengerEditComponent implements OnInit {
   currentImage = '';
   newImage: any = '';
   newFile: File | undefined;
+
+  @Output() changeView = new EventEmitter<void>();
 
   userEditForm = new FormGroup(
     {
@@ -93,21 +95,24 @@ export class PassengerEditComponent implements OnInit {
   }
 
   async onSubmitUserUpdate() {
-    if (this.userEditForm.valid)
+    if (this.userEditForm.valid) {
+      let filename = '';
       if (this.newImage !== '') {
-        let filename = '';
         await this.photoService.storeImage(this.newFile!).then((res) => {
           filename = res.data;
         });
-        this.authenticationService.updateUser(
-          this.username?.value!,
-          this.name?.value!,
-          this.surname?.value!,
-          this.phoneNumber?.value!,
-          this.city?.value!,
-          filename
-        );
       }
+      if (filename === '') filename = this.passenger.profilePicture;
+      this.authenticationService.updateUser(
+        this.username?.value!,
+        this.name?.value!,
+        this.surname?.value!,
+        this.phoneNumber?.value!,
+        this.city?.value!,
+        filename
+      );
+      this.changeView.emit();
+    }
   }
 
   readURL(event: any): void {

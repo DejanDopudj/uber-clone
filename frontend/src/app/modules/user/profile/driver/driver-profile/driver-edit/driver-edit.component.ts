@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Driver } from 'src/app/shared/models/driver.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
@@ -31,6 +31,10 @@ export class DriverEditComponent implements OnInit {
   isPetFriendly: boolean = false;
   showVehicleInfo: boolean = false;
   showUserInfo: boolean = true;
+
+  @Output() changeView = new EventEmitter<void>();
+
+  showConfirmModal: boolean = false;
 
   userEditForm = new FormGroup(
     {
@@ -153,6 +157,7 @@ export class DriverEditComponent implements OnInit {
         this.colour?.value!,
         this.licensePlateNumber?.value!
       );
+      this.showConfirmModal = true;
     } else {
       alert('Data not valid!');
     }
@@ -177,5 +182,10 @@ export class DriverEditComponent implements OnInit {
   onClickVehicleInfo(): void {
     this.showVehicleInfo = !this.showVehicleInfo;
     this.showUserInfo = !this.showUserInfo;
+  }
+
+  closeModal(): void {
+    this.showConfirmModal = false;
+    this.changeView.emit();
   }
 }
