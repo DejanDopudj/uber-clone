@@ -49,7 +49,6 @@ export class SplitFareWaitComponent implements OnInit {
     if (session) {
       this.socketService.stompClient.subscribe(`/user/${ session.username }/private/ride/error`, (message: any) => {
         let messageData = JSON.parse(message.body);
-        console.log(messageData)
         if (messageData.type === 'RIDE_UPDATE') {
           this.showSelf = false;
           this.showErrorModal = true;
