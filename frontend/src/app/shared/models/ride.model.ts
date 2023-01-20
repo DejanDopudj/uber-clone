@@ -1,4 +1,5 @@
 import { DriverSimple } from "./driver.model";
+import { PassengerSimple } from "./passenger.model";
 import { Route } from "./route.model";
 
 export interface RideSimple {
@@ -12,3 +13,13 @@ export interface RideSimple {
   allConfirmed: boolean,
   passengerConfirmed: boolean
 }
+
+export interface DriverRide {
+  id: number,
+  distance: number,
+  expectedTime: number,
+  price: number,
+  passengers: PassengerSimple[],
+  route: Route,
+  createdAt: Date,
+} 

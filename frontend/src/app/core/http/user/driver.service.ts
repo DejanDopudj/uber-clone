@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { DriverRide } from 'src/app/shared/models/ride.model';
 import { AuthenticationService } from '../../authentication/authentication.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DriverService {
+  private rides: { currentRide: DriverRide, nextRide: DriverRide} | null = null;
+
   constructor(private authenticationService: AuthenticationService) {}
 
   getDriverByUsername(username: string): Promise<any> {
@@ -14,6 +17,25 @@ export class DriverService {
         Authorization: `Bearer ${this.authenticationService.getToken()}`,
       },
     });
+  }
+
+  fetchRides = async () => {
+    await axios.get(`/api/drivers/current-rides`, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    })
+    .then((res) => {
+      console.log(res.data)
+      if (res.data) this.rides = res.data;
+    })
+    .catch((err) => {
+      this.rides = null;
+    });
+  }
+
+  getCurrentRides = () => {
+    return this.rides;
   }
 
   async getDriverActivity(): Promise<boolean> {

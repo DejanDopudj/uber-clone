@@ -25,7 +25,7 @@
     ></app-order-menu>
   </div>
 
-  <div *ngIf="mapComponent && currentRide">
+  <div *ngIf="mapComponent && accountType === 'passenger' && currentRide">
     <div *ngIf="currentRide.allConfirmed && currentRide.driver" class="absolute h-full z-40 left-0 top-0">
       <app-passenger-ride-details
       [waypoints]="waypoints"
@@ -34,6 +34,13 @@
     <div *ngIf="!currentRide.allConfirmed">
       <app-split-fare-wait></app-split-fare-wait>
     </div>
+  </div>
+
+  <div *ngIf="mapComponent && accountType === 'driver' && currentDriverRide"
+  class="absolute h-full z-40 left-0 top-0">
+    <app-driver-ride-details
+      [waypoints]="waypoints"
+      ></app-driver-ride-details>
   </div>
 
 </div>

@@ -21,6 +21,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -363,7 +364,7 @@ public class RideService {
         return route;
     }
 
-    private RouteDisplayDTO createRouteDisplayDtoFromRoute(Route route) {
+    public RouteDisplayDTO createRouteDisplayDtoFromRoute(Route route) {
         RouteDisplayDTO dto = new RouteDisplayDTO();
         dto.setWaypoints(route.getWaypoints().stream().map(latLng ->
                 modelMapper.map(latLng, CoordinatesDisplayDTO.class)).toList());
