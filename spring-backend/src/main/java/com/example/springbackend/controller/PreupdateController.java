@@ -6,6 +6,7 @@ import com.example.springbackend.service.PreupdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +25,17 @@ public class PreupdateController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<PreupdateData>> sendUpdateRequest(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PreupdateData>> getAll(){
         List<PreupdateData> ret = preupdateService.getAll();
+        HttpStatus returnStatus = ret != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(ret, returnStatus);
+    }
+
+    @PostMapping("/cancel")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Boolean> cancelUpdateRequest(@RequestBody DriverUpdateDTO driverUpdateDTO){
+        Boolean ret = preupdateService.removeUpdateRequest(driverUpdateDTO);
         HttpStatus returnStatus = ret != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(ret, returnStatus);
     }

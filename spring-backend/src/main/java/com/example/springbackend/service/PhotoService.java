@@ -15,13 +15,17 @@ import java.util.Base64;
 @Service
 public class PhotoService {
     public String storeImage(MultipartFile multipartFile, Authentication auth) {
-        String fileName = ((User) auth.getPrincipal()).getUsername() + "." + multipartFile.getContentType().split("/")[1];
+        User u = ((User) auth.getPrincipal());
+        String fileName = u.getUsername() + "." + multipartFile.getContentType().split("/")[1];
         String uploadDir = "user-photos/" ;
         Path uploadPath = Paths.get(uploadDir);
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
+            }
+            if (u.getRoles().get(0).getName().equals("ROLE_DRIVER")) {
+                fileName = "temp" + fileName;
             }
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -48,5 +52,14 @@ public class PhotoService {
             throw new RuntimeException(e);
         }
         return image;
+    }
+
+    public void updateImage(String profilePicture) {
+        String tempPhoto = "user-photos/" + profilePicture;
+        String oldPhoto = "user-photos/" + profilePicture.substring(4);
+        File tempFile = new File(tempPhoto);
+        File oldFile = new File(oldPhoto);
+        oldFile.delete();
+        tempFile.renameTo(oldFile);
     }
 }

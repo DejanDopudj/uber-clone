@@ -182,7 +182,6 @@ export class AuthenticationService {
       colour: colour,
       licensePlateNumber: licensePlateNumber,
     };
-    console.log('aaaaa');
     const successfulLogin = axios
       .post('http://localhost:8080/api/preupdate/sendUpdateRequest', formData)
       .then((resp) => {
@@ -197,5 +196,77 @@ export class AuthenticationService {
         return false;
       });
     return successfulLogin;
+  }
+
+  updateDriver(
+    username: string,
+    name: string,
+    surname: string,
+    phoneNumber: string,
+    city: string,
+    profilePicture: string,
+    vehicleType: string,
+    babySeat: boolean,
+    petsAllowed: boolean,
+    make: string,
+    model: string,
+    colour: string,
+    licensePlateNumber: string
+  ) {
+    const formData = {
+      username: username,
+      name: name,
+      surname: surname,
+      phoneNumber: phoneNumber,
+      city: city,
+      profilePicture: profilePicture,
+      vehicleType: vehicleType,
+      babySeat: babySeat,
+      petsAllowed: petsAllowed,
+      make: make,
+      model: model,
+      colour: colour,
+      licensePlateNumber: licensePlateNumber,
+    };
+    const successfulLogin = axios
+      .post('http://localhost:8080/api/drivers/update', formData)
+      .then((resp) => {
+        if (resp.data) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+    return successfulLogin;
+  }
+
+  cancelRequest(username: string) {
+    axios
+      .post(
+        `http://localhost:8080/api/preupdate/cancel`,
+        {
+          username,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.getToken()}`,
+          },
+        }
+      )
+      .then((resp) => {
+        if (resp.data) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
   }
 }

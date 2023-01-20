@@ -38,4 +38,13 @@ public class PreupdateService {
             return false;
         }
     }
+
+    public Boolean removeUpdateRequest(DriverUpdateDTO driverUpdateDTO) {
+        try {
+            preupdateDataRepository.delete(preupdateDataRepository.findByUsername(driverUpdateDTO.getUsername()).get());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

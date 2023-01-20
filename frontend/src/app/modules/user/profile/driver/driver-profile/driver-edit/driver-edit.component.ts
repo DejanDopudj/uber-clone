@@ -3,7 +3,6 @@ import { Driver } from 'src/app/shared/models/driver.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { PhotoService } from 'src/app/core/http/user/photo.service';
-import { DriverService } from 'src/app/core/http/user/driver.service';
 import {
   faBabyCarriage,
   faChevronLeft,
@@ -154,6 +153,8 @@ export class DriverEditComponent implements OnInit {
         this.colour?.value!,
         this.licensePlateNumber?.value!
       );
+    } else {
+      alert('Data not valid!');
     }
   }
 

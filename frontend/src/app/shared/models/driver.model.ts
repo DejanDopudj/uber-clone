@@ -15,6 +15,7 @@ export interface Driver {
   active: boolean;
   email?: string;
   accountType?: string;
+  userImage: string;
 }
 
 export interface DriverSimple {
@@ -26,4 +27,21 @@ export interface DriverSimple {
   vehicle: Vehicle;
   totalRatingSum: number;
   numberOfReviews: number;
+}
+
+export interface DriverNewData {
+  username: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
+  city: string;
+  profilePicture: string;
+  vehicleType: string;
+  babySeat: boolean;
+  petsAllowed: boolean;
+  make: string;
+  model: string;
+  colour: string;
+  licensePlateNumber: string;
+  userImage: string;
 }
