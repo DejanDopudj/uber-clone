@@ -1,6 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircle, faFlagCheckered, faHandHoldingUsd, faRoute, faStop, faStopwatch, IconDefinition, faUser } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
+import { RideService } from 'src/app/core/http/ride/ride.service';
 import { DriverService } from 'src/app/core/http/user/driver.service';
 import { DriverRide } from 'src/app/shared/models/ride.model';
 
@@ -26,11 +27,41 @@ export class DriverRideDetailsComponent implements OnInit {
 
   accountType: string = this.authenticationService.getAccountType();
   isOpened: boolean = true;
-  newStopQuery: string = '';
 
-  constructor(private authenticationService: AuthenticationService, private driverService: DriverService) { }
+  clickedRejectRideModal: boolean = false;
+  showRejectRideModal: boolean = false;
+  rideRejectionReason: string = '';
+  rideRejectionErrorMessage: string = '';
+  rideRejectionSent: boolean = false;
+
+  constructor(
+    private authenticationService: AuthenticationService,
+    private driverService: DriverService,
+    private rideService: RideService
+    ) { }
 
   ngOnInit(): void {
+  }
+
+  openRejectRideModal(): void {
+    this.showRejectRideModal = true;
+    this.clickedRejectRideModal = true;
+  }
+
+  rejectRide(): void {
+    if (this.rideRejectionReason.length < 10) {
+      this.rideRejectionErrorMessage = 'Reason is too short.';
+      return;
+    }
+    if (this.ride && this.ride.status === 'DRIVER_ARRIVING')
+      this.rideService.driverRejectRide(this.ride.id, this.rideRejectionReason)
+      .then(res => {
+        this.showRejectRideModal = false;
+        this.rideRejectionSent = true;
+      })
+      .catch(err => {
+        this.rideRejectionErrorMessage = 'Something went wrong.';
+      });
   }
 
   toggleOpened(): void {
@@ -60,6 +91,14 @@ export class DriverRideDetailsComponent implements OnInit {
 
   get ride(): DriverRide | undefined {
     return this.driverService.getCurrentRides()?.currentRide;
+  }
+
+  @HostListener('document:click')
+  clickout() {
+    if (this.showRejectRideModal && !this.clickedRejectRideModal) {
+      this.showRejectRideModal = false;
+    }
+    this.clickedRejectRideModal = false;
   }
 
 }

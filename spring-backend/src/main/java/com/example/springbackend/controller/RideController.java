@@ -1,9 +1,6 @@
 package com.example.springbackend.controller;
 
-import com.example.springbackend.dto.creation.BasicRideCreationDTO;
-import com.example.springbackend.dto.creation.ReviewDTO;
-import com.example.springbackend.dto.creation.RideIdDTO;
-import com.example.springbackend.dto.creation.SplitFareRideCreationDTO;
+import com.example.springbackend.dto.creation.*;
 import com.example.springbackend.dto.display.DetailedRideHistoryDriverDTO;
 import com.example.springbackend.dto.display.DetailedRideHistoryPassengerDTO;
 import com.example.springbackend.dto.display.RideHistoryDisplayDTO;
@@ -24,8 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/rides", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +45,25 @@ public class RideController {
     public ResponseEntity<Object> confirmRide(@Valid @RequestBody RideIdDTO dto, Authentication auth) {
         return ResponseEntity.ok(rideService.confirmRide(dto, auth));
     }
+
+    @PatchMapping("/reject")
+    @PreAuthorize("hasRole('PASSENGER')")
+    public ResponseEntity<Boolean> rejectRide(@Valid @RequestBody RideIdDTO dto, Authentication auth) {
+        return ResponseEntity.ok(rideService.rejectRide(dto, auth));
+    }
+
+    @PatchMapping("/driver-rejection")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<Boolean> driverRejectRide(@Valid @RequestBody DriverRideRejectionCreationDTO dto, Authentication auth) {
+        return ResponseEntity.ok(rideService.driverRejectRide(dto, auth));
+    }
+
+    @PatchMapping("/driver-rejection-verdict")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Boolean> acceptDriverRideRejection(@Valid @RequestBody DriverRideRejectionVerdictCreationDTO dto, Authentication auth) {
+        return ResponseEntity.ok(rideService.acceptDriverRideRejection(dto, auth));
+    }
+
 
     @GetMapping("/ride-history")
     public Page<RideHistoryDisplayDTO> getRideHistory(@Valid @RequestParam String username, @RequestParam Integer page, @RequestParam Integer amount, @RequestParam String sortBy, Authentication authentication){
@@ -91,11 +105,5 @@ public class RideController {
     @PreAuthorize("hasRole('ADMIN')")
     public ReportDisplayDTO generateReportAdmin(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, @RequestParam String type, Authentication authentication ){
         return rideService.generateReportAdmin(startDate, endDate, reportParameter, type, authentication);
-    }
-
-    @PatchMapping("/reject")
-    @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<Boolean> rejectRide(@Valid @RequestBody RideIdDTO dto, Authentication auth) {
-        return ResponseEntity.ok(rideService.rejectRide(dto, auth));
     }
 }

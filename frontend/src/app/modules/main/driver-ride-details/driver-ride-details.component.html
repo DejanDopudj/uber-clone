@@ -4,6 +4,7 @@ sm:h-full select-none" id="order-menu">
   <div *ngIf="isOpened && ride" class="sm:static flex flex-col rounded-t-3xl sm:rounded-none
   w-screen h-140 sm:h-auto sm:w-120 bg-dark py-8 px-10 overflow-auto hidden-scrollbar">
     <h1 class="text-3xl font-bold text-gray-50 mt-4 sm:mt-0">Current ride</h1>
+    <div class="tracking-wide uppercase text-light font-medium rounded-2xl">{{ ride.status.replace('_', ' ') }}</div>
 
     <div *ngIf="waypoints" class="flex flex-col shrink-0 gap-y-3 mt-6 max-h-72 overflow-auto">
       <div *ngFor="let waypoint of waypoints; let i=index;">
@@ -59,7 +60,7 @@ sm:h-full select-none" id="order-menu">
 
     <!-- driver info -->
     <h1 class="text-2xl font-bold text-gray-50 mt-10">Your passengers</h1>
-    <div *ngIf="ride.passengers" class="flex flex-col mt-4">
+    <div *ngIf="ride.passengers" class="flex flex-col mt-4 max-h-72 overflow-auto">
       <div *ngFor="let passenger of ride.passengers">
         <div class="flex w-full justify-between">
           
@@ -74,6 +75,11 @@ sm:h-full select-none" id="order-menu">
         </div>
       </div>
     </div>
+    
+    <button *ngIf="ride.status === 'DRIVER_ARRIVING'" class="w-full h-16 bg-accent-light
+    active:bg-accent text-white font-medium tracking-wide mt-8" (click)="openRejectRideModal()">
+      REJECT RIDE
+    </button>
 
   </div>
 
@@ -93,6 +99,37 @@ sm:h-full select-none" id="order-menu">
     (click)="toggleOpened()">
       <fa-icon [icon]="isOpened ? faChevronDown : faChevronUp" class="text-2xl"></fa-icon>
     </div>
+  </div>
+
+  <div *ngIf="showRejectRideModal"
+  class="fixed top-0 left-0 z-30 w-full min-h-screen h-screen text-center
+    flex items-center justify-center bg-stone-500 bg-opacity-80 transition-opacity text-base font-display">
+      <div class="relative flex flex-col w-120 h-72 bg-dark rounded-xl mx-auto
+      overflow-hidden px-9 py-7"
+      (click)="clickedRejectRideModal = true">
+        <h3 class="text-xl font-medium text-gray-50">Ride rejection</h3>
+
+        <div class="flex flex-col justify-between h-full mt-4">
+          <div clase="w-full mt-2">
+            <textarea class="w-full border border-solid border-stone-500 bg-dark resize-none h-32 md:h-32
+            text text-thin text-stone-100 placeholder-stone-400 p-2 leading-tight rounded-md focus:outline-none focus:border-accent-light"
+            [(ngModel)]="rideRejectionReason" placeholder="Please enter the reason for rejecting this ride..."
+            (input)="rideRejectionErrorMessage = ''"></textarea>
+            <div class="h-1">
+              <p *ngIf="rideRejectionErrorMessage"
+                class="text-red-400 text-xs italic">
+                {{ rideRejectionErrorMessage }}
+              </p>
+            </div>
+          </div>
+
+          <button *ngIf="!rideRejectionSent" class="py-1 px-8 border border-stone-500 text-stone-400
+          hover:bg-stone-500 hover:text-stone-300 rounded-2xl" (click)="rejectRide()">
+            Reject ride
+          </button>
+
+        </div>
+      </div>
   </div>
 
 </div>

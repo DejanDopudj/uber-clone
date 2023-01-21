@@ -42,5 +42,13 @@
       [waypoints]="waypoints"
       ></app-driver-ride-details>
   </div>
+  
+  <div *ngIf="showErrorModal" class="z-100">
+    <app-error-modal
+      [title]="errorTitle"
+      [description]="errorMessage"
+      (onClose)="closeErrorModal()"
+    ></app-error-modal>
+  </div>
 
 </div>

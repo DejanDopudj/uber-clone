@@ -16,4 +16,6 @@ public class DriverRideDisplayDTO {
     private List<PassengerDisplayDTO> passengers;
     private RouteDisplayDTO route;
     private String status;
+    private String startAddress;
+    private String destinationAddress;
 }

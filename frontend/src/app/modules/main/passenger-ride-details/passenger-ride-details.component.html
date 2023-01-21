@@ -4,6 +4,7 @@ sm:h-full select-none" id="order-menu">
   <div *ngIf="isOpened && ride" class="sm:static flex flex-col rounded-t-3xl sm:rounded-none
   w-screen h-140 sm:h-auto sm:w-120 bg-dark py-8 px-10 overflow-auto hidden-scrollbar">
     <h1 class="text-3xl font-bold text-gray-50 mt-4 sm:mt-0">Current ride</h1>
+    <div class="tracking-wide uppercase text-light font-medium rounded-2xl">{{ ride.status.replace('_', ' ') }}</div>
 
     <div *ngIf="waypoints" class="flex flex-col shrink-0 gap-y-3 mt-6 max-h-72 overflow-auto">
       <div *ngFor="let waypoint of waypoints; let i=index;">
@@ -82,15 +83,13 @@ sm:h-full select-none" id="order-menu">
       <!-- vehicle -->
       <div class="flex flex-col gap-x-4 py-6 mt-4 border border-stone-500 rounded-xl">
 
-        <div class="flex-shrink-0 my-auto cursor-pointer mx-auto"
-        [routerLink]="['/driver', ride.driver.username]">
+        <div class="flex-shrink-0 my-auto mx-auto">
           <img [src]="vehicleImage" alt=""
           class="h-6">
         </div>
         
         <div class="flex flex-col my-auto text-gray-50 text-lg tracking-wide">
-          <div [routerLink]="['/driver', ride.driver.username]"
-          class="cursor-pointer mx-auto text-center">
+          <div class="mx-auto text-center">
             {{ ride.driver.vehicle.make }} · {{ ride.driver.vehicle.model }} · {{ ride.driver.vehicle.colour }}
           </div>
           <div class="text-light text-sm font-bold tracking-wide mx-auto text-center">

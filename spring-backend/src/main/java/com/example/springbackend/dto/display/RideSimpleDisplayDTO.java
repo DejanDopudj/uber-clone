@@ -15,4 +15,5 @@ public class RideSimpleDisplayDTO {
     private RouteDisplayDTO route;
     private boolean allConfirmed;
     private boolean passengerConfirmed;
+    private String status;
 }

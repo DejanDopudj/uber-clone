@@ -11,7 +11,8 @@ export interface RideSimple {
   route: Route,
   createdAt: Date,
   allConfirmed: boolean,
-  passengerConfirmed: boolean
+  passengerConfirmed: boolean,
+  status: string,
 }
 
 export interface DriverRide {
@@ -22,4 +23,7 @@ export interface DriverRide {
   passengers: PassengerSimple[],
   route: Route,
   createdAt: Date,
+  status: string,
+  startAddress: string,
+  endAddress: string
 } 
