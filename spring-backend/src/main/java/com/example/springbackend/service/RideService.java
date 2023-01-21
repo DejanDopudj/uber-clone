@@ -223,10 +223,17 @@ public class RideService {
         return true;
     }
 
+    public List<DriverRideRejectionDisplayDTO> getDriverRideRejectionRequests(Authentication auth) {
+        List<Ride> ridesPendingRejection = rideRepository.getRidesPendingRejection();
+        return ridesPendingRejection.stream().map(r -> modelMapper.map(r, DriverRideRejectionDisplayDTO.class)).toList();
+    }
+
     public Boolean acceptDriverRideRejection(DriverRideRejectionVerdictCreationDTO dto, Authentication auth) {
         Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
 
         if (!dto.isAccepted()) {
+            ride.setDriverRejectionReason(null);
+            rideRepository.save(ride);
             sendMessageToDriver(ride.getDriver().getUsername(),
                     "Your rejection reason was deemed invalid.",
                     MessageType.RIDE_ERROR);
@@ -383,7 +390,7 @@ public class RideService {
         ride.setDistance(dto.getDistance());
         ride.setActualRoute(actualRoute);
         ride.setExpectedRoute(expectedRoute);
-        ride.setDriverRejectionReason("");
+        ride.setDriverRejectionReason(null);
         ride.setStatus(RideStatus.PENDING_CONFIRMATION);
         ride.setStartTime(null);
         ride.setEndTime(null);

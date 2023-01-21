@@ -1,10 +1,7 @@
 package com.example.springbackend.controller;
 
 import com.example.springbackend.dto.creation.*;
-import com.example.springbackend.dto.display.DetailedRideHistoryDriverDTO;
-import com.example.springbackend.dto.display.DetailedRideHistoryPassengerDTO;
-import com.example.springbackend.dto.display.RideHistoryDisplayDTO;
-import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
+import com.example.springbackend.dto.display.*;
 import com.example.springbackend.dto.update.UsernameDTO;
 import com.example.springbackend.model.ReportDisplayDTO;
 import com.example.springbackend.model.helpClasses.ReportParameter;
@@ -21,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/rides", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,6 +54,12 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<Boolean> driverRejectRide(@Valid @RequestBody DriverRideRejectionCreationDTO dto, Authentication auth) {
         return ResponseEntity.ok(rideService.driverRejectRide(dto, auth));
+    }
+
+    @GetMapping("/rejection-requests")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DriverRideRejectionDisplayDTO>> getDriverRideRejectionRequests(Authentication auth) {
+        return ResponseEntity.ok(rideService.getDriverRideRejectionRequests(auth));
     }
 
     @PatchMapping("/driver-rejection-verdict")

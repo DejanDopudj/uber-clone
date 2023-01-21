@@ -80,4 +80,25 @@ export class DriverService {
       },
     });
   }
+
+  getRideRejectionRequests(): Promise<any> {
+    return axios.get(`/api/rides/rejection-requests`, {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`,
+      },
+    });
+  }
+
+  sendRideRejectionRequestVerdict(rideId: number, accepted: boolean): Promise<any> {
+    return axios.patch(`/api/rides/driver-rejection-verdict`,
+    {
+      rideId,
+      accepted
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`,
+      },
+    });
+  }
 }
