@@ -105,18 +105,6 @@ public class RideService {
         return rideDisplayDTO;
     }
 
-    private void linkDriverAndRide(Driver driver, Ride ride) {
-        ride.setDriver(driver);
-        ride.setStatus(RideStatus.DRIVER_ARRIVING);
-        rideRepository.save(ride);
-        if (driver.getCurrentRide() == null) {
-            driver.setCurrentRide(ride);
-        } else {
-            driver.setNextRide(ride);
-        }
-        driverRepository.save(driver);
-    }
-
     public Boolean orderSplitFareRide(SplitFareRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
@@ -124,6 +112,13 @@ public class RideService {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         int price = calculateRidePrice(dto, vehicleType);
         dto.getUsersToPay().add(passenger.getUsername());
+
+        List<PassengerRide> currentPassengerRides =
+                passengerRideRepository.getCurrentPassengerRidesByUsername(dto.getUsersToPay());
+        if (!currentPassengerRides.isEmpty()) {
+            throw new PassengerAlreadyHasAnActiveRideException();
+        }
+
         if (dto.getUsersToPay().stream().distinct().count() != dto.getUsersToPay().size()) {
             throw new LinkedPassengersNotAllDistinctException();
         }
@@ -169,6 +164,18 @@ public class RideService {
                 sendRefreshMessage(passengerRide.getPassenger().getUsername());
             }
         }
+    }
+
+    private void linkDriverAndRide(Driver driver, Ride ride) {
+        ride.setDriver(driver);
+        ride.setStatus(RideStatus.DRIVER_ARRIVING);
+        rideRepository.save(ride);
+        if (driver.getCurrentRide() == null) {
+            driver.setCurrentRide(ride);
+        } else {
+            driver.setNextRide(ride);
+        }
+        driverRepository.save(driver);
     }
 
     private void createPassengerRideForUsers(SplitFareRideCreationDTO dto, Ride ride,int fare, Passenger passenger) {
