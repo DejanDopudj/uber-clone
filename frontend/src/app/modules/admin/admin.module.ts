@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RegisterDriverComponent } from './register-driver/register-driver.component';
 import { UpdateRequestsComponent } from './update-requests/update-requests.component';
 import { RideRejectionRequestsComponent } from './ride-rejection-requests/ride-rejection-requests.component';
+import { SharedModule } from 'src/app/shared/module/shared/shared.module';
 
 @NgModule({
   declarations: [RegisterDriverComponent, UpdateRequestsComponent, RideRejectionRequestsComponent],
@@ -14,6 +15,7 @@ import { RideRejectionRequestsComponent } from './ride-rejection-requests/ride-r
     AdminRoutingModule,
     FontAwesomeModule,
     ReactiveFormsModule,
+    SharedModule
   ],
 })
 export class AdminModule {}
