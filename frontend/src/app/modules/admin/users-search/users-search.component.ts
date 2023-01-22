@@ -76,6 +76,11 @@ export class UsersSearchComponent implements OnInit {
   }
 
   getImage(profilePicture: string): void {
+    for (let user of this.users) {
+      if (user.profilePicture === profilePicture) {
+        user.userImage = ' ';
+      }
+    }
     this.photoService.loadImage(profilePicture).then((response) => {
       for (let user of this.users) {
         if (user.profilePicture === profilePicture) {
@@ -101,13 +106,14 @@ export class UsersSearchComponent implements OnInit {
     this.adminService.banUser(this.selectedUser).then(() => {
       this.getUsers();
     });
-    this.showUserNotesModal = false;
+    this.showUserBanModal = false;
   }
 
   unban(): void {
     this.adminService.unbanUser(this.selectedUser).then(() => {
       this.getUsers();
     });
+    this.showUserBanModal = false;
   }
 
   showBanModal(username: string): void {
