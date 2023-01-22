@@ -2,10 +2,7 @@ package com.example.springbackend.service;
 
 import com.example.springbackend.dto.creation.*;
 import com.example.springbackend.dto.display.*;
-import com.example.springbackend.exception.AdequateDriverNotFoundException;
-import com.example.springbackend.exception.InsufficientFundsException;
-import com.example.springbackend.exception.LinkedPassengersNotAllDistinctException;
-import com.example.springbackend.exception.UserDoesNotExistException;
+import com.example.springbackend.exception.*;
 import com.example.springbackend.model.*;
 import com.example.springbackend.model.helpClasses.Coordinates;
 import com.example.springbackend.model.helpClasses.ReportParameter;
@@ -23,13 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.Optional;
 
 @Service
 public class RideService {
@@ -62,6 +56,67 @@ public class RideService {
         this.template = template;
     }
 
+    public RideSimpleDisplayDTO orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
+        Passenger passenger = (Passenger) auth.getPrincipal();
+        VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
+
+        Optional<PassengerRide> currentPassengerRide = passengerRideRepository.getCurrentPassengerRide(passenger);
+        if (currentPassengerRide.isPresent()) {
+            throw new PassengerAlreadyHasAnActiveRideException();
+        }
+
+        int price = calculateRidePrice(dto, vehicleType);
+        if (passenger.getTokenBalance() < price) {
+            throw new InsufficientFundsException();
+        }
+
+        Driver driver = null;
+        Ride ride = createBasicRide(dto, price, null);
+        PassengerRide passengerRide = createPassengerRide(passenger, ride);
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
+        if (dto.getDelayInMinutes() == 0) {
+            driver = findDriver(ride);
+            if (driver == null) {
+                ride.setStatus(RideStatus.CANCELLED);
+                rideRepository.save(ride);
+                throw new AdequateDriverNotFoundException();
+            } else {
+                linkDriverAndRide(driver, ride);
+                passenger.setTokenBalance(passenger.getTokenBalance() - price);
+                passengerRepository.save(passenger);
+                sendRefreshMessage(driver.getUsername());
+            }
+        } else {
+            if (dto.getDelayInMinutes() < 20) {
+                ride.setStatus(RideStatus.CANCELLED);
+                rideRepository.save(ride);
+                throw new ReservationTooSoonException();
+            }
+            passenger.setTokenBalance(passenger.getTokenBalance() - price);
+            passengerRepository.save(passenger);
+            List<PassengerRide> passengerRides = new ArrayList<>();
+            passengerRides.add(passengerRide);
+            executorService.schedule(() -> processReservation(ride, passengerRides),
+                    dto.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes
+        }
+
+        RideSimpleDisplayDTO rideDisplayDTO = createBasicRideSimpleDisplayDTO(passengerRide, driver);
+        return rideDisplayDTO;
+    }
+
+    private void linkDriverAndRide(Driver driver, Ride ride) {
+        ride.setDriver(driver);
+        ride.setStatus(RideStatus.DRIVER_ARRIVING);
+        rideRepository.save(ride);
+        if (driver.getCurrentRide() == null) {
+            driver.setCurrentRide(ride);
+        } else {
+            driver.setNextRide(ride);
+        }
+        driverRepository.save(driver);
+    }
+
     public Boolean orderSplitFareRide(SplitFareRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
@@ -78,10 +133,11 @@ public class RideService {
             }
         });
         int fare = (int) Math.ceil(price/dto.getUsersToPay().size());
-        Ride ride = createSplitFareRide(dto, price);
         if (passenger.getTokenBalance() < fare) {
             throw new InsufficientFundsException();
         }
+
+        Ride ride = createSplitFareRide(dto, price);
         passenger.setTokenBalance(passenger.getTokenBalance() - fare);
         passengerRepository.save(passenger);
         createPassengerRideForUsers(dto, ride, fare, passenger);
@@ -93,6 +149,26 @@ public class RideService {
 
         executorService.schedule(() -> processSplitFareRide(dto, ride), 30, TimeUnit.SECONDS);
         return true;
+    }
+
+    private void processReservation(Ride ride, List<PassengerRide> passengerRides) {
+        Driver driver = findDriver(ride);
+        if (driver == null) {
+            for (PassengerRide passengerRide : passengerRides) {
+                sendMessageToPassenger(passengerRide.getPassenger().getUsername(),
+                        "Adequate driver was not found.", MessageType.RIDE_ERROR);
+            }
+            refundPassengers(passengerRides);
+            ride.setStatus(RideStatus.CANCELLED);
+            rideRepository.save(ride);
+            throw new AdequateDriverNotFoundException();
+        } else {
+            linkDriverAndRide(driver, ride);
+            sendRefreshMessage(driver.getUsername());
+            for (PassengerRide passengerRide : passengerRides) {
+                sendRefreshMessage(passengerRide.getPassenger().getUsername());
+            }
+        }
     }
 
     private void createPassengerRideForUsers(SplitFareRideCreationDTO dto, Ride ride,int fare, Passenger passenger) {
@@ -163,12 +239,7 @@ public class RideService {
         }
         if(fullyPaid) {
             ride.setPassengersConfirmed(true);
-            BasicRideCreationDTO basicRideCreationDTO = modelMapper.map(ride, BasicRideCreationDTO.class);
-            basicRideCreationDTO.setVehicleType(ride.getVehicleType());
-
-            Driver driver = findDriver(basicRideCreationDTO);
-            ride.setDriver(driver);
-            rideRepository.save(ride);
+            Driver driver = findDriver(ride);
 
             if (driver == null) {
                 for (String username : usersToPay) {
@@ -183,14 +254,7 @@ public class RideService {
                 for (String username : usersToPay) {
                     sendRefreshMessage(username);
                 }
-                if (driver.getCurrentRide() == null) {
-                    driver.setCurrentRide(ride);
-                } else {
-                    driver.setNextRide(ride);
-                }
-                driverRepository.save(driver);
-                ride.setStatus(RideStatus.DRIVER_ARRIVING);
-                rideRepository.save(ride);
+                linkDriverAndRide(driver, ride);
             }
         }
         return null;
@@ -288,44 +352,16 @@ public class RideService {
         return true;
     }
 
-    public RideSimpleDisplayDTO orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
-        Passenger passenger = (Passenger) auth.getPrincipal();
-        VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
-
-        int price = calculateRidePrice(dto, vehicleType);
-        if (passenger.getTokenBalance() < price) {
-            throw new InsufficientFundsException();
-        }
-
-        Driver driver = findDriver(dto);
-        if (driver == null) {
-            throw new AdequateDriverNotFoundException();
-        }
-
-        // successful
-        passenger.setTokenBalance(passenger.getTokenBalance() - price);
-        passengerRepository.save(passenger);
-        Ride ride = createBasicRide(dto, price, driver);
-        PassengerRide passengerRide = createPassengerRide(passenger, ride);
-
-        sendRefreshMessage(driver.getUsername()
-        );
-        RideSimpleDisplayDTO rideDisplayDTO = createBasicRideSimpleDisplayDTO(passengerRide, driver);
-
-        return rideDisplayDTO;
-    }
-
-    private Driver findDriver(BasicRideCreationDTO dto) {
-        CoordinatesCreationDTO startCoordinates = dto.getActualRoute().getWaypoints().get(0);
-
+    private Driver findDriver(Ride ride) {
+        Coordinates startCoordinates = ride.getActualRoute().getWaypoints().get(0);
         List<Driver> potentialClosestDriver = driverRepository.getClosestFreeDriver(startCoordinates.getLat(),
-                startCoordinates.getLng(), dto.isBabySeat(), dto.isPetFriendly(), dto.getVehicleType(),
+                startCoordinates.getLng(), ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType(),
                 PageRequest.of(0, 1)).stream().toList();
         if (!potentialClosestDriver.isEmpty()) return potentialClosestDriver.get(0);
 
         List<Driver> closeBusyDriversWithNoNextRide = driverRepository
                 .getCloseBusyDriversWithNoNextRide(startCoordinates.getLat(), startCoordinates.getLng(),
-                        dto.isBabySeat(), dto.isPetFriendly(), dto.getVehicleType());
+                        ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType());
 
         if (closeBusyDriversWithNoNextRide.isEmpty()) return null;
         else if (closeBusyDriversWithNoNextRide.size() == 1) return closeBusyDriversWithNoNextRide.get(0);
@@ -369,24 +405,22 @@ public class RideService {
         ride.setActualRoute(actualRoute);
         ride.setExpectedRoute(expectedRoute);
         ride.setDriverRejectionReason(null);
-        ride.setStatus(RideStatus.DRIVER_ARRIVING);
+        ride.setStatus(RideStatus.RESERVED);
+        ride.setPetFriendlyRequested(dto.isPetFriendly());
+        ride.setBabySeatRequested(dto.isBabySeat());
+        ride.setDelayInMinutes(dto.getDelayInMinutes());
+        ride.setStartAddress(dto.getStartAddress());
+        ride.setDestinationAddress(dto.getDestinationAddress());
         ride.setStartTime(null);
         ride.setEndTime(null);
         ride.setExpectedTime(dto.getExpectedTime());
+        ride.setVehicleType(dto.getVehicleType());
         ride.setCreatedAt(LocalDateTime.now());
         ride.setDriverInconsistency(false);
         ride.setPrice(price);
         ride.setPassengersConfirmed(true);
         ride.setDriver(driver);
         rideRepository.save(ride);
-
-        if (driver.getCurrentRide() == null) {
-            driver.setCurrentRide(ride);
-        } else {
-            driver.setNextRide(ride);
-        }
-        driverRepository.save(driver);
-
         return ride;
     }
 
@@ -404,6 +438,11 @@ public class RideService {
         ride.setExpectedRoute(expectedRoute);
         ride.setDriverRejectionReason(null);
         ride.setStatus(RideStatus.PENDING_CONFIRMATION);
+        ride.setPetFriendlyRequested(dto.isPetFriendly());
+        ride.setBabySeatRequested(dto.isBabySeat());
+        ride.setDelayInMinutes(dto.getDelayInMinutes());
+        ride.setStartAddress(dto.getStartAddress());
+        ride.setDestinationAddress(dto.getDestinationAddress());
         ride.setStartTime(null);
         ride.setEndTime(null);
         ride.setExpectedTime(dto.getExpectedTime());
