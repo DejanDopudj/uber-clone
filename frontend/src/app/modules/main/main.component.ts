@@ -35,6 +35,7 @@ export class MainComponent implements OnInit {
       this.isActive = await this.driverService.getDriverActivity();
       await this.driverService.fetchRides();
       this.subscribeDriverToRideMessages();
+      this.subscribeDriverToOvertimeMessage();
     }
     if (this.authenticationService.getAccountType() === 'passenger') {
       await this.passengerService.fetchCurrentRide();
@@ -70,6 +71,21 @@ export class MainComponent implements OnInit {
         else if (messageData.type === 'RIDE_UPDATE') {
           this.showErrorModal = true;
           this.errorTitle = 'Update';
+          this.errorMessage = messageData.content;
+        }
+      });
+    }
+  }
+
+  subscribeDriverToOvertimeMessage(): void {
+    const session: Session | null = this.authenticationService.getSession();
+    if (session && session.accountType === 'driver') {
+      this.socketService.stompClient.subscribe(`/user/${ session.username }/private/driver/overtime`,
+      (message: any) => {
+        let messageData = JSON.parse(message.body);
+        if (messageData.type === 'NOTIFICATION') {
+          this.showErrorModal = true;
+          this.errorTitle = 'Thank you';
           this.errorMessage = messageData.content;
         }
       });

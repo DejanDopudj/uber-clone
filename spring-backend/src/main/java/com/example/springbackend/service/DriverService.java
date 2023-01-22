@@ -125,7 +125,7 @@ public class DriverService {
                         .type(MessageType.NOTIFICATION)
                         .sender("server")
                         .receiver(driver.getUsername())
-                        .content("Your 8 hours has expired")
+                        .content("You have completed 8 hours of work time today.")
                         .sentDateTime(LocalDateTime.now())
                         .build();
                 driver.setActiveMinutesToday(driver.getActiveMinutesToday() + Duration.between(driver.getLastSetActive(), LocalDateTime.now()).toMinutes());
