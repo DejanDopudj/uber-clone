@@ -91,7 +91,7 @@ public class RideService {
                 sendRefreshMessage(username);
         });
 
-        executorService.schedule(() -> processSplitFareRide(dto, fare, ride), 30, TimeUnit.SECONDS);
+        executorService.schedule(() -> processSplitFareRide(dto, ride), 30, TimeUnit.SECONDS);
         return true;
     }
 
@@ -116,23 +116,26 @@ public class RideService {
         passengerRideRepository.save(passengerRide);
     }
 
-    public void processSplitFareRide(SplitFareRideCreationDTO dto, int fare, Ride ride) {
+    public void processSplitFareRide(SplitFareRideCreationDTO dto, Ride ride) {
         Ride newRide = rideRepository.findById(ride.getId()).get();
-        if (newRide.getStatus() != RideStatus.CANCELLED && !newRide.getPassengersConfirmed())
+        if (newRide.getStatus() != RideStatus.CANCELLED && !newRide.getPassengersConfirmed()) {
             for (String username : dto.getUsersToPay()) {
-                PassengerRide passengerRide = passengerRideRepository.findByRideAndPassengerUsername(ride, username).get();
-                Passenger passenger = passengerRide.getPassenger();
-                if (passengerRide.isAgreed()) {
-                    passenger.setTokenBalance(passenger.getTokenBalance() + fare);
-                    passengerRepository.save(passenger);
-                }
+                sendMessageToPassenger(username,
+                        "The ride is cancelled because one of the passengers did not respond to the invitation.",
+                        MessageType.RIDE_ERROR);
             }
+            List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
+            refundPassengers(passengerRides);
+            ride.setStatus(RideStatus.CANCELLED);
+            rideRepository.save(ride);
+        }
     }
 
     public Object confirmRide(RideIdDTO dto, Authentication auth) {
         Ride ride = rideRepository.findById(dto.getRideId()).get();
         Passenger passenger = (Passenger) auth.getPrincipal();
-        List<String> usersToPay = passengerRideRepository.getPassengersForRide(dto.getRideId());
+        List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
+        List<String> usersToPay = passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList();
 
         PassengerRide currentPR = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).get();
         if (passenger.getTokenBalance() < currentPR.getFare()) {
@@ -143,6 +146,7 @@ public class RideService {
             }
             ride.setStatus(RideStatus.CANCELLED);
             rideRepository.save(ride);
+            refundPassengers(passengerRides);
             throw new InsufficientFundsException();
         }
         currentPR.setAgreed(true);
@@ -172,6 +176,7 @@ public class RideService {
                 }
                 ride.setStatus(RideStatus.CANCELLED);
                 rideRepository.save(ride);
+                refundPassengers(passengerRides);
                 throw new AdequateDriverNotFoundException();
             } else {
                 sendRefreshMessage(driver.getUsername());
@@ -195,7 +200,8 @@ public class RideService {
         Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
         Passenger passenger = (Passenger) auth.getPrincipal();
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
-        PassengerRide currentPassengerRide = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).orElseThrow();
+        PassengerRide currentPassengerRide = passengerRideRepository
+                .findByRideAndPassengerUsername(ride, passenger.getUsername()).orElseThrow();
         if (!ride.getPassengersConfirmed() && !currentPassengerRide.isAgreed()) {
             for (PassengerRide passengerRide : passengerRides) {
                 Passenger ridePassenger = passengerRide.getPassenger();
@@ -203,17 +209,23 @@ public class RideService {
                     sendMessageToPassenger(ridePassenger.getUsername(),
                             "A passenger has rejected the ride.",
                             MessageType.RIDE_ERROR);
-                if (passengerRide.isAgreed()) {
-                    ridePassenger.setTokenBalance(ridePassenger.getTokenBalance() + passengerRide.getFare());
-                    passengerRepository.save(ridePassenger);
-                }
             }
+            refundPassengers(passengerRides);
             ride.setStatus(RideStatus.CANCELLED);
             rideRepository.save(ride);
-
             return true;
         }
         return false;
+    }
+
+    private void refundPassengers(List<PassengerRide> passengerRides) {
+        for (PassengerRide passengerRide : passengerRides) {
+            Passenger ridePassenger = passengerRide.getPassenger();
+            if (passengerRide.isAgreed()) {
+                ridePassenger.setTokenBalance(ridePassenger.getTokenBalance() + passengerRide.getFare());
+                passengerRepository.save(ridePassenger);
+            }
+        }
     }
 
     public Boolean driverRejectRide(DriverRideRejectionCreationDTO dto, Authentication auth) {
