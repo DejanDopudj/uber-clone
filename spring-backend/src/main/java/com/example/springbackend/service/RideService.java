@@ -74,7 +74,6 @@ public class RideService {
         Driver driver = null;
         Ride ride = createBasicRide(dto, price, null);
         PassengerRide passengerRide = createPassengerRide(passenger, ride);
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
         if (dto.getDelayInMinutes() == 0) {
             driver = findDriver(ride);
@@ -98,12 +97,25 @@ public class RideService {
             passengerRepository.save(passenger);
             List<PassengerRide> passengerRides = new ArrayList<>();
             passengerRides.add(passengerRide);
-            executorService.schedule(() -> processReservation(ride, passengerRides),
-                    dto.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
+            handleNotificationsAndProcessReservations(ride, passengerRides);
         }
 
         RideSimpleDisplayDTO rideDisplayDTO = createBasicRideSimpleDisplayDTO(passengerRide, driver);
         return rideDisplayDTO;
+    }
+
+    private void handleNotificationsAndProcessReservations(Ride ride, List<PassengerRide> passengerRides) {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        List<String> passengerUsernames = passengerRides.stream().map(pr ->
+                pr.getPassenger().getUsername()).toList();
+        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 15),
+                ride.getDelayInMinutes() - 15, TimeUnit.SECONDS); // should be minutes in production
+        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 10),
+                ride.getDelayInMinutes() - 10, TimeUnit.SECONDS); // should be minutes in production
+        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 5),
+                ride.getDelayInMinutes() - 5, TimeUnit.SECONDS); // should be minutes in production
+        executorService.schedule(() -> processReservation(ride, passengerRides),
+                ride.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
     }
 
     public Boolean orderSplitFareRide(SplitFareRideCreationDTO dto, Authentication auth) {
@@ -204,7 +216,6 @@ public class RideService {
         Passenger passenger = (Passenger) auth.getPrincipal();
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
         List<String> usersToPay = passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList();
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
         PassengerRide currentPR = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).get();
         if (passenger.getTokenBalance() < currentPR.getFare()) {
@@ -238,23 +249,10 @@ public class RideService {
                 processReservation(ride, passengerRides);
             } else {
                 sendRefreshMessageToMultipleUsers(usersToPay);
-                executorService.schedule(() -> processReservation(ride, passengerRides),
-                        ride.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
+                handleNotificationsAndProcessReservations(ride, passengerRides);
             }
         }
         return null;
-    }
-
-    private void sendRefreshMessageToMultipleUsers(List<String> usernames) {
-        for (String username : usernames) {
-            sendRefreshMessage(username);
-        }
-    }
-
-    private void sendMessageToMultiplePassengers(List<String> usernames, String message, MessageType messageType) {
-        for (String username : usernames) {
-            sendMessageToPassenger(username, message, messageType);
-        }
     }
 
     public Boolean rejectRide(RideIdDTO dto, Authentication auth) {
@@ -658,6 +656,12 @@ public class RideService {
         this.template.convertAndSendToUser(receiverUsername, "/private/passenger/ride", message);
     }
 
+    private void sendMessageToMultiplePassengers(List<String> receiverUsernames, String message, MessageType messageType) {
+        for (String receiverUsername : receiverUsernames) {
+            sendMessageToPassenger(receiverUsername, message, messageType);
+        }
+    }
+
     private void sendMessageToDriver(String receiverUsername, String content, MessageType messageType) {
         WSMessage message = WSMessage.builder()
                 .type(messageType)
@@ -669,6 +673,24 @@ public class RideService {
         this.template.convertAndSendToUser(receiverUsername, "/private/driver/ride", message);
     }
 
+    private void notifyPassengersAboutReservation(List<String> receiverUsernames, int minutesLeft) {
+        for (String receiverUsername : receiverUsernames) {
+            sendDisappearingMessage(receiverUsername,
+                    "The ride you scheduled should start in " + minutesLeft + " minutes.");
+        }
+    }
+
+    private void sendDisappearingMessage(String receiverUsername, String content) {
+        WSMessage message = WSMessage.builder()
+                .type(MessageType.DISAPPEARING)
+                .sender("server")
+                .receiver(receiverUsername)
+                .content(content)
+                .sentDateTime(LocalDateTime.now())
+                .build();
+        this.template.convertAndSendToUser(receiverUsername, "/private/ride/disappearing", message);
+    }
+
     private void sendRefreshMessage(String receiverUsername) {
         WSMessage message = WSMessage.builder()
                 .type(MessageType.RIDE_UPDATE)
@@ -678,5 +700,11 @@ public class RideService {
                 .sentDateTime(LocalDateTime.now())
                 .build();
         this.template.convertAndSendToUser(receiverUsername, "/private/ride/refresh", message);
+    }
+
+    private void sendRefreshMessageToMultipleUsers(List<String> receiverUsernames) {
+        for (String receiverUsername : receiverUsernames) {
+            sendRefreshMessage(receiverUsername);
+        }
     }
 }

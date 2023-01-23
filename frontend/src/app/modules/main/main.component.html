@@ -51,4 +51,12 @@
     ></app-error-modal>
   </div>
 
+  <div *ngIf="showDisappearingNotification" class="z-100">
+    <app-disappearing-notification
+      [title]="disappearingNotificationTitle"
+      [description]="disappearingNotificationMessage"
+      (onClose)="closeErrorModal()"
+    ></app-disappearing-notification>
+  </div>
+
 </div>
