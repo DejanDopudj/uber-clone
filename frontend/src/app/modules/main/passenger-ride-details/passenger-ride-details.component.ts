@@ -72,10 +72,10 @@ export class PassengerRideDetailsComponent implements OnInit {
 
   get reservationTime(): string {
     if (this.ride) {
-      const now: moment.Moment = moment();
-      now.add(this.ride.delayInMinutes, 'minutes')
+      const creationTime: moment.Moment = moment(this.ride.createdAt);
+      creationTime.add(this.ride.delayInMinutes, 'minutes')
   
-      return now.format('HH:mm');
+      return creationTime.format('HH:mm');
     }
     return '';
   }

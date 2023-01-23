@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +99,7 @@ public class RideService {
             List<PassengerRide> passengerRides = new ArrayList<>();
             passengerRides.add(passengerRide);
             executorService.schedule(() -> processReservation(ride, passengerRides),
-                    dto.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes
+                    dto.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
         }
 
         RideSimpleDisplayDTO rideDisplayDTO = createBasicRideSimpleDisplayDTO(passengerRide, driver);
@@ -112,25 +113,9 @@ public class RideService {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         int price = calculateRidePrice(dto, vehicleType);
         dto.getUsersToPay().add(passenger.getUsername());
-
-        List<PassengerRide> currentPassengerRides =
-                passengerRideRepository.getCurrentPassengerRidesByUsername(dto.getUsersToPay());
-        if (!currentPassengerRides.isEmpty()) {
-            throw new PassengerAlreadyHasAnActiveRideException();
-        }
-
-        if (dto.getUsersToPay().stream().distinct().count() != dto.getUsersToPay().size()) {
-            throw new LinkedPassengersNotAllDistinctException();
-        }
-        dto.getUsersToPay().stream().forEach(email -> {
-            if (!userService.userExists(email)) {
-                throw new UserDoesNotExistException("A co-passenger's email does not exist in the system.");
-            }
-        });
         int fare = (int) Math.ceil(price/dto.getUsersToPay().size());
-        if (passenger.getTokenBalance() < fare) {
-            throw new InsufficientFundsException();
-        }
+
+        checkIfSplitFareRideIsValid(dto, passenger, fare);
 
         Ride ride = createSplitFareRide(dto, price);
         passenger.setTokenBalance(passenger.getTokenBalance() - fare);
@@ -148,21 +133,21 @@ public class RideService {
 
     private void processReservation(Ride ride, List<PassengerRide> passengerRides) {
         Driver driver = findDriver(ride);
+        System.out.println(driver);
         if (driver == null) {
-            for (PassengerRide passengerRide : passengerRides) {
-                sendMessageToPassenger(passengerRide.getPassenger().getUsername(),
-                        "Adequate driver was not found.", MessageType.RIDE_ERROR);
-            }
-            refundPassengers(passengerRides);
+            sendMessageToMultiplePassengers(
+                    passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList(),
+                    "Adequate driver was not found.",
+                    MessageType.RIDE_ERROR);
             ride.setStatus(RideStatus.CANCELLED);
             rideRepository.save(ride);
+            refundPassengers(passengerRides);
             throw new AdequateDriverNotFoundException();
         } else {
             linkDriverAndRide(driver, ride);
             sendRefreshMessage(driver.getUsername());
-            for (PassengerRide passengerRide : passengerRides) {
-                sendRefreshMessage(passengerRide.getPassenger().getUsername());
-            }
+            sendRefreshMessageToMultipleUsers(
+                    passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList());
         }
     }
 
@@ -219,6 +204,7 @@ public class RideService {
         Passenger passenger = (Passenger) auth.getPrincipal();
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
         List<String> usersToPay = passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList();
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
         PassengerRide currentPR = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).get();
         if (passenger.getTokenBalance() < currentPR.getFare()) {
@@ -244,27 +230,31 @@ public class RideService {
                 fullyPaid = false;
             }
         }
-        if(fullyPaid) {
+        if (fullyPaid) {
             ride.setPassengersConfirmed(true);
-            Driver driver = findDriver(ride);
-
-            if (driver == null) {
-                for (String username : usersToPay) {
-                    sendMessageToPassenger(username, "Adequate driver was not found.", MessageType.RIDE_ERROR);
-                }
-                ride.setStatus(RideStatus.CANCELLED);
-                rideRepository.save(ride);
-                refundPassengers(passengerRides);
-                throw new AdequateDriverNotFoundException();
+            ride.setStatus(RideStatus.RESERVED);
+            rideRepository.save(ride);
+            if (ride.getDelayInMinutes() == 0) {
+                processReservation(ride, passengerRides);
             } else {
-                sendRefreshMessage(driver.getUsername());
-                for (String username : usersToPay) {
-                    sendRefreshMessage(username);
-                }
-                linkDriverAndRide(driver, ride);
+                sendRefreshMessageToMultipleUsers(usersToPay);
+                executorService.schedule(() -> processReservation(ride, passengerRides),
+                        ride.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
             }
         }
         return null;
+    }
+
+    private void sendRefreshMessageToMultipleUsers(List<String> usernames) {
+        for (String username : usernames) {
+            sendRefreshMessage(username);
+        }
+    }
+
+    private void sendMessageToMultiplePassengers(List<String> usernames, String message, MessageType messageType) {
+        for (String username : usernames) {
+            sendMessageToPassenger(username, message, messageType);
+        }
     }
 
     public Boolean rejectRide(RideIdDTO dto, Authentication auth) {
@@ -296,6 +286,30 @@ public class RideService {
                 ridePassenger.setTokenBalance(ridePassenger.getTokenBalance() + passengerRide.getFare());
                 passengerRepository.save(ridePassenger);
             }
+        }
+    }
+
+    private void checkIfSplitFareRideIsValid(SplitFareRideCreationDTO dto, Passenger passenger, int fare) {
+        dto.getUsersToPay().stream().forEach(email -> {
+            if (!userService.userExists(email)) {
+                throw new UserDoesNotExistException("A co-passenger's email does not exist in the system.");
+            }
+        });
+        if (dto.getUsersToPay().stream().distinct().count() != dto.getUsersToPay().size()) {
+            throw new LinkedPassengersNotAllDistinctException();
+        }
+        List<PassengerRide> currentPassengerRides =
+                passengerRideRepository.getCurrentPassengerRidesByUsername(dto.getUsersToPay());
+        if (!currentPassengerRides.isEmpty()) {
+            throw new PassengerAlreadyHasAnActiveRideException();
+        }
+
+        if (passenger.getTokenBalance() < fare) {
+            throw new InsufficientFundsException();
+        }
+
+        if (dto.getDelayInMinutes() != 0 && dto.getDelayInMinutes() < 20) {
+            throw new ReservationTooSoonException();
         }
     }
 
