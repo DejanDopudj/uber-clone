@@ -10,10 +10,15 @@ export class RideReportService {
 
   constructor(private authenticationService: AuthenticationService) { }
 
-  getReport(startDate: string, endDate: string, reportParameter: string): Promise<any> {
+  getReport(startDate: string, endDate: string, reportParameter: string, userType: string, adminDiagramType : string): Promise<any> {
     var params : string;
-    params = "startDate=" + startDate + "&endDate=" +endDate+ "&reportParameter=" + reportParameter;
-    return axios.get(`http://localhost:8080/api/rides/generate-report-passenger?`+params, {
+    params = "startDate=" + startDate + "&endDate=" +endDate;
+    if(userType == 'admin'){
+      params += "&type=" + adminDiagramType;
+    }
+    params += "&reportParameter=" + reportParameter;
+    console.log(params);
+    return axios.get(`http://localhost:8080/api/rides/generate-report-`+userType+`?`+params, {
         headers: {
           Authorization: `Bearer ${this.authenticationService.getToken()}`,
         },

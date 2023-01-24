@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RideReportService } from 'src/app/core/http/ride/rideReportService';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 
 @Component({
   selector: 'app-ride-reports',
@@ -12,22 +13,27 @@ export class RideReportsComponent implements OnInit {
   xAxisName : string = '';
   yAxisName : string = '';
   activeSelect : string = '';
+  activeAdminSelect : string = '';
+  accountType: string = this.authenticationService.getAccountType();
   
   rideReportForm = new FormGroup({
-    startDate: new FormControl('', []),
-    endDate: new FormControl('', []),
-    type: new FormControl('', []),
+    startDate: new FormControl('', [
+      Validators.required,]),
+    endDate: new FormControl('', [
+      Validators.required,]),
+      type: new FormControl('', [
+        Validators.required,]),
+        adminGraphType: new FormControl('', [
+          Validators.required,]),
   });
 
-  constructor(private rideReportService: RideReportService) {
+  constructor(private rideReportService: RideReportService, private authenticationService: AuthenticationService) {
     
    }
 
-   public async test() : Promise<void>{
-    console.log(this.startDate?.value);
-    console.log(this.endDate?.value);
-    console.log(this.type?.value);
-    var data = await this.rideReportService.getReport(this.startDate?.value!,this.endDate?.value!,this.type?.value!);
+   public async getReport() : Promise<void>{
+    var adminType : string = this.accountType === 'admin' ? this.adminGraphType?.value! : '';  
+    var data = await this.rideReportService.getReport(this.startDate?.value!,this.endDate?.value!,this.type?.value!,this.accountType,adminType);
     var i = 0;
     this.graphData = [];
     for(i = 0; i < data.xaxisValues.length; i++){
@@ -46,7 +52,10 @@ export class RideReportsComponent implements OnInit {
 
   public changeActiveSelect() : void{
     this.activeSelect = this.type?.value!;
-    console.log(this.activeSelect);
+  }
+
+  public changeAdminActiveSelect() : void{
+    this.activeAdminSelect = this.adminGraphType?.value!;
   }
   
   get startDate() {
@@ -58,6 +67,9 @@ export class RideReportsComponent implements OnInit {
 
   get type() {
     return this.rideReportForm.get('type');
+  }
+  get adminGraphType() {
+    return this.rideReportForm.get('adminGraphType');
   }
 
 

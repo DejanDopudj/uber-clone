@@ -181,6 +181,7 @@ public class TestDataSupplierService {
         passengerRide.setFare(80);
         passengerRide.setId(1);
         passengerRideRepository.save(passengerRide);
+        ride.setDriver(driverRepository.findByUsername("driver2@noemail.com").get());
 
 
         ride.setId(2);
@@ -194,6 +195,7 @@ public class TestDataSupplierService {
         ride.setPrice(90);
         ride.setDistance(630.0);
         ride.setStartTime(LocalDateTime.now().minusMonths(4));
+        ride.setDriver(driverRepository.findByUsername("driver1@noemail.com").get());
         rideRepository.save(ride);
         passengerRideRepository.save(passengerRide);
 
