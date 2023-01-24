@@ -5,6 +5,7 @@ public enum RideStatus {
     RESERVED,
     PENDING_CONFIRMATION,
     DRIVER_ARRIVING,
+    DRIVER_ARRIVED,
     IN_PROGRESS,
     COMPLETED,
 }

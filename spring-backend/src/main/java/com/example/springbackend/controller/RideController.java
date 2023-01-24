@@ -50,6 +50,12 @@ public class RideController {
         return ResponseEntity.ok(rideService.rejectRide(dto, auth));
     }
 
+    @PatchMapping("/begin")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<Boolean> beginRide(@Valid @RequestBody RideIdDTO dto, Authentication auth) {
+        return ResponseEntity.ok(rideService.beginRide(dto, auth));
+    }
+
     @PatchMapping("/driver-rejection")
     @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<Boolean> driverRejectRide(@Valid @RequestBody DriverRideRejectionCreationDTO dto, Authentication auth) {

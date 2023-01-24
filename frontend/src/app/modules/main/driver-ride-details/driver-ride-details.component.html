@@ -76,9 +76,14 @@ sm:h-full select-none" id="order-menu">
       </div>
     </div>
     
-    <button *ngIf="ride.status === 'DRIVER_ARRIVING'" class="w-full h-16 bg-accent-light
+    <button *ngIf="ride.status === 'DRIVER_ARRIVING' && !isRideRejectionSent" class="w-full h-16 bg-accent-light
     active:bg-accent text-white font-medium tracking-wide mt-8" (click)="openRejectRideModal()">
       REJECT RIDE
+    </button>
+
+    <button *ngIf="ride.status === 'DRIVER_ARRIVED'" class="w-full h-16 bg-accent-light
+    active:bg-accent text-white font-medium tracking-wide mt-8" (click)="beginRide()">
+      BEGIN RIDE
     </button>
 
   </div>
@@ -123,7 +128,7 @@ sm:h-full select-none" id="order-menu">
             </div>
           </div>
 
-          <button *ngIf="!rideRejectionSent" class="py-1 px-8 border border-stone-500 text-stone-400
+          <button class="py-1 px-8 border border-stone-500 text-stone-400
           hover:bg-stone-500 hover:text-stone-300 rounded-2xl" (click)="rejectRide()">
             Reject ride
           </button>
