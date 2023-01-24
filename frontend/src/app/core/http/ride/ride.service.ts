@@ -102,4 +102,16 @@ export class RideService {
     });
   }
 
+  completeRide(rideId: number): Promise<any> {
+    return axios.patch(`/api/rides/complete`, 
+    {
+      rideId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    });
+  }
+
 }

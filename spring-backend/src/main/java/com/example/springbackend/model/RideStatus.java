@@ -7,5 +7,6 @@ public enum RideStatus {
     DRIVER_ARRIVING,
     DRIVER_ARRIVED,
     IN_PROGRESS,
+    ARRIVED_AT_DESTINATION,
     COMPLETED,
 }

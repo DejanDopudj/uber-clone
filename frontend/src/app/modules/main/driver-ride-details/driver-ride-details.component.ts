@@ -70,6 +70,12 @@ export class DriverRideDetailsComponent implements OnInit {
     }
   }
 
+  completeRide(): void {
+    if (this.ride && this.ride.status === 'ARRIVED_AT_DESTINATION') {
+      this.rideService.completeRide(this.ride.id);
+    }
+  }
+
   toggleOpened(): void {
     let inAnimation = 'slide-in';
     let outAnimation = 'slide-out';
@@ -97,6 +103,12 @@ export class DriverRideDetailsComponent implements OnInit {
 
   get ride(): DriverRide | undefined {
     return this.driverService.getCurrentRides()?.currentRide;
+  }
+
+  get rideStatus(): string {
+    if (this.ride)
+      return this.ride.status.replace(/_/g, ' ')
+    return '';
   }
 
   @HostListener('document:click')

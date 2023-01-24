@@ -169,18 +169,30 @@ public class RideService {
         rideRepository.save(ride);
         if (driver.getCurrentRide() == null) {
             driver.setCurrentRide(ride);
-            directDriverToLocation(driver, ride.getActualRoute().getWaypoints().get(0));
-            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.schedule(() -> markDriverArrived(ride),
-                    driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
+            directDriverToCurrentRideStart(driver, ride);
         } else {
             driver.setNextRide(ride);
         }
         driverRepository.save(driver);
     }
 
+    private void directDriverToCurrentRideStart(Driver driver, Ride ride) {
+        directDriverToLocation(driver, ride.getActualRoute().getWaypoints().get(0));
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(() -> markDriverArrived(ride),
+                driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
+    }
+
     private void markDriverArrived(Ride ride) {
+        if (ride.getStatus() == RideStatus.CANCELLED) return;
         ride.setStatus(RideStatus.DRIVER_ARRIVED);
+        rideRepository.save(ride);
+        sendRefreshMessageToDriverAndAllPassengers(ride);
+    }
+
+    private void markArrivedAtDestination(Ride ride) {
+        if (ride.getStatus() == RideStatus.CANCELLED) return;
+        ride.setStatus(RideStatus.ARRIVED_AT_DESTINATION);
         rideRepository.save(ride);
         sendRefreshMessageToDriverAndAllPassengers(ride);
     }
@@ -343,7 +355,37 @@ public class RideService {
         List<Coordinates> waypoints = ride.getActualRoute().getWaypoints();
         directDriverToLocation(driver, waypoints.get(waypoints.size() - 1));
         sendRefreshMessageToDriverAndAllPassengers(ride);
+
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(() -> markArrivedAtDestination(ride),
+                driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         return true;
+    }
+
+    public Boolean completeRide(RideIdDTO dto, Authentication auth) {
+        Driver driver = (Driver) auth.getPrincipal();
+        Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
+        ride.setStatus(RideStatus.COMPLETED);
+        rideRepository.save(ride);
+        List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
+        sendMessageToMultiplePassengers(passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList(),
+                "", MessageType.RIDE_COMPLETE);
+
+        updateCurrentDriverRide(driver);
+        sendRefreshMessage(driver.getUsername());
+        return true;
+    }
+
+    private void updateCurrentDriverRide(Driver driver) {
+        driver.setCurrentRide(driver.getNextRide());
+        driver.setNextRide(null);
+        driverRepository.save(driver);
+        if (driver.getCurrentRide() != null)
+            directDriverToCurrentRideStart(driver, driver.getCurrentRide());
+        else {
+            driver.getVehicle().setRideActive(false);
+            vehicleRepository.save(driver.getVehicle());
+        }
     }
 
     public Boolean driverRejectRide(DriverRideRejectionCreationDTO dto, Authentication auth) {
