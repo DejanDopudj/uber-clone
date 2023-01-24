@@ -28,7 +28,7 @@
 
       <!-- profile dropdown -->
       <div
-        *ngIf="showHambrugerDropdown"
+        *ngIf="showHambrugerDropdown && accountType !== 'admin'"
         class="absolute z-20 left-0 top-14 rounded-lg bg-dark w-72 p-1.5 px-2 flex flex-col font-medium text-light"
         (click)="clickedHambrugerDropdown = true"
       >
@@ -81,6 +81,13 @@
           >
             <fa-icon [icon]="faSearch" class="text-xl"></fa-icon>
             <span class="my-auto">Search users</span>
+          </button>
+          <button
+            class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
+            routerLink="/reports"
+          >
+            <fa-icon [icon]="faSearch" class="text-xl"></fa-icon>
+            <span class="my-auto">Ride report</span>
           </button>
         </div>
       </div>

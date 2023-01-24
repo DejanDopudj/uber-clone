@@ -32,6 +32,12 @@ export class RideReportsComponent implements OnInit {
    }
 
    public async getReport() : Promise<void>{
+    if(this.startDate?.invalid || this.endDate?.invalid || this.type?.invalid){
+      return;
+    }
+    if(this.accountType === 'admin' && this.adminGraphType?.invalid){
+      return;
+    }
     var adminType : string = this.accountType === 'admin' ? this.adminGraphType?.value! : '';  
     var data = await this.rideReportService.getReport(this.startDate?.value!,this.endDate?.value!,this.type?.value!,this.accountType,adminType);
     var i = 0;
@@ -42,7 +48,6 @@ export class RideReportsComponent implements OnInit {
     this.xAxisName = data.xaxisName;
     this.graphData = [...this.graphData];
     this.yAxisName = data.yaxisName;
-    console.log(data);
     this.graphLoaded = false;
     this.graphLoaded = true;
    }

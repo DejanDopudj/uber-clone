@@ -17,7 +17,6 @@ export class RideReportService {
       params += "&type=" + adminDiagramType;
     }
     params += "&reportParameter=" + reportParameter;
-    console.log(params);
     return axios.get(`http://localhost:8080/api/rides/generate-report-`+userType+`?`+params, {
         headers: {
           Authorization: `Bearer ${this.authenticationService.getToken()}`,

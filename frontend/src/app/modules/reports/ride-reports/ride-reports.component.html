@@ -24,7 +24,7 @@
         </ngx-charts-bar-vertical>
             </div>
         </div>
-        <div class="flex justify-between gap-x-4">
+        <div class="flex justify-between gap-x-6">
         <div class="w-full">
           <label
             class="block tracking-wide text-light text-xs font-bold mb-1"
@@ -35,7 +35,7 @@
           <input
             class="appearance-none block w-full text-white tracking-wide placeholder-light caret-light border-b border-light focus:border-accent-light bg-transparent leading-tight outline-none py-1 focus:transition-color duration-300"
             id="register-startDate"
-            type="text"
+            type="date"
             placeholder="Start date"
             formControlName="startDate"
           />
@@ -58,7 +58,7 @@
           <input
             class="appearance-none block w-full text-white tracking-wide placeholder-light caret-light border-b border-light focus:border-accent-light bg-transparent leading-tight outline-none py-1 focus:transition-color duration-300"
             id="register-endDate"
-            type="text"
+            type="date"
             placeholder="End Date"
             formControlName="endDate"
           />
@@ -73,13 +73,12 @@
           </div>
         </div>
         
-        <div *ngIf="accountType === 'admin'">
-          <div class="w-full">
+          <div *ngIf="accountType === 'admin'" class="w-full">
             <label
               class="block tracking-wide text-light text-xs font-bold mb-1"
               for="register-type"
             >
-              Type
+              User type
             </label>
             <select   class="appearance-none block w-full text-white tracking-wide placeholder-light caret-light border-b border-light focus:border-accent-light bg-transparent leading-tight outline-none py-1 focus:transition-color duration-300"
             name="cars" id="cars" formControlName="adminGraphType" (change)="changeAdminActiveSelect()">
@@ -95,7 +94,6 @@
               </p>
             </div>
           </div>
-        </div>
         <div class="w-full">
           <label
             class="block tracking-wide text-light text-xs font-bold mb-1"
