@@ -186,6 +186,7 @@ export class MapComponent implements AfterViewInit {
     ride.route.waypoints?.forEach((e : any) => {
       L.marker({lat: e.lat, lng: e.lng}).addTo(this.map);
     });
+    this.map.setView([ride.route.waypoints[0].lat, ride.route.waypoints[0].lng], 15);
   }
   
   getVehiclePositions = () => {
