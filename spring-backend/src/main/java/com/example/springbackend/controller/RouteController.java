@@ -35,7 +35,7 @@ public class RouteController {
         return ResponseEntity.ok(routeService.unmarkRouteAsFavourite(routeIdDTO, authentication));
     }
     @GetMapping("/favourite-routes")
-    public Page<Route> getFavouriteRoutes(@RequestParam Integer page, @RequestParam Integer amount, Authentication authentication){
+    public Page<Route> getFavouriteRoutes(@RequestParam(value="page") Integer page, @RequestParam(value="amount") Integer amount, Authentication authentication){
         Pageable paging = PageRequest.of(page, amount);
         return routeService.getFavouriteRoutes(paging, authentication);
     }

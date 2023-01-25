@@ -3,8 +3,10 @@ package com.example.springbackend.service;
 import com.example.springbackend.dto.creation.RideIdDTO;
 import com.example.springbackend.dto.creation.RouteIdDTO;
 import com.example.springbackend.model.Passenger;
+import com.example.springbackend.model.PassengerRide;
 import com.example.springbackend.model.Route;
 import com.example.springbackend.repository.PassengerRepository;
+import com.example.springbackend.repository.PassengerRideRepository;
 import com.example.springbackend.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,9 @@ public class RouteService {
     @Autowired
     PassengerRepository passengerRepository;
 
+    @Autowired
+    PassengerRideRepository passengerRideRepository;
+
 
     public Boolean markRouteAsFavourite(RouteIdDTO routeIdDTO, Authentication authentication) {
         Optional<Route> route = routeRepository.findById(routeIdDTO.getRouteId());
@@ -32,6 +37,9 @@ public class RouteService {
             Passenger passenger = (Passenger) authentication.getPrincipal();
             passenger.getFavouriteRoutes().add(route.get());
             passengerRepository.save(passenger);
+            PassengerRide pr = passengerRideRepository.findByRideRouteAndUsername(route.get().getId(), passenger.getUsername()).get();
+            pr.setFavorite(true);
+            passengerRideRepository.save(pr);
             return true;
         }
         return false;
@@ -44,6 +52,9 @@ public class RouteService {
                 if(Objects.equals(favouriteRoute.getId(), route.get().getId())){
                     passenger.getFavouriteRoutes().remove(favouriteRoute);
                     passengerRepository.save(passenger);
+                    PassengerRide pr = passengerRideRepository.findByRideRouteAndUsername(route.get().getId(), passenger.getUsername()).get();
+                    pr.setFavorite(false);
+                    passengerRideRepository.save(pr);
                     return true;
                 }
             }
