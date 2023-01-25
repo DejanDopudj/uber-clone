@@ -51,7 +51,7 @@ public class UserService {
             newUser.setEmail(customOAuth2User.getEmail());
             newUser.setUsername(customOAuth2User.getEmail());
             newUser.setName(customOAuth2User.getName());
-            newUser.setSurname(customOAuth2User.getName());
+            newUser.setSurname("");
             newUser.setProfilePicture("test");
             newUser.setAuthenticationProvider(AuthenticationProvider.valueOf(customOAuth2User.getOauth2ClientName().toUpperCase()));
             newUser.setPassword(passengerRepository.findByEmail("passenger1@noemail.com").get().getPassword());
