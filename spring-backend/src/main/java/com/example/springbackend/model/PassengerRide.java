@@ -17,6 +17,7 @@ public class PassengerRide {
     private String comment;
     private int fare;
     private boolean agreed;
+    private boolean isFavorite;
 
     @ManyToOne
     Passenger passenger;
