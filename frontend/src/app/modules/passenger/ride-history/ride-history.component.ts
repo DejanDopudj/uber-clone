@@ -3,6 +3,7 @@ import {
   IconDefinition,
   faChevronLeft,
   faStar,
+  faChevronCircleDown
 } from '@fortawesome/free-solid-svg-icons';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -23,6 +24,7 @@ export class RideHistoryComponent implements OnInit {
   private provider!: GeoSearch.OpenStreetMapProvider;
   faChevronLeft: IconDefinition = faChevronLeft;
   faStar: IconDefinition = faStar;
+  faChevronCircleDown: IconDefinition = faChevronCircleDown;
   startElem: number = 0;
   numOfElements: number = 0;
   page: number = 0;
