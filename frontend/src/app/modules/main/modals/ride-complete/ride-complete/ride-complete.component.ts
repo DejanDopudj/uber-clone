@@ -21,6 +21,10 @@ export class RideCompleteComponent implements OnInit {
     this.showReviewModal = true;
   }
 
+  onReviewSent(): void {
+    window.location.href = '/';
+  }
+
   close () {
     this.onClose.emit();
   }

@@ -1,14 +1,15 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { faStar, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { RideService } from 'src/app/core/http/ride/ride.service';
-import { RideSimple } from 'src/app/shared/models/ride.model';
 
 @Component({
   selector: 'app-ride-review-modal',
   templateUrl: './ride-review-modal.component.html',
 })
 export class RideReviewModalComponent implements OnInit {
-  @Input() ride!: RideSimple | null;
+  @Input() rideId!: number | null | undefined;
+  @Output() reviewSent: EventEmitter<any> = new EventEmitter();
+  
   faStar: IconDefinition = faStar;
 
   selectedDriverRating: number = -1;
@@ -22,21 +23,22 @@ export class RideReviewModalComponent implements OnInit {
   constructor(private rideService: RideService) { }
 
   ngOnInit(): void {
-    console.log(this.ride);
+
   }
 
   sendReview(): void {
-    if (this.ride) {
+    if (this.rideId) {
       if (!this.isDataValid()) return;
       this.rideService.sendReview(
         {
-          rideId: this.ride.id,
+          rideId: this.rideId,
           driverRating: this.selectedDriverRating + 1,
           vehicleRating: this.selectedVehicleRating + 1,
           comment: this.comment.trim()
         }
       ).then(res => {
-        window.location.href = '/';
+        this.reviewSent.emit();
+        // window.location.href = '/';
       }).catch(err => {
         this.errorMessage = 'Something went wrong. Try again later using your ride history.';
       })
@@ -78,7 +80,6 @@ export class RideReviewModalComponent implements OnInit {
   setHoveredVehicleRating(i: number): void {
     this.hoveredVehicleRating = i;
   }
-
 
   setArrayFromNumber(i: number) {
     return new Array(i);

@@ -3,13 +3,16 @@ import {
   IconDefinition,
   faChevronLeft,
   faStar,
-  faChevronCircleDown
+  faChevronCircleDown,
+  faUser,
+  faTaxi
 } from '@fortawesome/free-solid-svg-icons';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import * as GeoSearch from 'leaflet-geosearch';
 import { PassengerRide } from 'src/app/shared/models/ride.model';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
+import * as moment from 'moment';
 
 const service_url = 'https://nominatim.openstreetmap.org/reverse?format=json';
 const API_KEY = null;
@@ -19,11 +22,14 @@ const API_KEY = null;
   templateUrl: './ride-history.component.html',
 })
 export class RideHistoryComponent implements OnInit {
+  faChevronLeft: IconDefinition = faChevronLeft;
+  faStar: IconDefinition = faStar;
+  faUser: IconDefinition = faUser;
+  faTaxi: IconDefinition = faTaxi;
+
   private map: any;
   private control: any;
   private provider!: GeoSearch.OpenStreetMapProvider;
-  faChevronLeft: IconDefinition = faChevronLeft;
-  faStar: IconDefinition = faStar;
   faChevronCircleDown: IconDefinition = faChevronCircleDown;
   startElem: number = 0;
   numOfElements: number = 0;
@@ -31,6 +37,9 @@ export class RideHistoryComponent implements OnInit {
   selectedRide: PassengerRide | null = null;
   selectedIsFavourite: boolean = false;
   rides: Array<PassengerRide> = [];
+
+  showReviewModal: boolean = false;
+
   constructor(private passengerService: PassengerService) {}
 
   ngOnInit(): void {
@@ -90,6 +99,7 @@ export class RideHistoryComponent implements OnInit {
       this.selectedRide!.actualRoute.waypoints[1],
     ]);
     this.checkIsFavourite();
+    console.log(this.selectedRide)
   }
 
   getRides(): void {
@@ -140,8 +150,32 @@ export class RideHistoryComponent implements OnInit {
       });
   }
 
+  openReviewModal(): void {
+    this.showReviewModal = true;
+  }
+
+  onReviewSent(): void {
+    this.showReviewModal = false;
+    this.getRides();
+  }
+
+  canUserRateRide(): boolean {
+    if (!this.selectedRide) return false;
+    if (this.selectedRide.driverRating || this.selectedRide.vehicleRating) return false;
+    if (moment().diff(moment(this.selectedRide.endTime), 'hours') > 72) return false;
+    return true;
+  }
+
   getDateTime(date: Date): string {
     let tempDate = new Date(date);
     return tempDate.toLocaleString('en-GB');
+  }
+
+  getRideStatus(ride: PassengerRide): string {
+    return ride.status.replace(/_/g, ' ');
+  }
+
+  setArrayFromNumber(i: number) {
+    return new Array(i);
   }
 }

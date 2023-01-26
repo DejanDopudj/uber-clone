@@ -589,18 +589,21 @@ public class RideService {
         return dto;
     }
 
-    public Page<RideHistoryDisplayDTO> getRideHistory(String username, Authentication authentication, Pageable paging) {
-        User user = (User) authentication.getPrincipal();
-        if(username.isEmpty()){
-            username = user.getUsername();
-        }
-        else{
-            if(!adminRepository.findById(username).isPresent()){
-                return null;
-            }
-        }
-        Page<PassengerRide> passengerRides = passengerRideRepository.findByPassengerUsername(username, paging);
-        return passengerRides.map(passengerRide -> modelMapper.map(passengerRide.getRide(), RideHistoryDisplayDTO.class));
+    public Page<RideHistoryDisplayDTO> getRideHistory(Authentication auth, Pageable paging) {
+        Passenger passenger = (Passenger) auth.getPrincipal();
+        Page<PassengerRide> passengerRides = passengerRideRepository.findByPassengerUsername(passenger.getUsername(), paging);
+        Page<RideHistoryDisplayDTO> page = passengerRides.map(passengerRide -> modelMapper
+                .map(passengerRide.getRide(), RideHistoryDisplayDTO.class));
+        page.getContent().stream().map(entry -> {
+            entry.setDriverRating(passengerRides.stream()
+                    .filter(pr -> pr.getRide().getId() == entry.getId())
+                    .findFirst().get().getDriverRating());
+            entry.setVehicleRating(passengerRides.stream()
+                    .filter(pr -> pr.getRide().getId() == entry.getId())
+                    .findFirst().get().getVehicleRating());
+            return entry;
+        }).toList();
+        return page;
     }
 
     public DetailedRideHistoryPassengerDTO detailedRideHistoryPassenger(Integer rideId, Authentication authentication) {
