@@ -624,14 +624,15 @@ public class RideService {
         return detailedRideHistoryDriverDTO;
     }
 
-    public Boolean leaveReview(ReviewDTO reviewDTO, Authentication authentication) {
+    public Boolean leaveReview(ReviewCreationDTO reviewCreationDTO, Authentication authentication) {
         Passenger passenger = (Passenger) authentication.getPrincipal();
-        Optional<PassengerRide> optPassengerRide = passengerRideRepository.findByRideIdAndPassengerUsername(reviewDTO.getRideId(),passenger.getUsername());
+        Optional<PassengerRide> optPassengerRide = passengerRideRepository.
+                findByRideIdAndPassengerUsername(reviewCreationDTO.getRideId(),passenger.getUsername());
         if(optPassengerRide.isPresent()){
             PassengerRide passengerRide = optPassengerRide.get();
-            passengerRide.setComment(reviewDTO.getComment());
-            passengerRide.setVehicleRating(reviewDTO.getVehicleRating());
-            passengerRide.setDriverRating(reviewDTO.getDriverRating());
+            passengerRide.setComment(reviewCreationDTO.getComment());
+            passengerRide.setVehicleRating(reviewCreationDTO.getVehicleRating());
+            passengerRide.setDriverRating(reviewCreationDTO.getDriverRating());
             passengerRideRepository.save(passengerRide);
             return true;
         }

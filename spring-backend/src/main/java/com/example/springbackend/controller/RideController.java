@@ -2,7 +2,6 @@ package com.example.springbackend.controller;
 
 import com.example.springbackend.dto.creation.*;
 import com.example.springbackend.dto.display.*;
-import com.example.springbackend.dto.update.UsernameDTO;
 import com.example.springbackend.model.ReportDisplayDTO;
 import com.example.springbackend.model.helpClasses.ReportParameter;
 import com.example.springbackend.service.RideService;
@@ -100,9 +99,10 @@ public class RideController {
         return rideService.detailedRideHistoryDriver(rideId, authentication);
     }
 
-    @PostMapping("/leave-review")
-    public ResponseEntity<Boolean> leaveReview(@Valid @RequestBody ReviewDTO reviewDTO, Authentication authentication ){
-        return ResponseEntity.ok(rideService.leaveReview(reviewDTO, authentication));
+    @PostMapping("/reviews")
+    public ResponseEntity<Boolean> leaveReview(@Valid @RequestBody ReviewCreationDTO reviewCreationDTO,
+                                               Authentication authentication ){
+        return ResponseEntity.ok(rideService.leaveReview(reviewCreationDTO, authentication));
     }
 
     @GetMapping("/generate-report-passenger")
