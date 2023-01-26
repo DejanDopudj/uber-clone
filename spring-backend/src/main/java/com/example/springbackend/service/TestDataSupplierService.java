@@ -147,12 +147,12 @@ public class TestDataSupplierService {
         driver.setCurrentRide(null);
         driver.setNextRide(null);
         driverRepository.save(driver);
-        driver.setUsername("driver2@noemail.com");
-        driverRepository.save(driver);
-        driver.setUsername("driver3@noemail.com");
-        driverRepository.save(driver);
-        driver.setUsername("driver4@noemail.com");
-        driverRepository.save(driver);
+//        driver.setUsername("driver2@noemail.com");
+//        driverRepository.save(driver);
+//        driver.setUsername("driver3@noemail.com");
+//        driverRepository.save(driver);
+//        driver.setUsername("driver4@noemail.com");
+//        driverRepository.save(driver);
     }
 
     private void addRides(){

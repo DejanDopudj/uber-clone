@@ -2,8 +2,6 @@ import {
   Component,
   AfterViewInit,
   Input,
-  OnChanges,
-  SimpleChanges,
 } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -81,10 +79,7 @@ export class MapComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.initMap();
-    }, 10);
-
+    this.initMap();
     this.getVehiclePositions();
     setInterval(() => {
       this.getVehiclePositions();

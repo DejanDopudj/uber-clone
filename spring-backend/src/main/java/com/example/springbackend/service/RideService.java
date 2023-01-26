@@ -190,10 +190,17 @@ public class RideService {
         sendRefreshMessageToDriverAndAllPassengers(ride);
     }
 
-    private void markArrivedAtDestination(Ride ride) {
+    private void markArrivedAtDestination(Ride ride, int waypointIndex) {
         if (ride.getStatus() == RideStatus.CANCELLED) return;
-        ride.setStatus(RideStatus.ARRIVED_AT_DESTINATION);
-        rideRepository.save(ride);
+        if (ride.getActualRoute().getWaypoints().size() > waypointIndex + 1) {
+            directDriverToLocation(ride.getDriver(), ride.getActualRoute().getWaypoints().get(waypointIndex + 1));
+            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.schedule(() -> markArrivedAtDestination(ride, waypointIndex + 1),
+                    ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
+        } else {
+            ride.setStatus(RideStatus.ARRIVED_AT_DESTINATION);
+            rideRepository.save(ride);
+        }
         sendRefreshMessageToDriverAndAllPassengers(ride);
     }
 
@@ -204,7 +211,7 @@ public class RideService {
         vehicle.setCoordinatesChangedAt(LocalDateTime.now());
         long estimatedTime = simulatorService.getEstimatedTime(vehicle);
         vehicle.setExpectedTripTime(estimatedTime);
-        vehicleRepository.save(driver.getVehicle());
+        vehicleRepository.save(vehicle);
 
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.schedule(() -> simulatorService.arriveAtLocation(vehicle, true),
@@ -353,13 +360,12 @@ public class RideService {
         ride.setStatus(RideStatus.IN_PROGRESS);
         ride.setStartTime(LocalDateTime.now());
         rideRepository.save(ride);
-        List<Coordinates> waypoints = ride.getActualRoute().getWaypoints();
-        directDriverToLocation(driver, waypoints.get(waypoints.size() - 1));
+        directDriverToLocation(driver, ride.getActualRoute().getWaypoints().get(1));
         sendRefreshMessageToDriverAndAllPassengers(ride);
 
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> markArrivedAtDestination(ride),
-                driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
+        executorService.schedule(() -> markArrivedAtDestination(ride, 1),
+                ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         return true;
     }
 

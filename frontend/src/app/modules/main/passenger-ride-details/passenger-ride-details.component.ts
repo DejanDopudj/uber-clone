@@ -3,6 +3,7 @@ import { faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircle, fa
 import * as moment from 'moment';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
+import { Vehicle } from 'src/app/shared/models/vehicle.model';
 
 @Component({
   selector: 'app-passenger-ride-details',
@@ -88,12 +89,13 @@ export class PassengerRideDetailsComponent implements OnInit {
 
   calculateArrivalTimeInMinutes(): number {
     if (this.ride) {
-      const vehicle = this.ride.driver.vehicle;
+      const vehicle: Vehicle = this.ride.driver.vehicle;
       if (vehicle.expectedTripTime) {
+        const tripTime: number = this.ride.status === 'IN_PROGRESS' ? this.ride.expectedTime : vehicle.expectedTripTime;
         let startingMoment = moment(vehicle.coordinatesChangedAt);
         let currentMoment = moment();
         const difference = currentMoment.diff(startingMoment, 'seconds');
-        const remainingTime = vehicle.expectedTripTime - difference;
+        const remainingTime = tripTime - difference;
         if (remainingTime <= 0) return -1;
         return Math.round(remainingTime / 60);
       }
