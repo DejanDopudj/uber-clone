@@ -99,7 +99,6 @@ export class RideHistoryComponent implements OnInit {
       this.selectedRide!.actualRoute.waypoints[1],
     ]);
     this.checkIsFavourite();
-    console.log(this.selectedRide)
   }
 
   getRides(): void {
