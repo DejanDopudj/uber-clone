@@ -39,4 +39,8 @@ public class RouteController {
         Pageable paging = PageRequest.of(page, amount);
         return routeService.getFavouriteRoutes(paging, authentication);
     }
+    @PostMapping("/is-route-favourite")
+    public ResponseEntity<Boolean> isRouteFavourite(@Valid @RequestBody RouteIdDTO routeIdDTO, Authentication authentication){
+        return ResponseEntity.ok(routeService.isRouteFavourite(routeIdDTO, authentication));
+    }
 }

@@ -28,156 +28,14 @@ export class RideHistoryComponent implements OnInit {
   page: number = 0;
   selectedRide: PassengerRide | null = null;
   selectedIsFavourite: boolean = false;
-  rides: Array<PassengerRide> = [
-    {
-      id: 1,
-      distance: 100,
-      price: 100,
-      startAddress: 'address',
-      destinationAddress: 'address',
-      vehicleType: 'COUPE',
-      startTime: '2021-01-01 12:00',
-      endTime: '2021-01-01 12:10',
-      expectedTime: 10,
-      status: 'CANCELLED',
-      route: {
-        coordinates: [
-          { lat: 45.252782, lng: 19.855517 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-        waypoints: [
-          { lat: 45.252782, lng: 19.855517 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-      },
-      isFavourite: true,
-    },
-    {
-      id: 2,
-      distance: 100,
-      price: 100,
-      startAddress: 'address',
-      destinationAddress: 'address',
-      vehicleType: 'MINIVAN',
-      startTime: '2021-01-01 12:00',
-      endTime: '2021-01-01 12:10',
-      expectedTime: 10,
-      status: 'COMPLETED',
-      route: {
-        coordinates: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.252782, lng: 19.855517 },
-        ],
-        waypoints: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.252782, lng: 19.855517 },
-        ],
-      },
-      isFavourite: false,
-    },
-    {
-      id: 3,
-      distance: 100,
-      price: 100,
-      startAddress: ' sadas dsadsadas dsa das das ',
-      destinationAddress: 'das das das d asd as das ',
-      vehicleType: 'STATION',
-      startTime: '2021-01-01 11:00',
-      endTime: '2021-01-01 11:10',
-      expectedTime: 10,
-      status: 'COMPLETED',
-      route: {
-        coordinates: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-        waypoints: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-      },
-      isFavourite: true,
-    },
-    {
-      id: 4,
-      distance: 100,
-      price: 100,
-      startAddress: ' sadas dsadsadas dsa das das ',
-      destinationAddress: 'das das das d asd as das ',
-      vehicleType: 'STATION',
-      startTime: '2021-01-01 11:00',
-      endTime: '2021-01-01 11:10',
-      expectedTime: 10,
-      status: 'COMPLETED',
-      route: {
-        coordinates: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-        waypoints: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-      },
-      isFavourite: false,
-    },
-    {
-      id: 5,
-      distance: 100,
-      price: 100,
-      startAddress: ' sadas dsadsadas dsa das das ',
-      destinationAddress: 'das das das d asd as das ',
-      vehicleType: 'STATION',
-      startTime: '2021-01-01 11:00',
-      endTime: '2021-01-01 11:10',
-      expectedTime: 10,
-      status: 'COMPLETED',
-      route: {
-        coordinates: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-        waypoints: [
-          { lat: 45.241805, lng: 19.798567 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-      },
-      isFavourite: false,
-    },
-    {
-      id: 6,
-      distance: 100,
-      price: 100,
-      startAddress: 'address',
-      destinationAddress: 'address',
-      vehicleType: 'COUPE',
-      startTime: '2021-01-01 12:00',
-      endTime: '2021-01-01 12:10',
-      expectedTime: 10,
-      status: 'CANCELLED',
-      route: {
-        coordinates: [
-          { lat: 45.252782, lng: 19.855517 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-        waypoints: [
-          { lat: 45.252782, lng: 19.855517 },
-          { lat: 45.245749, lng: 19.851122 },
-        ],
-      },
-      isFavourite: true,
-    },
-  ];
+  rides: Array<PassengerRide> = [];
   constructor(private passengerService: PassengerService) {}
 
   ngOnInit(): void {
-    this.selectedRide = this.rides[0];
-    this.initMap();
-    this.control.setWaypoints([
-      this.selectedRide.route.waypoints[0],
-      this.selectedRide.route.waypoints[1],
-    ]);
-    this.selectedIsFavourite = this.selectedRide!.isFavourite;
+    setTimeout(() => {
+      this.initMap();
+      this.getRides();
+    }, 10);
   }
 
   private initMap(): void {
@@ -224,33 +82,64 @@ export class RideHistoryComponent implements OnInit {
     const newRide = this.rides.find((ride) => ride.id === id);
     if (newRide === this.selectedRide) return;
     this.selectedRide! = this.rides.find((ride) => ride.id === id)!;
-    this.map.setView(this.selectedRide.route.coordinates[0], 8);
+    this.map.setView(this.selectedRide.actualRoute.coordinates[0], 8);
     this.control.setWaypoints([
-      this.selectedRide!.route.waypoints[0],
-      this.selectedRide!.route.waypoints[1],
+      this.selectedRide!.actualRoute.waypoints[0],
+      this.selectedRide!.actualRoute.waypoints[1],
     ]);
-    this.selectedIsFavourite = this.selectedRide!.isFavourite;
+    this.checkIsFavourite();
+  }
+
+  getRides(): void {
+    this.passengerService.getRides(this.page, 4, 'Id').then((res) => {
+      console.log(res);
+      this.startElem = this.page * 4;
+      this.numOfElements = res.data.totalElements;
+      this.rides = res.data.content;
+      this.selectedRide = this.rides[0];
+      this.control.setWaypoints([
+        this.selectedRide.actualRoute.waypoints[0],
+        this.selectedRide.actualRoute.waypoints[1],
+      ]);
+      this.checkIsFavourite();
+    });
   }
 
   prev(): void {
     this.page--;
-    this.passengerService.getRides(this.page, 7, 'Id').then((res) => {
-      console.log(res);
-    });
+    this.getRides();
   }
 
   next(): void {
     this.page++;
-    this.passengerService.getRides(this.page, 7, 'Id').then((res) => {
-      console.log(res);
-    });
+    this.getRides();
   }
 
   changeFavouriteStatus(): void {
-    this.selectedRide!.isFavourite = !this.selectedRide!.isFavourite;
     if (!this.selectedIsFavourite)
-      this.passengerService.markFavouriteRoute(this.selectedRide!.id);
-    else this.passengerService.unmarkFavouriteRoute(this.selectedRide!.id);
-    this.selectedIsFavourite = this.selectedRide!.isFavourite;
+      this.passengerService
+        .markFavouriteRoute(this.selectedRide!.id)
+        .then(() => {
+          this.checkIsFavourite();
+        });
+    else
+      this.passengerService
+        .unmarkFavouriteRoute(this.selectedRide!.id)
+        .then(() => {
+          this.checkIsFavourite();
+        });
+  }
+
+  checkIsFavourite(): void {
+    this.passengerService
+      .isFavouriteRoute(this.selectedRide!.id)
+      .then((res) => {
+        this.selectedIsFavourite = res.data;
+      });
+  }
+
+  getDateTime(date: Date): string {
+    let tempDate = new Date(date);
+    return tempDate.toLocaleString('en-GB');
   }
 }

@@ -94,7 +94,7 @@ export class PassengerService {
   }
 
   getRides(page: number, amount: number, sortBy: string): Promise<any> {
-    const username: string = this.authenticationService.getSession()!.username;
+    const username = '';
     return axios.get(
       `/api/rides/ride-history?username=${username}&page=${page}&amount=${amount}&sortBy=${sortBy}`,
       {
@@ -135,5 +135,17 @@ export class PassengerService {
         Authorization: `Bearer ${this.authenticationService.getToken()}`,
       },
     });
+  }
+
+  isFavouriteRoute(routeId: number): Promise<any> {
+    return axios.post(
+      `/api/routes/is-route-favourite`,
+      { routeId },
+      {
+        headers: {
+          Authorization: `Bearer ${this.authenticationService.getToken()}`,
+        },
+      }
+    );
   }
 }

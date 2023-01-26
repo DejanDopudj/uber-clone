@@ -37,9 +37,6 @@ public class RouteService {
             Passenger passenger = (Passenger) authentication.getPrincipal();
             passenger.getFavouriteRoutes().add(route.get());
             passengerRepository.save(passenger);
-            PassengerRide pr = passengerRideRepository.findByRideRouteAndUsername(route.get().getId(), passenger.getUsername()).get();
-            pr.setFavorite(true);
-            passengerRideRepository.save(pr);
             return true;
         }
         return false;
@@ -52,9 +49,6 @@ public class RouteService {
                 if(Objects.equals(favouriteRoute.getId(), route.get().getId())){
                     passenger.getFavouriteRoutes().remove(favouriteRoute);
                     passengerRepository.save(passenger);
-                    PassengerRide pr = passengerRideRepository.findByRideRouteAndUsername(route.get().getId(), passenger.getUsername()).get();
-                    pr.setFavorite(false);
-                    passengerRideRepository.save(pr);
                     return true;
                 }
             }
@@ -66,5 +60,18 @@ public class RouteService {
         Passenger passenger = (Passenger) authentication.getPrincipal();
         Page<Route> routes = routeRepository.getRoutesByPassengersContains(passenger, paging);
         return routes;
+    }
+
+    public Boolean isRouteFavourite(RouteIdDTO routeIdDTO, Authentication authentication){
+        Optional<Route> route = routeRepository.findById(routeIdDTO.getRouteId());
+        if(route.isPresent()){
+            Passenger passenger = (Passenger) authentication.getPrincipal();
+            for(Route favouriteRoute : passenger.getFavouriteRoutes()){
+                if(Objects.equals(favouriteRoute.getId(), route.get().getId())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -39,13 +39,12 @@ export interface PassengerRide {
   startAddress: string;
   destinationAddress: string;
   vehicleType: string;
-  startTime: string;
-  endTime: string;
-  expectedTime: number;
+  startTime: Date;
+  endTime: Date;
+  expectedTime: Date;
   status: string;
-  route: {
+  actualRoute: {
     coordinates: Coordinates[];
     waypoints: Coordinates[];
   };
-  isFavourite: boolean;
 }

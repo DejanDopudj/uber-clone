@@ -32,8 +32,10 @@ export class FavouriteRoutesComponent implements OnInit {
   constructor(private passengerService: PassengerService) {}
 
   ngOnInit(): void {
-    this.initMap();
-    this.getRoute();
+    setTimeout(() => {
+      this.initMap();
+      this.getRoute();
+    }, 10);
   }
 
   private initMap(): void {
@@ -78,6 +80,7 @@ export class FavouriteRoutesComponent implements OnInit {
 
   getRoute(): void {
     this.passengerService.getFavouriteRoute(this.page).then((res) => {
+      console.log(res);
       if (res.data.content.length === 0) {
         this.selectedRoute = null;
         this.elemNumber = 0;
@@ -86,9 +89,9 @@ export class FavouriteRoutesComponent implements OnInit {
         this.disablePrev = true;
         return;
       }
-      this.selectedRoute = res.data.content;
+      this.selectedRoute = res.data.content[0];
       this.elemNumber = res.data.number;
-      this.numberOfElements = res.data.numberOfElements;
+      this.numberOfElements = res.data.totalElements;
       if (res.data.last) {
         this.disableNext = true;
       }

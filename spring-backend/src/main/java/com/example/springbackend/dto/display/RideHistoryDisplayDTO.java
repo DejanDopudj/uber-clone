@@ -11,12 +11,11 @@ public class RideHistoryDisplayDTO {
     private Double distance;
     private int expectedTime;
     private int price;
-    private RouteDisplayDTO route;
+    private RouteDisplayDTO actualRoute;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String startAddress;
     private String destinationAddress;
     private String vehicleType;
     private RideStatus status;
-    private boolean isFavorite;
 }
