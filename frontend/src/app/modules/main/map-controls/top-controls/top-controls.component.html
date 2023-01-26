@@ -47,6 +47,7 @@
             <fa-icon [icon]="faCircleXmark" class="text-xl"></fa-icon>
             <span class="my-auto">View ride rejection requests</span>
           </button>
+
           <button
             class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
             routerLink="/admin/users-search"
@@ -54,6 +55,7 @@
             <fa-icon [icon]="faSearch" class="text-xl"></fa-icon>
             <span class="my-auto">Search users</span>
           </button>
+
           <button
             class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
             routerLink="/reports"
@@ -81,11 +83,11 @@
           </button>
         </div>
         
-        <!-- passenger, driver -->
-        <div *ngIf="accountType !== 'admin'">
+        <!-- passenger, driver, admin-->
+        <div>
           <button class="flex gap-x-3 px-3 py-1.5 rounded-lg w-full hover:text-gray-300"
             routerLink="/reports">
-            <fa-icon [icon]="faUser" class="text-xl w-6"></fa-icon>
+            <fa-icon [icon]="faPieChart" class="text-xl"></fa-icon>
             <span class="my-auto">Ride reports</span>
           </button>
         </div>
