@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -628,10 +629,10 @@ public class RideService {
 
     public Boolean leaveReview(ReviewCreationDTO reviewCreationDTO, Authentication authentication) {
         Passenger passenger = (Passenger) authentication.getPrincipal();
-        Optional<PassengerRide> optPassengerRide = passengerRideRepository.
-                findByRideIdAndPassengerUsername(reviewCreationDTO.getRideId(),passenger.getUsername());
-        if(optPassengerRide.isPresent()){
-            PassengerRide passengerRide = optPassengerRide.get();
+        PassengerRide passengerRide = passengerRideRepository.
+                findByRideIdAndPassengerUsername(reviewCreationDTO.getRideId(), passenger.getUsername()).orElseThrow();
+        LocalDateTime rideEnd = passengerRide.getRide().getEndTime();
+        if (rideEnd.plus(72, ChronoUnit.HOURS).isAfter(LocalDateTime.now())) {
             passengerRide.setComment(reviewCreationDTO.getComment());
             passengerRide.setVehicleRating(reviewCreationDTO.getVehicleRating());
             passengerRide.setDriverRating(reviewCreationDTO.getDriverRating());

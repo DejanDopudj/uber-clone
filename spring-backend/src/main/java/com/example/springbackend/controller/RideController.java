@@ -27,13 +27,15 @@ public class RideController {
 
     @PostMapping("/basic")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<RideSimpleDisplayDTO> orderBasicRide(@Valid @RequestBody BasicRideCreationDTO dto, Authentication auth) {
+    public ResponseEntity<RideSimpleDisplayDTO> orderBasicRide(@Valid @RequestBody BasicRideCreationDTO dto,
+                                                               Authentication auth) {
         return ResponseEntity.ok(rideService.orderBasicRide(dto, auth));
     }
 
     @PostMapping("/split-fare")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ResponseEntity<Boolean> orderSplitFareRide(@Valid @RequestBody SplitFareRideCreationDTO dto, Authentication auth) {
+    public ResponseEntity<Boolean> orderSplitFareRide(@Valid @RequestBody SplitFareRideCreationDTO dto,
+                                                      Authentication auth) {
         return ResponseEntity.ok(rideService.orderSplitFareRide(dto, auth));
     }
 
@@ -63,7 +65,8 @@ public class RideController {
 
     @PatchMapping("/driver-rejection")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<Boolean> driverRejectRide(@Valid @RequestBody DriverRideRejectionCreationDTO dto, Authentication auth) {
+    public ResponseEntity<Boolean> driverRejectRide(@Valid @RequestBody DriverRideRejectionCreationDTO dto,
+                                                    Authentication auth) {
         return ResponseEntity.ok(rideService.driverRejectRide(dto, auth));
     }
 
@@ -75,13 +78,18 @@ public class RideController {
 
     @PatchMapping("/driver-rejection-verdict")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Boolean> acceptDriverRideRejection(@Valid @RequestBody DriverRideRejectionVerdictCreationDTO dto, Authentication auth) {
+    public ResponseEntity<Boolean> acceptDriverRideRejection(@Valid @RequestBody DriverRideRejectionVerdictCreationDTO dto,
+                                                             Authentication auth) {
         return ResponseEntity.ok(rideService.acceptDriverRideRejection(dto, auth));
     }
 
 
     @GetMapping("/ride-history")
-    public Page<RideHistoryDisplayDTO> getRideHistory(@Valid @RequestParam(value="username") String username, @RequestParam(value="page") Integer page, @RequestParam(value="amount") Integer amount, @RequestParam(value="sortBy") String sortBy, Authentication authentication){
+    public Page<RideHistoryDisplayDTO> getRideHistory(@Valid @RequestParam(value="username") String username,
+                                                      @RequestParam(value="page") Integer page,
+                                                      @RequestParam(value="amount") Integer amount,
+                                                      @RequestParam(value="sortBy") String sortBy,
+                                                      Authentication authentication){
         Pageable paging = PageRequest.of(page, amount, Sort.by(sortBy));
         return rideService.getRideHistory(username, authentication, paging);
     }
@@ -89,17 +97,20 @@ public class RideController {
 
     @GetMapping("/detailed-ride-history-passenger")
     @PreAuthorize("hasAnyRole('PASSENGER', 'ADMIN')")
-    public DetailedRideHistoryPassengerDTO detailedRideHistoryPassenger(@Valid @RequestParam Integer rideId, Authentication authentication){
+    public DetailedRideHistoryPassengerDTO detailedRideHistoryPassenger(@Valid @RequestParam Integer rideId,
+                                                                        Authentication authentication){
         return rideService.detailedRideHistoryPassenger(rideId, authentication);
     }
 
     @GetMapping("/detailed-ride-history-driver")
     @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
-    public DetailedRideHistoryDriverDTO detailedRideHistoryDriver(@Valid @RequestParam Integer rideId, Authentication authentication){
+    public DetailedRideHistoryDriverDTO detailedRideHistoryDriver(@Valid @RequestParam Integer rideId,
+                                                                  Authentication authentication){
         return rideService.detailedRideHistoryDriver(rideId, authentication);
     }
 
     @PostMapping("/reviews")
+    @PreAuthorize("hasRole('PASSENGER')")
     public ResponseEntity<Boolean> leaveReview(@Valid @RequestBody ReviewCreationDTO reviewCreationDTO,
                                                Authentication authentication ){
         return ResponseEntity.ok(rideService.leaveReview(reviewCreationDTO, authentication));
@@ -107,19 +118,26 @@ public class RideController {
 
     @GetMapping("/generate-report-passenger")
     @PreAuthorize("hasRole('PASSENGER')")
-    public ReportDisplayDTO generateReportPassenger(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
+    public ReportDisplayDTO generateReportPassenger(@RequestParam String startDate, @RequestParam String endDate,
+                                                    @RequestParam ReportParameter reportParameter,
+                                                    Authentication authentication ){
         return rideService.generateReportPassenger(startDate, endDate, reportParameter, authentication);
     }
 
     @GetMapping("/generate-report-driver")
     @PreAuthorize("hasRole('DRIVER')")
-    public ReportDisplayDTO generateReportDriver(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, Authentication authentication ){
+    public ReportDisplayDTO generateReportDriver(@RequestParam String startDate, @RequestParam String endDate,
+                                                 @RequestParam ReportParameter reportParameter,
+                                                 Authentication authentication ){
         return rideService.generateReportDriver(startDate, endDate, reportParameter, authentication);
     }
 
     @GetMapping("/generate-report-admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ReportDisplayDTO generateReportAdmin(@RequestParam String startDate, @RequestParam String endDate, @RequestParam ReportParameter reportParameter, @RequestParam String type, Authentication authentication ){
+    public ReportDisplayDTO generateReportAdmin(@RequestParam String startDate, @RequestParam String endDate,
+                                                @RequestParam ReportParameter reportParameter,
+                                                @RequestParam String type,
+                                                Authentication authentication ){
         return rideService.generateReportAdmin(startDate, endDate, reportParameter, type, authentication);
     }
 }
