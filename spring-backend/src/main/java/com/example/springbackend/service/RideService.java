@@ -351,6 +351,7 @@ public class RideService {
         Driver driver = (Driver) auth.getPrincipal();
         Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
         ride.setStatus(RideStatus.IN_PROGRESS);
+        ride.setStartTime(LocalDateTime.now());
         rideRepository.save(ride);
         List<Coordinates> waypoints = ride.getActualRoute().getWaypoints();
         directDriverToLocation(driver, waypoints.get(waypoints.size() - 1));
@@ -366,6 +367,7 @@ public class RideService {
         Driver driver = (Driver) auth.getPrincipal();
         Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
         ride.setStatus(RideStatus.COMPLETED);
+        ride.setEndTime(LocalDateTime.now());
         rideRepository.save(ride);
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
         sendMessageToMultiplePassengers(passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList(),
