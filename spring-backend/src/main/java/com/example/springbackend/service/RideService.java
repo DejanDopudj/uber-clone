@@ -320,6 +320,21 @@ public class RideService {
         return false;
     }
 
+    public Boolean reportInconsistency(RideIdDTO dto, Authentication auth) {
+        Passenger passenger = (Passenger) auth.getPrincipal();
+        Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
+        Optional<PassengerRide> passengerRide =
+                passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername());
+        if (passengerRide.isPresent()) {
+            ride.setDriverInconsistencyReported(true);
+            rideRepository.save(ride);
+            sendRefreshMessageToDriverAndAllPassengers(ride);
+            return true;
+        } else {
+            throw new RideDoesNotBelongToPassengerException();
+        }
+    }
+
     private void refundPassengers(List<PassengerRide> passengerRides) {
         for (PassengerRide passengerRide : passengerRides) {
             Passenger ridePassenger = passengerRide.getPassenger();
@@ -531,7 +546,7 @@ public class RideService {
         ride.setExpectedTime(dto.getExpectedTime());
         ride.setVehicleType(dto.getVehicleType());
         ride.setCreatedAt(LocalDateTime.now());
-        ride.setDriverInconsistency(false);
+        ride.setDriverInconsistencyReported(false);
         ride.setPrice(price);
         ride.setPassengersConfirmed(true);
         ride.setDriver(driver);
@@ -563,7 +578,7 @@ public class RideService {
         ride.setExpectedTime(dto.getExpectedTime());
         ride.setVehicleType(dto.getVehicleType());
         ride.setCreatedAt(LocalDateTime.now());
-        ride.setDriverInconsistency(false);
+        ride.setDriverInconsistencyReported(false);
         ride.setPrice(price);
         ride.setPassengersConfirmed(false);
         rideRepository.save(ride);

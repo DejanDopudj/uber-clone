@@ -2,7 +2,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircle, faFlagCheckered, faHandHoldingUsd, faRoute, faStop, faStopwatch, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import * as moment from 'moment';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
+import { RideService } from 'src/app/core/http/ride/ride.service';
 import { PassengerService } from 'src/app/core/http/user/passenger.service';
+import { RideSimple } from 'src/app/shared/models/ride.model';
 import { Vehicle } from 'src/app/shared/models/vehicle.model';
 
 @Component({
@@ -32,9 +34,19 @@ export class PassengerRideDetailsComponent implements OnInit {
   minivanImg: string = 'assets/icons/car-minivan-gray.png';
   stationImg: string = 'assets/icons/car-station-gray.png';
 
-  constructor(private authenticationService: AuthenticationService, private passengerService: PassengerService) { }
+  constructor(
+    private authenticationService: AuthenticationService,
+    private passengerService: PassengerService,
+    private rideService: RideService
+    ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+  }
+
+  reportInconsistency(): void {
+    if (this.ride)
+      this.rideService.reportInconsistency(this.ride.id);
+  }
 
   toggleOpened(): void {
     let inAnimation = 'slide-in';
@@ -61,7 +73,7 @@ export class PassengerRideDetailsComponent implements OnInit {
     else return this.faStop;
   }
 
-  get ride() {
+  get ride(): RideSimple | null {
     return this.passengerService.getCurrentRide();
   }
   

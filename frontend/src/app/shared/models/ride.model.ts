@@ -17,6 +17,7 @@ export interface RideSimple {
   startAddress: string;
   destinationAddress: string;
   delayInMinutes: number;
+  driverInconsistencyReported: boolean;
 }
 
 export interface DriverRide {

@@ -125,4 +125,16 @@ export class RideService {
     });
   }
 
+  reportInconsistency(rideId: number): Promise<any> {
+    return axios.patch(`/api/rides/inconsistency`, 
+    {
+      rideId
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${this.authenticationService.getToken()}`
+      }
+    });
+  }
+
 }
