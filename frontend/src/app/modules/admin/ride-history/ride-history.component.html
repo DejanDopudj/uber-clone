@@ -1,0 +1,162 @@
+<div class="min-h-screen h-full w-full bg-dark flex flex-col">
+  <div class="absolute top-6 left-6">
+    <div
+      class="border-4 border-stone-500 h-9 w-9 text-lg text-stone-500 hover:border-stone-400 hover:text-stone-400 text-center cursor-pointer transition hover:-translate-x-1 mb-2"
+      (click)="back()"
+    >
+      <fa-icon [icon]="faChevronLeft"></fa-icon>
+    </div>
+  </div>
+
+  <div
+    class="mx-auto flex flex-col lg:flex-row gap-x-5 w-11/12 xl:w-5/6 h-300 lg:h-192 my-20"
+  >
+    <div
+      class="flex flex-col justify-between w-full lg:w-1/3 h-2/5 overflow-y-auto lg:h-full text-center borderborder-stone-500 rounded-lg p-4 text-stone-500 relative"
+    >
+      <div>
+        <div class="text-xl flex w-full relative">
+          <strong class="mx-auto">Ride History</strong>
+          <select
+            id="sortBy"
+            name="sortBy"
+            class="block w-1/5 rounded-md p-1 text-base m:text-sm absolute right-3 bg-dark cursor-pointer"
+            (change)="sortRides($event)"
+          >
+            <option selected value="ride.startTime">Start time</option>
+            <option value="ride.endTime">End time</option>
+          </select>
+        </div>
+        <br />
+        <div *ngIf="rides.length === 0" class="text-xl">
+          You haven't had any rides yet
+        </div>
+
+        <ul role="list" class="flex flex-col gap-y-3">
+          <li *ngFor="let ride of rides">
+            <div
+              class="flex flex-col items-center cursor-pointer text-white rounded-md py-2 px-4"
+              (click)="selectRide(ride.id)"
+              [ngClass]="ride.id === selectedRide?.id ? 'bg-medium' : 'bg-dark'"
+            >
+              <div class="text-center w-full">
+                <div class="text-stone-400 text-sm font-medium">
+                  {{ getDateTime(ride.startTime) }}
+                </div>
+                <div class="lg:text-sm truncate w-full">
+                  {{ ride.startAddress }}
+                </div>
+                <fa-icon [icon]="faChevronCircleDown"></fa-icon>
+                <div class="lg:text-sm truncate w-full">
+                  {{ ride.destinationAddress }}
+                </div>
+              </div>
+
+              <div class="w-full mt-2">
+                <div class="w-full flex justify-center divide-x divide-light">
+                  <div class="font-medium px-2 w-1/2 text-right">
+                    <span class="font-bold text-accent-light">T</span>
+                    {{ ride.price }}
+                  </div>
+                  <div class="font-medium px-2 w-1/2 text-left">
+                    {{ ride.distance }} km
+                  </div>
+                </div>
+                <div
+                  class="font-bold mt-2"
+                  [ngClass]="
+                    ride.status === 'COMPLETED'
+                      ? 'text-accent-light'
+                      : 'text-base'
+                  "
+                >
+                  {{ getRideStatus(ride) }}
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div
+        class="flex flex-col items-center mt-7 mb-3 bottom-0 text-center w-full"
+      >
+        <span class="text-sm text-gray-700 dark:text-gray-400">
+          Showing
+          <span class="font-semibold text-gray-900 dark:text-white">{{
+            numOfElements === 0 ? 0 : startElem + 1
+          }}</span>
+          to
+          <span class="font-semibold text-gray-900 dark:text-white">{{
+            startElem + 4 < numOfElements ? startElem + 4 : numOfElements
+          }}</span>
+          of
+          <span class="font-semibold text-gray-900 dark:text-white">{{
+            numOfElements
+          }}</span>
+          Entries
+        </span>
+        <div class="inline-flex mt-1 xs:mt-0">
+          <button
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-dark border-0 border-l border-gray-700 rounded-l hover:bg-medium disabled:text-gray-500"
+            (click)="prev()"
+            [disabled]="startElem === 0"
+          >
+            <svg
+              aria-hidden="true"
+              class="w-5 h-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            Prev
+          </button>
+          <button
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-dark border-0 border-l border-gray-700 rounded-r hover:bg-medium disabled:text-gray-500"
+            (click)="next()"
+            [disabled]="startElem + 4 >= numOfElements"
+          >
+            Next
+            <svg
+              aria-hidden="true"
+              class="w-5 h-5 ml-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="relative w-full lg:w-2/3 h-3/5 lg:h-full mt-4 lg:mt-0 text-center border border-stone-500 rounded-lg font-bold text-2xl"
+    >
+      <div
+        class="flex -space-x-2 absolute top-3 left-3"
+        *ngFor="let user of users"
+      >
+        <img
+          class="inline-block h-8 w-8 rounded-full ring-2 ring-accent z-50 hover:z-100"
+          [src]="user.userImage ? user.userImage : ''"
+          alt="Image Description"
+          [title]="user.name + ' ' + user.surname + '\n' + user.username"
+          [routerLink]="['/driver', user.username]"
+        />
+      </div>
+      <div id="map" class="w-full h-full z-10 rounded-lg"></div>
+    </div>
+  </div>
+</div>
