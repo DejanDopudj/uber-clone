@@ -20,4 +20,5 @@ public class RideHistoryDisplayDTO {
     private RideStatus status;
     private double driverRating;
     private double vehicleRating;
+    private boolean driverInconsistencyReported;
 }

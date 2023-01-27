@@ -50,4 +50,5 @@ export interface PassengerRide {
   };
   driverRating: number;
   vehicleRating: number;
+  driverInconsistencyReported: boolean;
 }

@@ -179,23 +179,25 @@ public class RideService {
     private void directDriverToCurrentRideStart(Driver driver, Ride ride) {
         directDriverToLocation(driver, ride.getRoute().getWaypoints().get(0));
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> markDriverArrived(ride),
+        executorService.schedule(() -> markDriverArrived(ride.getId()),
                 driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
     }
 
-    private void markDriverArrived(Ride ride) {
+    private void markDriverArrived(Integer rideId) {
+        Ride ride = rideRepository.findById(rideId).get();
         if (ride.getStatus() == RideStatus.CANCELLED) return;
         ride.setStatus(RideStatus.DRIVER_ARRIVED);
         rideRepository.save(ride);
         sendRefreshMessageToDriverAndAllPassengers(ride);
     }
 
-    private void markArrivedAtDestination(Ride ride, int waypointIndex) {
+    private void markArrivedAtDestination(Integer rideId, int waypointIndex) {
+        Ride ride = rideRepository.findById(rideId).get();
         if (ride.getStatus() == RideStatus.CANCELLED) return;
         if (ride.getRoute().getWaypoints().size() > waypointIndex + 1) {
             directDriverToLocation(ride.getDriver(), ride.getRoute().getWaypoints().get(waypointIndex + 1));
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.schedule(() -> markArrivedAtDestination(ride, waypointIndex + 1),
+            executorService.schedule(() -> markArrivedAtDestination(ride.getId(), waypointIndex + 1),
                     ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         } else {
             ride.setStatus(RideStatus.ARRIVED_AT_DESTINATION);
@@ -379,7 +381,7 @@ public class RideService {
         sendRefreshMessageToDriverAndAllPassengers(ride);
 
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> markArrivedAtDestination(ride, 1),
+        executorService.schedule(() -> markArrivedAtDestination(ride.getId(), 1),
                 ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         return true;
     }

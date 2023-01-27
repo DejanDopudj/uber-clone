@@ -180,4 +180,8 @@ export class RideHistoryComponent implements OnInit {
       }
     });
   }
+
+  goHome(): void {
+    window.location.href = '/';
+  }
 }
