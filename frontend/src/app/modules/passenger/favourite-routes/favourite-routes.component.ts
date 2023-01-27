@@ -118,4 +118,8 @@ export class FavouriteRoutesComponent implements OnInit {
   startRide(): void {
     //add logic for starting ride
   }
+
+  goHome(): void {
+    window.location.href = '/';
+  }
 }

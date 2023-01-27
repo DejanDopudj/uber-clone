@@ -27,7 +27,6 @@ export class MapComponent implements AfterViewInit {
   private map: any;
   private control: any;
   public chosenRoute: any;
-  public alternativeRoute: any;
   public waypoints: any[] = [];
   private accontType: string = this.authenticationService.getAccountType();
   private vehiclePositions: any[] = [];
@@ -147,14 +146,9 @@ export class MapComponent implements AfterViewInit {
         if (that.chosenRoute?.waypoints.length === newRoute.waypoints.length)
           that.updateWaypoints(that.chosenRoute.waypoints, newRoute.waypoints);
         that.chosenRoute = newRoute;
-        that.alternativeRoute = e.routes.length > 1 ? e.routes[1] : null;
       })
       .on('routeselected', function (e) {
-        const previousRoute = that.chosenRoute;
-        if (previousRoute !== e.route) {
-          that.chosenRoute = e.route;
-          that.alternativeRoute = previousRoute;
-        }
+        that.chosenRoute = e.route;
       })
       .addTo(this.map);
 
@@ -191,7 +185,6 @@ export class MapComponent implements AfterViewInit {
       this.waypoints.splice(i, 1);
       if (this.waypoints.length < 2) {
         this.chosenRoute = null;
-        this.alternativeRoute = null;
       }
     }
   }

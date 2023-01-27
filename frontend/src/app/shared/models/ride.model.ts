@@ -44,7 +44,7 @@ export interface PassengerRide {
   endTime: Date;
   expectedTime: Date;
   status: string;
-  actualRoute: {
+  route: {
     coordinates: Coordinates[];
     waypoints: Coordinates[];
   };

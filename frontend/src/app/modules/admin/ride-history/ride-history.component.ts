@@ -112,8 +112,8 @@ export class RideHistoryComponent implements OnInit {
     const newRide = this.rides.find((ride) => ride.id === id);
     if (newRide === this.selectedRide) return;
     this.selectedRide! = this.rides.find((ride) => ride.id === id)!;
-    this.map.setView(this.selectedRide.actualRoute.coordinates[0], 8);
-    this.control.setWaypoints(this.selectedRide!.actualRoute.waypoints);
+    this.map.setView(this.selectedRide.route.coordinates[0], 8);
+    this.control.setWaypoints(this.selectedRide!.route.waypoints);
     this.checkIsFavourite();
   }
 
@@ -141,8 +141,8 @@ export class RideHistoryComponent implements OnInit {
         this.rides = res.data.content;
         this.selectedRide = this.rides[0];
         this.control.setWaypoints([
-          this.selectedRide.actualRoute.waypoints[0],
-          this.selectedRide.actualRoute.waypoints[1],
+          this.selectedRide.route.waypoints[0],
+          this.selectedRide.route.waypoints[1],
         ]);
         this.checkIsFavourite();
         this.passengerService
@@ -164,8 +164,8 @@ export class RideHistoryComponent implements OnInit {
         this.rides = res.data.content;
         this.selectedRide = this.rides[0];
         this.control.setWaypoints([
-          this.selectedRide.actualRoute.waypoints[0],
-          this.selectedRide.actualRoute.waypoints[1],
+          this.selectedRide.route.waypoints[0],
+          this.selectedRide.route.waypoints[1],
         ]);
         this.driverService.getRideDetails(this.selectedRide.id).then((res) => {
           this.users = res.data.passengers;

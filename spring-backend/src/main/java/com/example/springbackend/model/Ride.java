@@ -35,9 +35,5 @@ public class Ride {
 
     @ManyToOne
     @JoinColumn
-    private Route actualRoute;
-
-    @ManyToOne
-    @JoinColumn
-    private Route expectedRoute;
+    private Route route;
 }

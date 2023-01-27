@@ -10,14 +10,10 @@ interface RideOrderData {
   babySeat: boolean,
   petFriendly: boolean,
   vehicleType: string,
-  actualRoute: {
+  route: {
     coordinates: Coordinates[],
     waypoints: Coordinates[]
   },
-  expectedRoute: {
-    coordinates: Coordinates[],
-    waypoints: Coordinates[]
-  } | null,
   usersToPay: string[]
 }
 
