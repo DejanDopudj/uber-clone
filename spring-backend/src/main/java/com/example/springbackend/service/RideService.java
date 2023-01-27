@@ -424,20 +424,37 @@ public class RideService {
         rideRepository.save(ride);
 
         Driver driver = ride.getDriver();
-        driver.setCurrentRide(driver.getNextRide());
+        Optional<Ride> optionalNextRide = rideRepository.findById(driver.getNextRide().getId());
+        driver.setActive(false);
+        driver.setCurrentRide(null);
         driver.setNextRide(null);
         driverRepository.save(driver);
 
         Vehicle vehicle = driver.getVehicle();
         vehicle.setCurrentCoordinates(vehicle.getNextCoordinates());
-        if (driver.getCurrentRide() != null) {
-            List<Coordinates> waypoints = driver.getCurrentRide().getActualRoute().getWaypoints();
-            vehicle.setNextCoordinates(waypoints.get(0));
-        }
+        vehicle.setExpectedTripTime(0);
+        vehicle.setCoordinatesChangedAt(LocalDateTime.now());
         vehicleRepository.save(vehicle);
 
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
+        handleRejectedRidePassengers(passengerRides);
 
+        if (optionalNextRide.isPresent()) {
+            Ride nextRide = optionalNextRide.get();
+            nextRide.setStatus(RideStatus.CANCELLED);
+            rideRepository.save(nextRide);
+            List<PassengerRide> nextRidePassengerRides = passengerRideRepository.findByRide(nextRide);
+            handleRejectedRidePassengers(nextRidePassengerRides);
+        }
+
+        sendMessageToDriver(ride.getDriver().getUsername(),
+                "Your rejection is accepted and your rides are cancelled.",
+                MessageType.RIDE_UPDATE);
+
+        return true;
+    }
+
+    private void handleRejectedRidePassengers(List<PassengerRide> passengerRides) {
         for (PassengerRide passengerRide : passengerRides) {
             Passenger ridePassenger = passengerRide.getPassenger();
             sendMessageToPassenger(ridePassenger.getUsername(),
@@ -448,12 +465,6 @@ public class RideService {
                 passengerRepository.save(ridePassenger);
             }
         }
-
-        sendMessageToDriver(ride.getDriver().getUsername(),
-                "Your rejection is accepted. The ride will be cancelled.",
-                MessageType.RIDE_UPDATE);
-
-        return true;
     }
 
     private Driver findDriver(Ride ride) {

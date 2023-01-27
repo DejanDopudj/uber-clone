@@ -15,7 +15,7 @@ export interface RideSimple {
   passengerConfirmed: boolean;
   status: string;
   startAddress: string;
-  endAddress: string;
+  destinationAddress: string;
   delayInMinutes: number;
 }
 
@@ -29,7 +29,7 @@ export interface DriverRide {
   createdAt: Date;
   status: string;
   startAddress: string;
-  endAddress: string;
+  destinationAddress: string;
 }
 
 export interface PassengerRide {

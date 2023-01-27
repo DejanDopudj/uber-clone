@@ -109,14 +109,14 @@
     <div
       *ngIf="accountType === 'driver' && driverInfo.isActive !== null"
       class="flex flex-col justify-center relative h-11 my-auto w-56 rounded-full mx-auto text-center text-xl font-medium tracking-wider pointer-events-auto select-none cursor-pointer"
-      [ngClass]="driverInfo.isActive ? 'bg-accent' : 'bg-light'"
+      [ngClass]="driverInfo.isActive ? 'bg-accent' : 'bg-stone-500'"
       (click)="toggleActivity()"
     >
       <div
         class="absolute top-0 left-0 w-full h-full rounded-full"
         [ngClass]="
           driverInfo.isActive
-            ? 'bg-accent-light  animate-pulse'
+            ? 'bg-accent-light animate-pulse'
             : 'bg-transparent animate-none'
         "
       ></div>
