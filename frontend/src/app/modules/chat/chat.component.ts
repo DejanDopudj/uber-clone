@@ -171,7 +171,7 @@ export class ChatComponent implements OnInit {
   }
 
   getNumberOfUnread(chat: Chat): number {
-    if (chat.messages.length == 0) return 0;
+    if (chat.messages.length === 0) return 0;
     let numOfUnread = 0;
     for (let i = chat.messages.length - 1; i > 0; i--) {
       if (chat.messages[i].sentDateTime > new Date(chat.lastReadAdmin))

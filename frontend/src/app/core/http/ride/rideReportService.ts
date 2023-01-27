@@ -13,11 +13,11 @@ export class RideReportService {
   getReport(startDate: string, endDate: string, reportParameter: string, userType: string, adminDiagramType : string): Promise<any> {
     var params : string;
     params = "startDate=" + startDate + "&endDate=" +endDate;
-    if(userType == 'admin'){
+    if (userType === 'admin') {
       params += "&type=" + adminDiagramType;
     }
     params += "&reportParameter=" + reportParameter;
-    return axios.get(`http://localhost:8080/api/rides/generate-report-`+userType+`?`+params, {
+    return axios.get(`http://localhost:8080/api/rides/generate-report-`+userType+`?` + params, {
         headers: {
           Authorization: `Bearer ${this.authenticationService.getToken()}`,
         },

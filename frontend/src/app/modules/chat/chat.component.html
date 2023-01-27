@@ -56,18 +56,18 @@
             >
               {{ msg.content }}
             </p>
-            <div class="mx-4 text-gray-300 text-xs">
+            <div class="mx-4 text-stone-400 text-xs">
               {{ getTime(msg) }}
             </div>
           </div>
-          <div *ngIf="msg.sender == user.username" class="text-right">
+          <div *ngIf="msg.sender === user.username" class="text-right">
             <p
               style="max-width: 250px"
               class="inline-block text-left mt-3 ml-6 mr-2 px-4 py-2 text-white rounded-xl break-words bg-accent-light"
             >
               {{ msg.content }}
             </p>
-            <div class="mx-4 text-gray-100 text-xs">
+            <div class="mx-4 text-stone-400 text-xs">
               {{ getTime(msg) }}
             </div>
           </div>
