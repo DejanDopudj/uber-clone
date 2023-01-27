@@ -128,7 +128,7 @@
           <div class="flex-shrink-0">
             <img *ngIf="user.userImage"
               [src]="user.userImage"
-              class="h-10 w-10 rounded-full"
+              class="h-10 w-10 object-cover rounded-full"
               [ngClass]="type === 'DRIVER' ? 'cursor-pointer' : ''"
               alt="No Profile Pic"
               [routerLink]="type === 'DRIVER' ? '/driver/' + user.username : null"

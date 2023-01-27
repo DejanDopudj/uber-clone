@@ -69,7 +69,7 @@ sm:h-full select-none" id="order-menu">
         [routerLink]="['/driver', ride.driver.username]">
           <img *ngIf="ride.driver.profilePicture"
           [src]="ride.driver.profilePicture"
-          alt="" class="rounded-full">
+          alt="" class="w-14 h-14 object-cover rounded-full">
           <div *ngIf="!ride.driver.profilePicture"
           class="h-10 w-10 rounded-full border-2 border-stone-500">
           

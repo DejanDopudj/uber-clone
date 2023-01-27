@@ -247,7 +247,7 @@ public class DriverService {
 
     public Page<DriverReviewDisplayDTO> getDriverReviews(String username, Pageable pageable, Authentication auth) {
         Driver driver = driverRepository.findByUsername(username).orElseThrow();
-        Page<PassengerRide> passengerRides = passengerRideRepository.findByDriver(driver, pageable);
+        Page<PassengerRide> passengerRides = passengerRideRepository.findByDriverWithPresentRating(driver, pageable);
         return passengerRides.map(passengerRide -> modelMapper.map(passengerRide, DriverReviewDisplayDTO.class));
     }
 }

@@ -149,7 +149,7 @@
         *ngFor="let user of users"
       >
         <img *ngIf="user.userImage"
-          class="inline-block h-8 w-8 rounded-full ring-2 ring-accent z-50 hover:z-100"
+          class="inline-block h-8 w-8 object-cover rounded-full ring-2 ring-accent z-50 hover:z-100"
           [src]="user.userImage ? user.userImage : getImage(user.profilePicture)"
           [ngClass]="type === 'PASSENGER' ? 'cursor-pointer' : ''"
           alt="Image Description"
