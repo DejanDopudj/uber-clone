@@ -20,6 +20,6 @@ export class PhotoService {
   }
 
   loadImage(photoName: string): Promise<any> {
-    return axios.get(`/api/image/load/${photoName}`);
+    return axios.get(`/api/image/load${photoName}`);
   }
 }

@@ -126,13 +126,14 @@
       <li *ngFor="let user of users">
         <div class="flex items-center space-x-4">
           <div class="flex-shrink-0">
-            <img
-              [src]="
-                user.userImage ? user.userImage : getImage(user.profilePicture)
-              "
+            <img *ngIf="user.userImage"
+              [src]="user.userImage"
               class="h-10 w-10 rounded-full"
               alt="No Profile Pic"
             />
+            <div *ngIf="!user.userImage" class="h-10 w-10 rounded-full border-2 border-stone-500">
+              
+            </div>
           </div>
           <div class="min-w-0 flex-1">
             <p class="truncate font-medium text-gray-50 text-lg">
