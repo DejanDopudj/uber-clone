@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RideReportService } from 'src/app/core/http/ride/rideReportService';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
@@ -8,7 +8,7 @@ import { faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons
   selector: 'app-ride-reports',
   templateUrl: './ride-reports.component.html',
 })
-export class RideReportsComponent implements OnInit {
+export class RideReportsComponent {
   faChevronLeft: IconDefinition = faChevronLeft;
   graphData : { name: string; value: number; }[] = [];
   graphLoaded = true;
@@ -31,9 +31,9 @@ export class RideReportsComponent implements OnInit {
 
   constructor(private rideReportService: RideReportService, private authenticationService: AuthenticationService) {
     
-   }
+  }
 
-   public async getReport() : Promise<void>{
+  public async getReport() : Promise<void>{
     if(this.startDate?.invalid || this.endDate?.invalid || this.type?.invalid){
       return;
     }
@@ -52,9 +52,6 @@ export class RideReportsComponent implements OnInit {
     this.yAxisName = data.yaxisName;
     this.graphLoaded = false;
     this.graphLoaded = true;
-   }
-
-  async ngOnInit(): Promise<void> {
   }
 
   public changeActiveSelect() : void{

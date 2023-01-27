@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterContentInit, Component, OnInit } from '@angular/core';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { ChatService } from 'src/app/core/http/user/chat.service';
 import { SocketService } from 'src/app/core/socket/socket.service';
@@ -10,7 +10,7 @@ import { User } from 'src/app/shared/models/user.model';
   selector: 'app-chat',
   templateUrl: './chat.component.html',
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, AfterContentInit {
   numOfNewMessages: number = 0;
   indexOfSelectedChat: number = 0;
   showChat: boolean = false;
