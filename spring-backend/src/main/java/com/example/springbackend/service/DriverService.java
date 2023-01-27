@@ -162,6 +162,7 @@ public class DriverService {
         driver.setAuthenticationProvider(AuthenticationProvider.LOCAL);
         driver.setPassword(passwordEncoder.encode(dto.getPassword()));
         driver.setRoles(roleService.findByName("ROLE_DRIVER"));
+        driver.setProfilePicture("/default.png");
         driver.setActive(false);
         driver.setDistanceTravelled(0);
         driver.setRidesCompleted(0);
