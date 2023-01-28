@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { RideReportService } from 'src/app/core/http/ride/rideReportService';
+import { RideReportService } from 'src/app/core/http/ride/ride-report.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/core/authentication/authentication.service';
 import { faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { RideReport } from 'src/app/shared/models/report.model';
 
 @Component({
   selector: 'app-ride-reports',
@@ -33,7 +34,7 @@ export class RideReportsComponent {
     
   }
 
-  public async getReport() : Promise<void>{
+  public async getReport() : Promise<void> {
     if(this.startDate?.invalid || this.endDate?.invalid || this.type?.invalid){
       return;
     }
@@ -41,7 +42,7 @@ export class RideReportsComponent {
       return;
     }
     var adminType : string = this.accountType === 'admin' ? this.adminGraphType?.value! : '';  
-    var data = await this.rideReportService.getReport(this.startDate?.value!,this.endDate?.value!,this.type?.value!,this.accountType,adminType);
+    var data: RideReport = await this.rideReportService.getReport(this.startDate?.value!,this.endDate?.value!,this.type?.value!,this.accountType,adminType);
     var i = 0;
     this.graphData = [];
     for(i = 0; i < data.xaxisValues.length; i++){

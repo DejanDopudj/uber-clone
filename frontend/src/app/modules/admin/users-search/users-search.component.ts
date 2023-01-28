@@ -47,8 +47,9 @@ export class UsersSearchComponent {
     private router: Router
   ) {}
 
-  onItemChange(event: any) {
-    this.type = event.target.value;
+  onItemChange(event: Event): void {
+    if (event)
+      this.type = (event.target as HTMLInputElement).value;
   }
 
   search(): void {

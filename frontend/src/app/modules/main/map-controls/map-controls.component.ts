@@ -9,7 +9,7 @@ import { RideSummary } from 'src/app/shared/models/data-transfer-interfaces/ride
 export class MapControlsComponent {
   @Input() summary!: RideSummary;
   @Input() driverInfo!: DriverInfo;
-  @Output() clear: EventEmitter<any> = new EventEmitter();
+  @Output() clear: EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 
