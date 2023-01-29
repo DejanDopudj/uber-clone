@@ -1,16 +1,12 @@
 package com.example.springbackend.service;
 
-import com.example.springbackend.dto.creation.BasicRideCreationDTO;
-import com.example.springbackend.dto.creation.SplitFareRideCreationDTO;
+import com.example.springbackend.dto.creation.*;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
 import com.example.springbackend.exception.*;
 import com.example.springbackend.model.*;
-import com.example.springbackend.repository.PassengerRepository;
-import com.example.springbackend.repository.PassengerRideRepository;
-import com.example.springbackend.repository.RideRepository;
-import com.example.springbackend.repository.VehicleTypeRepository;
+import com.example.springbackend.model.helpClasses.Coordinates;
+import com.example.springbackend.repository.*;
 import com.example.springbackend.util.RideUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,11 +34,15 @@ public class RideServiceTests {
     @Mock
     private VehicleTypeRepository vehicleTypeRepositoryMock;
     @Mock
+    private VehicleRepository vehicleRepositoryMock;
+    @Mock
     private PassengerRideRepository passengerRideRepositoryMock;
     @Mock
     private PassengerRepository passengerRepositoryMock;
     @Mock
     private RideRepository rideRepositoryMock;
+    @Mock
+    private DriverRepository driverRepositoryMock;
     @Mock
     private RideUtils rideUtilsMock;
 
@@ -50,6 +50,8 @@ public class RideServiceTests {
     private Passenger passengerMock;
     @Mock
     private PassengerRide passengerRideMock;
+    @Mock
+    private Vehicle vehicleMock;
     @Mock
     private VehicleType vehicleTypeMock;
     @Mock
@@ -89,9 +91,9 @@ public class RideServiceTests {
         when(authentication.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                         .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                         .thenReturn(Optional.of(passengerRideMock));
 
         assertThrows(
@@ -109,12 +111,12 @@ public class RideServiceTests {
         when(authenticationMock.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                 .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                 .thenReturn(Optional.empty());
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(passengerMock.getTokenBalance()).thenReturn(passengerTokenBalance);
 
         assertThrows(
@@ -131,29 +133,29 @@ public class RideServiceTests {
         when(authenticationMock.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                 .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                 .thenReturn(Optional.empty());
 
         when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
         when(passengerMock.getTokenBalance()).thenReturn(1300);
 
         when(rideUtilsMock.createBasicRide(any(), anyInt(), any())).thenReturn(rideMock);
-        when(rideUtilsMock.createPassengerRide(any(), any())).thenReturn(passengerRideMock);
+        when(rideUtilsMock.createPassengerRide(passengerMock, rideMock)).thenReturn(passengerRideMock);
         when(dto.getDelayInMinutes()).thenReturn(0);
 
         when(rideUtilsMock.findDriver(rideMock)).thenReturn(null);
-        doNothing().when(rideMock).setStatus(any());
-        when(rideRepositoryMock.save(any())).thenReturn(null);
+        doNothing().when(rideMock).setStatus(RideStatus.CANCELLED);
+        when(rideRepositoryMock.save(rideMock)).thenReturn(rideMock);
 
         assertThrows(
                 AdequateDriverNotFoundException.class,
                 () -> rideService.orderBasicRide(dto, authenticationMock),
                 "Expected orderBasicRide() to throw AdequateDriverNotFoundException, but it didn't"
         );
-        verify(rideMock).setStatus(any());
-        verify(rideRepositoryMock).save(any());
+        verify(rideMock).setStatus(RideStatus.CANCELLED);
+        verify(rideRepositoryMock).save(rideMock);
     }
 
     @Test
@@ -163,30 +165,30 @@ public class RideServiceTests {
         when(authenticationMock.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                 .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                 .thenReturn(Optional.empty());
 
         when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
         when(passengerMock.getTokenBalance()).thenReturn(1300);
 
         when(rideUtilsMock.createBasicRide(any(), anyInt(), any())).thenReturn(rideMock);
-        when(rideUtilsMock.createPassengerRide(any(), any())).thenReturn(passengerRideMock);
+        when(rideUtilsMock.createPassengerRide(passengerMock, rideMock)).thenReturn(passengerRideMock);
         when(dto.getDelayInMinutes()).thenReturn(0);
 
         when(rideUtilsMock.findDriver(rideMock)).thenReturn(driverMock);
-        doNothing().when(rideUtilsMock).linkDriverAndRide(any(), any());
+        doNothing().when(rideUtilsMock).linkDriverAndRide(driverMock, rideMock);
         when(passengerRepositoryMock.save(any())).thenReturn(passengerMock);
         doNothing().when(passengerMock).setTokenBalance(anyInt());
 
         RideSimpleDisplayDTO rideSimpleDisplayDTOMock = mock(RideSimpleDisplayDTO.class);
-        when(rideUtilsMock.createBasicRideSimpleDisplayDTO(any(), any())).thenReturn(rideSimpleDisplayDTOMock);
+        when(rideUtilsMock.createBasicRideSimpleDisplayDTO(passengerRideMock, driverMock)).thenReturn(rideSimpleDisplayDTOMock);
 
         assertEquals(rideService.orderBasicRide(dto, authenticationMock), rideSimpleDisplayDTOMock);
-        verify(rideUtilsMock).linkDriverAndRide(any(), any());
+        verify(rideUtilsMock).linkDriverAndRide(driverMock, rideMock);
         verify(passengerMock).setTokenBalance(anyInt());
-        verify(passengerRepositoryMock).save(any());
+        verify(passengerRepositoryMock).save(passengerMock);
         verify(rideUtilsMock).sendRefreshMessage(any());
     }
 
@@ -198,28 +200,28 @@ public class RideServiceTests {
         when(authenticationMock.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                 .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                 .thenReturn(Optional.empty());
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(passengerMock.getTokenBalance()).thenReturn(1300);
 
         when(rideUtilsMock.createBasicRide(any(), anyInt(), any())).thenReturn(rideMock);
-        when(rideUtilsMock.createPassengerRide(any(), any())).thenReturn(passengerRideMock);
+        when(rideUtilsMock.createPassengerRide(passengerMock, rideMock)).thenReturn(passengerRideMock);
         when(dto.getDelayInMinutes()).thenReturn(delayInMinutes);
 
-        doNothing().when(rideMock).setStatus(any());
-        when(rideRepositoryMock.save(any())).thenReturn(rideMock);
+        doNothing().when(rideMock).setStatus(RideStatus.CANCELLED);
+        when(rideRepositoryMock.save(rideMock)).thenReturn(rideMock);
 
         assertThrows(
                 ReservationTooSoonException.class,
                 () -> rideService.orderBasicRide(dto, authenticationMock),
                 "Expected orderBasicRide() to throw ReservationTooSoonException, but it didn't"
         );
-        verify(rideMock).setStatus(any());
-        verify(rideRepositoryMock).save(any());
+        verify(rideMock).setStatus(RideStatus.CANCELLED);
+        verify(rideRepositoryMock).save(rideMock);
     }
 
     @Test
@@ -229,20 +231,20 @@ public class RideServiceTests {
         when(authenticationMock.getPrincipal()).thenReturn(passengerMock);
 
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString()))
+        when(vehicleTypeRepositoryMock.findByName("COUPE"))
                 .thenReturn(Optional.of(vehicleTypeMock));
-        when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
+        when(passengerRideRepositoryMock.getCurrentPassengerRide(passengerMock))
                 .thenReturn(Optional.empty());
 
         when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
         when(passengerMock.getTokenBalance()).thenReturn(1300);
 
         when(rideUtilsMock.createBasicRide(any(), anyInt(), any())).thenReturn(rideMock);
-        when(rideUtilsMock.createPassengerRide(any(), any())).thenReturn(passengerRideMock);
+        when(rideUtilsMock.createPassengerRide(passengerMock, rideMock)).thenReturn(passengerRideMock);
         when(dto.getDelayInMinutes()).thenReturn(20);
 
         doNothing().when(passengerMock).setTokenBalance(anyInt());
-        when(passengerRepositoryMock.save(any())).thenReturn(passengerMock);
+        when(passengerRepositoryMock.save(passengerMock)).thenReturn(passengerMock);
         doNothing().when(rideUtilsMock).handleNotificationsAndProcessReservations(any(), anyList());
 
         RideSimpleDisplayDTO rideSimpleDisplayDTOMock = mock(RideSimpleDisplayDTO.class);
@@ -250,7 +252,7 @@ public class RideServiceTests {
 
         assertEquals(rideService.orderBasicRide(dto, authenticationMock), rideSimpleDisplayDTOMock);
         verify(passengerMock).setTokenBalance(anyInt());
-        verify(passengerRepositoryMock).save(any());
+        verify(passengerRepositoryMock).save(passengerMock);
         verify(rideUtilsMock).handleNotificationsAndProcessReservations(any(), anyList());
     }
 
@@ -275,9 +277,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
 
         doThrow(UserDoesNotExistException.class)
@@ -296,9 +298,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
 
         doThrow(LinkedPassengersNotAllDistinctException.class)
@@ -317,9 +319,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
 
         doThrow(PassengerAlreadyHasAnActiveRideException.class)
@@ -338,9 +340,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
 
         doThrow(InsufficientFundsException.class)
@@ -359,9 +361,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
 
         doThrow(ReservationTooSoonException.class)
@@ -381,9 +383,9 @@ public class RideServiceTests {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(passengerMock);
         when(dto.getVehicleType()).thenReturn("COUPE");
-        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+        when(vehicleTypeRepositoryMock.findByName("COUPE")).thenReturn(Optional.of(vehicleTypeMock));
 
-        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(rideUtilsMock.calculateRidePrice(dto, vehicleTypeMock)).thenReturn(1300);
         List<String> usersToPay = new ArrayList<>(3);
         usersToPay.add("username1@noemail.com");
         usersToPay.add("username2@noemail.com");
@@ -394,7 +396,7 @@ public class RideServiceTests {
 
         when(rideUtilsMock.createSplitFareRide(any(), anyInt())).thenReturn(rideMock);
         doNothing().when(passengerMock).setTokenBalance(anyInt());
-        when(passengerRepositoryMock.save(any())).thenReturn(passengerMock);
+        when(passengerRepositoryMock.save(passengerMock)).thenReturn(passengerMock);
         doNothing().when(rideUtilsMock).createPassengerRideForUsers(any(), any(), anyInt(), any());
 
         when(passengerMock.getUsername()).thenReturn("username1@noemail.com");
@@ -405,9 +407,9 @@ public class RideServiceTests {
 
         assertTrue(rideServiceSpy.orderSplitFareRide(dto, authentication));
         verify(passengerMock).setTokenBalance(anyInt());
-        verify(passengerRepositoryMock).save(any());
+        verify(passengerRepositoryMock).save(passengerMock);
         verify(rideUtilsMock).createPassengerRideForUsers(any(), any(), anyInt(), any());
         verify(rideServiceSpy).scheduleExecution(any(), anyLong(), any());
     }
-
+    
 }
