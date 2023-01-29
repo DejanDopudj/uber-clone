@@ -140,12 +140,14 @@ public class RideService {
     }
 
     public Boolean confirmRide(RideIdDTO dto, Authentication auth) {
-        Ride ride = rideRepository.findById(dto.getRideId()).get();
+        Ride ride = rideRepository.findById(dto.getRideId()).orElseThrow();
         Passenger passenger = (Passenger) auth.getPrincipal();
         List<PassengerRide> passengerRides = passengerRideRepository.findByRide(ride);
         List<String> usersToPay = passengerRides.stream().map(pr -> pr.getPassenger().getUsername()).toList();
 
-        PassengerRide currentPR = passengerRideRepository.findByRideAndPassengerUsername(ride, passenger.getUsername()).get();
+        PassengerRide currentPR = passengerRideRepository
+                .findByRideAndPassengerUsername(ride, passenger.getUsername()).orElseThrow();
+
         if (passenger.getTokenBalance() < currentPR.getFare()) {
             for (String username : usersToPay) {
                 rideUtils.sendMessageToPassenger(username,
@@ -167,6 +169,7 @@ public class RideService {
             PassengerRide passengerRide = passengerRideRepository.findByRideAndPassengerUsername(ride, username).get();
             if (!passengerRide.isAgreed()) {
                 fullyPaid = false;
+                break;
             }
         }
         if (fullyPaid) {
