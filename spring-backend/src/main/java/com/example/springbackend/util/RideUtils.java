@@ -46,6 +46,7 @@ public class RideUtils {
     UserService userService;
     @Autowired
     SimulatorService simulatorService;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
     private final SimpMessagingTemplate template;
     @Autowired
     RideUtils(SimpMessagingTemplate template) {
@@ -53,17 +54,16 @@ public class RideUtils {
     }
 
     public void handleNotificationsAndProcessReservations(Ride ride, List<PassengerRide> passengerRides) {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         List<String> passengerUsernames = passengerRides.stream().map(pr ->
                 pr.getPassenger().getUsername()).toList();
-        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 15),
-                ride.getDelayInMinutes() - 15, TimeUnit.SECONDS); // should be minutes in production
-        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 10),
-                ride.getDelayInMinutes() - 10, TimeUnit.SECONDS); // should be minutes in production
-        executorService.schedule(() -> notifyPassengersAboutReservation(passengerUsernames, 5),
-                ride.getDelayInMinutes() - 5, TimeUnit.SECONDS); // should be minutes in production
-        executorService.schedule(() -> processReservation(ride, passengerRides),
-                ride.getDelayInMinutes(), TimeUnit.SECONDS); // should be minutes in production
+        scheduleExecution(() -> notifyPassengersAboutReservation(passengerUsernames, 15),
+                ride.getDelayInMinutes() - 15, TimeUnit.SECONDS);  // should be minutes in production
+        scheduleExecution(() -> notifyPassengersAboutReservation(passengerUsernames, 10),
+                ride.getDelayInMinutes() - 10, TimeUnit.SECONDS);  // should be minutes in production
+        scheduleExecution(() -> notifyPassengersAboutReservation(passengerUsernames, 5),
+                ride.getDelayInMinutes() - 5, TimeUnit.SECONDS);  // should be minutes in production
+        scheduleExecution(() -> processReservation(ride, passengerRides),
+                ride.getDelayInMinutes(), TimeUnit.SECONDS);  // should be minutes in production
     }
 
     public void processReservation(Ride ride, List<PassengerRide> passengerRides) {
@@ -100,8 +100,7 @@ public class RideUtils {
 
     public void directDriverToCurrentRideStart(Driver driver, Ride ride) {
         directDriverToLocation(driver, ride.getRoute().getWaypoints().get(0));
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> markDriverArrived(ride.getId()),
+        scheduleExecution(() -> markDriverArrived(ride.getId()),
                 driver.getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
     }
 
@@ -118,8 +117,7 @@ public class RideUtils {
         if (ride.getStatus() == RideStatus.CANCELLED) return;
         if (ride.getRoute().getWaypoints().size() > waypointIndex + 1) {
             directDriverToLocation(ride.getDriver(), ride.getRoute().getWaypoints().get(waypointIndex + 1));
-            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.schedule(() -> markArrivedAtDestination(ride.getId(), waypointIndex + 1),
+            scheduleExecution(() -> markArrivedAtDestination(ride.getId(), waypointIndex + 1),
                     ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         } else {
             ride.setStatus(RideStatus.ARRIVED_AT_DESTINATION);
@@ -136,9 +134,7 @@ public class RideUtils {
         long estimatedTime = simulatorService.getEstimatedTime(vehicle);
         vehicle.setExpectedTripTime(estimatedTime);
         vehicleRepository.save(vehicle);
-
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> simulatorService.arriveAtLocation(vehicle, true),
+        scheduleExecution(() -> simulatorService.arriveAtLocation(vehicle, true),
                 estimatedTime, TimeUnit.SECONDS);
     }
 
@@ -427,6 +423,10 @@ public class RideUtils {
         for (String receiverUsername : receiverUsernames) {
             sendRefreshMessage(receiverUsername);
         }
+    }
+
+    public void scheduleExecution(Runnable runnable, long delay, TimeUnit timeUnit) {
+        scheduler.schedule(runnable, delay, timeUnit);
     }
 
 }

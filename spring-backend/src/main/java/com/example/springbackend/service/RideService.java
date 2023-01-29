@@ -51,6 +51,8 @@ public class RideService {
     @Autowired
     SimulatorService simulatorService;
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+
     public RideSimpleDisplayDTO orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
@@ -102,7 +104,6 @@ public class RideService {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
 
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         int price = rideUtils.calculateRidePrice(dto, vehicleType);
         dto.getUsersToPay().add(passenger.getUsername());
         int fare = (int) Math.ceil(price/dto.getUsersToPay().size());
@@ -119,7 +120,7 @@ public class RideService {
                 rideUtils.sendRefreshMessage(username);
         });
 
-        executorService.schedule(() -> processSplitFareRide(dto, ride), 30, TimeUnit.SECONDS);
+        scheduleExecution(() -> processSplitFareRide(dto, ride), 30, TimeUnit.SECONDS);
         return true;
     }
 
@@ -228,8 +229,7 @@ public class RideService {
         rideUtils.directDriverToLocation(driver, ride.getRoute().getWaypoints().get(1));
         rideUtils.sendRefreshMessageToDriverAndAllPassengers(ride);
 
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> rideUtils.markArrivedAtDestination(ride.getId(), 1),
+        scheduleExecution(() -> rideUtils.markArrivedAtDestination(ride.getId(), 1),
                 ride.getDriver().getVehicle().getExpectedTripTime(), TimeUnit.SECONDS);
         return true;
     }
@@ -472,5 +472,9 @@ public class RideService {
             }
         }
         return rideUtils.generateReportDisplayDTO(queryRet, reportDisplayDTO);
+    }
+
+    public void scheduleExecution(Runnable runnable, long delay, TimeUnit timeUnit) {
+        scheduler.schedule(runnable, delay, timeUnit);
     }
 }

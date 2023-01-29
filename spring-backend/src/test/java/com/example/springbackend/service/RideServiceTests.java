@@ -1,11 +1,9 @@
 package com.example.springbackend.service;
 
 import com.example.springbackend.dto.creation.BasicRideCreationDTO;
+import com.example.springbackend.dto.creation.SplitFareRideCreationDTO;
 import com.example.springbackend.dto.display.RideSimpleDisplayDTO;
-import com.example.springbackend.exception.AdequateDriverNotFoundException;
-import com.example.springbackend.exception.InsufficientFundsException;
-import com.example.springbackend.exception.PassengerAlreadyHasAnActiveRideException;
-import com.example.springbackend.exception.ReservationTooSoonException;
+import com.example.springbackend.exception.*;
 import com.example.springbackend.model.*;
 import com.example.springbackend.repository.PassengerRepository;
 import com.example.springbackend.repository.PassengerRideRepository;
@@ -21,16 +19,18 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = TestConfig.class)
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +51,7 @@ public class RideServiceTests {
     @Mock
     private PassengerRide passengerRideMock;
     @Mock
-    private VehicleType vehicleType;
+    private VehicleType vehicleTypeMock;
     @Mock
     private Authentication authenticationMock;
     @Mock
@@ -67,11 +67,19 @@ public class RideServiceTests {
         reset();
     }
 
+    // basic ride
     @Test
-    void testTests() {
-        Assertions.assertTrue(true);
+    void Throw_exception_when_vehicle_type_does_not_exist_when_ordering_a_basic_ride() {
+        BasicRideCreationDTO dto = mock(BasicRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn(null);
+        assertThrows(
+                NoSuchElementException.class,
+                () -> rideService.orderBasicRide(dto, authentication),
+                "Expected orderBasicRide() to throw NoSuchElementException, but it didn't"
+        );
     }
-
 
     @Test
     void Throw_exception_when_current_passenger_ride_exists_while_ordering_a_basic_ride() {
@@ -82,7 +90,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                        .thenReturn(Optional.of(vehicleType));
+                        .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                         .thenReturn(Optional.of(passengerRideMock));
 
@@ -102,7 +110,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                .thenReturn(Optional.of(vehicleType));
+                .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                 .thenReturn(Optional.empty());
 
@@ -124,7 +132,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                .thenReturn(Optional.of(vehicleType));
+                .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                 .thenReturn(Optional.empty());
 
@@ -156,7 +164,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                .thenReturn(Optional.of(vehicleType));
+                .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                 .thenReturn(Optional.empty());
 
@@ -191,7 +199,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                .thenReturn(Optional.of(vehicleType));
+                .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                 .thenReturn(Optional.empty());
 
@@ -222,7 +230,7 @@ public class RideServiceTests {
 
         when(dto.getVehicleType()).thenReturn("COUPE");
         when(vehicleTypeRepositoryMock.findByName(anyString()))
-                .thenReturn(Optional.of(vehicleType));
+                .thenReturn(Optional.of(vehicleTypeMock));
         when(passengerRideRepositoryMock.getCurrentPassengerRide(any()))
                 .thenReturn(Optional.empty());
 
@@ -244,6 +252,162 @@ public class RideServiceTests {
         verify(passengerMock).setTokenBalance(anyInt());
         verify(passengerRepositoryMock).save(any());
         verify(rideUtilsMock).handleNotificationsAndProcessReservations(any(), anyList());
+    }
+
+
+    // split fare ride
+    @Test
+    void Throw_exception_when_vehicle_type_does_not_exist_when_ordering_a_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn(null);
+        assertThrows(
+                NoSuchElementException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw NoSuchElementException, but it didn't"
+        );
+    }
+
+    @Test
+    void Throw_exception_when_a_linked_passenger_does_not_exist_when_ordering_a_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
+
+        doThrow(UserDoesNotExistException.class)
+                .when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        assertThrows(
+                UserDoesNotExistException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw UserDoesNotExistException, but it didn't"
+        );
+    }
+
+    @Test
+    void Throw_exception_when_there_are_duplicate_passengers_when_ordering_a_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
+
+        doThrow(LinkedPassengersNotAllDistinctException.class)
+                .when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        assertThrows(
+                LinkedPassengersNotAllDistinctException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw LinkedPassengersNotAllDistinctException, but it didn't"
+        );
+    }
+
+    @Test
+    void Throw_exception_when_a_passenger_already_has_an_active_ride_when_ordering_a_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
+
+        doThrow(PassengerAlreadyHasAnActiveRideException.class)
+                .when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        assertThrows(
+                PassengerAlreadyHasAnActiveRideException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw PassengerAlreadyHasAnActiveRideException, but it didn't"
+        );
+    }
+
+    @Test
+    void Throw_exception_when_the_order_sender_passenger_lacks_tokens_when_ordering_a_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
+
+        doThrow(InsufficientFundsException.class)
+                .when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        assertThrows(
+                InsufficientFundsException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw InsufficientFundsException, but it didn't"
+        );
+    }
+
+    @Test
+    void Throw_exception_when_delay_is_shorter_than_20_for_a_scheduled_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        when(dto.getUsersToPay()).thenReturn(new ArrayList<>(3));
+
+        doThrow(ReservationTooSoonException.class)
+                .when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        assertThrows(
+                ReservationTooSoonException.class,
+                () -> rideService.orderSplitFareRide(dto, authentication),
+                "Expected orderSplitFareRide() to throw ReservationTooSoonException, but it didn't"
+        );
+    }
+
+
+    @Test
+    void Return_true_after_a_successful_creation_of_an_immediate_split_fare_ride() {
+        SplitFareRideCreationDTO dto = mock(SplitFareRideCreationDTO.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(passengerMock);
+        when(dto.getVehicleType()).thenReturn("COUPE");
+        when(vehicleTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(vehicleTypeMock));
+
+        when(rideUtilsMock.calculateRidePrice(any(), any())).thenReturn(1300);
+        List<String> usersToPay = new ArrayList<>(3);
+        usersToPay.add("username1@noemail.com");
+        usersToPay.add("username2@noemail.com");
+        usersToPay.add("username3@noemail.com");
+
+        when(dto.getUsersToPay()).thenReturn(usersToPay);
+        doNothing().when(rideUtilsMock).checkIfSplitFareRideIsValid(any(), any(), anyInt());
+
+        when(rideUtilsMock.createSplitFareRide(any(), anyInt())).thenReturn(rideMock);
+        doNothing().when(passengerMock).setTokenBalance(anyInt());
+        when(passengerRepositoryMock.save(any())).thenReturn(passengerMock);
+        doNothing().when(rideUtilsMock).createPassengerRideForUsers(any(), any(), anyInt(), any());
+
+        when(passengerMock.getUsername()).thenReturn("username1@noemail.com");
+        doNothing().when(rideUtilsMock).sendRefreshMessage(anyString());
+
+        RideService rideServiceSpy = Mockito.spy(rideService);
+        doNothing().when(rideServiceSpy).scheduleExecution(any(), anyLong(), any());
+
+        assertTrue(rideServiceSpy.orderSplitFareRide(dto, authentication));
+        verify(passengerMock).setTokenBalance(anyInt());
+        verify(passengerRepositoryMock).save(any());
+        verify(rideUtilsMock).createPassengerRideForUsers(any(), any(), anyInt(), any());
+        verify(rideServiceSpy).scheduleExecution(any(), anyLong(), any());
     }
 
 }
