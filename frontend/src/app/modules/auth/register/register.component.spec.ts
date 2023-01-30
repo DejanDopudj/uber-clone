@@ -249,7 +249,7 @@ describe('RegisterComponent', () => {
     }));
 
     
-    it("should call register", fakeAsync( () => {
+    it("should display password too short", fakeAsync( () => {
       passengerServiceSpy.register.calls.reset();
       const app = fixture.componentInstance;
       app.registerForm.controls.email.setValue("test@test.com");
