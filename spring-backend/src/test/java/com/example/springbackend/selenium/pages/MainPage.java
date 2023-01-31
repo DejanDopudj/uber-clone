@@ -33,7 +33,7 @@ public class MainPage {
 
     public boolean isPageOpened(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='suberTitle']")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='map']")));
 
         return true;
     }
@@ -60,5 +60,14 @@ public class MainPage {
     public void orderRide(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.elementToBeClickable(orderButton)).click();
+    }
+
+    public void acceptRide(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'BEGIN RIDE')]"))).click();
+    }
+    public void rejectRide(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'REJECT  RIDE')]"))).click();
     }
 }

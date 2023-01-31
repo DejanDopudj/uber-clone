@@ -34,16 +34,16 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
-    public void login() {
+    public void login(String emailString, String passwordString) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         Actions action = new Actions(driver);
 
         wait.until(ExpectedConditions.elementToBeClickable(email)).click();
         action.moveToElement(email).click().build().perform();
-        email.sendKeys("passenger1@noemail.com");
+        email.sendKeys(emailString);
 
         wait.until(ExpectedConditions.elementToBeClickable(password)).click();
-        password.sendKeys("cascaded");
+        password.sendKeys(passwordString);
 
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
     }

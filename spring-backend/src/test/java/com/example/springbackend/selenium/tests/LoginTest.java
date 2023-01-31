@@ -31,7 +31,7 @@ public class LoginTest {
     public void mainTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login();
+        homePage.login("passenger1@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
