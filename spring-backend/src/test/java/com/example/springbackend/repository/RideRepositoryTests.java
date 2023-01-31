@@ -67,8 +67,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 1);
-        assertTrue(driverPage.getContent().get(0).equals(driver1));
+        assertEquals(driverPage.getTotalElements(), 1);
+        assertEquals(driverPage.getContent().get(0), driver1);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -138,8 +138,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 2);
-        assertTrue(driverPage.getContent().get(0).equals(driver2));
+        assertEquals(2, driverPage.getTotalElements());
+        assertEquals(driverPage.getContent().get(0), driver2);
     }
 
 
@@ -175,7 +175,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -210,8 +210,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 1);
-        assertTrue(driverPage.getContent().get(0).equals(driver2));
+        assertEquals(1, driverPage.getTotalElements());
+        assertEquals(driverPage.getContent().get(0), driver2);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -287,7 +287,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, true,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -322,8 +322,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, true,
                         false, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 1);
-        assertTrue(driverPage.getContent().get(0).equals(driver2));
+        assertEquals(1, driverPage.getTotalElements());
+        assertEquals(driverPage.getContent().get(0), driver2);
     }
 
     @Test
@@ -358,7 +358,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         true, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -393,8 +393,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         true, "COUPE", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 1);
-        assertTrue(driverPage.getContent().get(0).equals(driver2));
+        assertEquals(1, driverPage.getTotalElements());
+        assertEquals(driverPage.getContent().get(0), driver2);
     }
 
     @Test
@@ -429,7 +429,7 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "STATION", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 0);
+        assertEquals(0, driverPage.getTotalElements());
     }
 
     @Test
@@ -464,8 +464,8 @@ public class RideRepositoryTests {
                 .getClosestFreeDriver(45.245749, 19.851122, false,
                         false, "MINIVAN", PageRequest.of(0, 1));
 
-        assertTrue(driverPage.getTotalElements() == 1);
-        assertTrue(driverPage.getContent().get(0).equals(driver2));
+        assertEquals(1, driverPage.getTotalElements());
+        assertEquals(driverPage.getContent().get(0), driver2);
     }
 
 }
