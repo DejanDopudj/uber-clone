@@ -247,20 +247,20 @@ sm:h-full select-none" id="order-menu">
   </div>
 
   <!-- opening arrow -->
-  <div class="hidden sm:flex flex-col justify-center h-32 w-8 bg-dark
-  my-auto cursor-pointer text-center slide-in text-light hover:text-gray-300"
+  <div class="hidden sm:flex flex-col justify-center h-32 w-8 bg-dark 
+  my-auto cursor-pointer text-center slide-in text-light hover:text-gray-300" id="side-panel-icon"
   [ngClass]="isOpened ? '-ml-8 rounded-none' : 'rounded-r-full'"
   (click)="toggleOpened()">
     <fa-icon [icon]="isOpened ? faChevronLeft : faChevronRight" class="text-2xl"></fa-icon>
   </div>
 
   <!-- opening arrow -->
-  <div class="sm:hidden flex justify-center w-screen z-10 slide-in-bottom">
+  <div class="sm:hidden flex justify-center w-screen z-10 slide-in-bottom" >
     <div class="flex flex-col justify-center bg-dark
     my-auto cursor-pointer text-center text-light hover:text-gray-300"
     [ngClass]="isOpened ? '-mb-8 rounded-none h-8 w-full mx-10' : 'rounded-t-full h-8 w-44'"
     (click)="toggleOpened()">
-      <fa-icon [icon]="isOpened ? faChevronDown : faChevronUp" class="text-2xl"></fa-icon>
+      <fa-icon [icon]="isOpened ? faChevronDown : faChevronUp" class="text-2xl" ></fa-icon>
     </div>
   </div>
 

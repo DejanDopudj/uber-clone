@@ -37,4 +37,28 @@ public class MainPage {
 
         return true;
     }
+
+    public void fillStartingPoint(String address){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(startingPoint)).click();
+        startingPoint.sendKeys(address);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@data-icon='plus']"))).click();
+    }
+
+    public void fillDestinationPoint(String address){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(destinationXpath))).click();
+        driver.findElement(By.xpath(destinationXpath)).sendKeys(address);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@data-icon='plus']"))).click();
+    }
+
+    public void openSidePanel() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='side-panel-icon']"))).click();
+    }
+
+    public void orderRide(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(orderButton)).click();
+    }
 }
