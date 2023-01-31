@@ -24,6 +24,9 @@ public class MainPage {
     @FindBy(xpath = "//button[contains(text(),'ORDER RIDE')]")
     WebElement orderButton;
 
+    @FindBy(xpath = "//*[@id='hamburger-menu']")
+    WebElement hamburgerMenu;
+
     String destinationXpath = "//input[@placeholder='Add a destination']";
 
     public MainPage(WebDriver driver) {
@@ -68,6 +71,45 @@ public class MainPage {
     }
     public void rejectRide(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'REJECT  RIDE')]"))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'REJECT RIDE')]"))).click();
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//textarea[@placeholder='Please enter the reason for rejecting this ride...']"))).click();
+
+        driver.findElement(By.xpath("//textarea[@placeholder='Please enter the reason for rejecting this ride...']")).sendKeys("RandomReason");
+
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'Reject ride')]"))).click();
+    }
+
+    public void completeRide() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(., 'COMPLETE RIDE')]"))).click();
+    }
+
+    public void viewRideRejectionRequests(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(hamburgerMenu)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[contains(text(),'View ride rejection requests')]"))).click();
+    }
+
+    public boolean isRideRejectedDriver(){
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(., 'Your rejection is accepted')]")));
+        }
+        catch (NoSuchElementException ex){
+            return false;
+        }
+        return true;
+    }
+    public boolean isRideRejectedPassenger(){
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(., 'The driver rejected the ride.')]")));
+        }
+        catch (NoSuchElementException ex){
+            return false;
+        }
+        return true;
     }
 }
