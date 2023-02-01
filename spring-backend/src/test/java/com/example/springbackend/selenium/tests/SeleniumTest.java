@@ -250,6 +250,53 @@ public class SeleniumTest {
     }
 
     @Test
+    public void splitFareRidePassengerRejectRide(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
+        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.orderRide();
+
+
+        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        WebDriver driver2 = new ChromeDriver();
+        driver2.manage().window().maximize();
+
+
+        LoginPage homePageUser2 = new LoginPage(driver2);
+        assertTrue(homePageUser2.isPageOpened());
+        homePageUser2.login("passenger2@noemail.com","cascaded");
+
+        MainPage mainPageUser2 = new MainPage(driver2);
+        assertTrue(mainPageUser2.isPageOpened());
+        mainPageUser2.rejectSplitFareRide();
+        assertTrue(mainPage.expectMessage("A passenger has rejected the ride."));
+    }
+
+
+    @Test
+    public void splitFareRidePassengerNotRespond(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
+        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectCancelledRide());
+    }
+
+    @Test
     public void scheduleRide(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());

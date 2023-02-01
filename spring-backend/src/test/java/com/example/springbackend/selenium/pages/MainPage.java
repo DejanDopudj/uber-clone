@@ -155,4 +155,20 @@ public class MainPage {
         driver.findElement(By.xpath("//*[@id='delay-ride-minutes']")).sendKeys(String.valueOf(minutes));
 
     }
+
+    public void rejectSplitFareRide() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'Reject')]"))).click();
+    }
+
+    public boolean expectCancelledRide() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(., 'The ride is cancelled because one of the')]")));
+        }
+        catch (NoSuchElementException ex){
+            return false;
+        }
+        return true;
+    }
 }
