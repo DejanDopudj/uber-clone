@@ -23,11 +23,12 @@ public class SeleniumTest {
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-    }/*
+    }
+
     @AfterAll()
     public void setupQuitAll() {
         driver.quit();
-    }*/
+    }
 
     @Test()
     public void mainTest() {
@@ -96,9 +97,109 @@ public class SeleniumTest {
         RideRejectionPage rideRejectionPage = new RideRejectionPage(driver3);
         rideRejectionPage.acceptFirstRide();
 
-        assertTrue(mainPage.isRideRejectedPassenger());
-        assertTrue(mainPage2.isRideRejectedDriver());
+        assertTrue(mainPage.expectMessage("The driver rejected the ride."));
+        assertTrue(mainPage2.expectMessage("Your rejection is accepted"));
     }
 
+    @Test()
+    public void noAvailableDriversTest() {
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Kraljice Natalije 19 Beograd");
+        mainPage.fillDestinationPoint("Mutapova 5-7 Beograd");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("Adequate driver not found."));
+    }
+    @Test()
+    public void insufficientFundsTest() {
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Suvoborska 16 Novi Sad");
+        mainPage.fillDestinationPoint("Svetogorska 3 Novi Sad");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("Insufficient funds."));
+    }
+    @Test()
+    public void minimumDistanceTest() {
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Futoska 10 Novi Sad");
+        mainPage.fillDestinationPoint("Futoska 12 Novi Sad");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("Minimum ride distance is 0.25km"));
+    }
+    @Test()
+    public void maximumDistanceTest() {
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Suvoborska 16 Novi Sad");
+        mainPage.fillDestinationPoint("Momačka 9 Mali Mokri Lug");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("Maximum ride distance is 100km"));
+    }
+
+    @Test
+    public void scheduleRide(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
+        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillRideInAdvance(20);
+        mainPage.orderRide();
+
+        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        ChromeOptions options = new ChromeOptions();
+        WebDriver driver2 = new ChromeDriver(options);
+        driver2.manage().window().maximize();
+
+
+        LoginPage homePage2 = new LoginPage(driver2);
+        assertTrue(homePage2.isPageOpened());
+        homePage2.login("driver1@noemail.com","cascaded");
+        MainPage mainPage2 = new MainPage(driver2);
+        assertTrue(mainPage2.isPageOpened());
+        mainPage2.acceptRide();
+        mainPage2.completeRide();
+    }
+    @Test
+    public void scheduleRideTooSoon(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
+        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillRideInAdvance(7);
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("Reservation must be made"));
+    }
 
 }

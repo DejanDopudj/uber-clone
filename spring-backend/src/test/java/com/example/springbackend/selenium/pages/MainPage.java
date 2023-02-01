@@ -92,10 +92,10 @@ public class MainPage {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[contains(text(),'View ride rejection requests')]"))).click();
     }
 
-    public boolean isRideRejectedDriver(){
+    public boolean expectMessage(String message){
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(., 'Your rejection is accepted')]")));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(., '"+message+"')]")));
         }
         catch (NoSuchElementException ex){
             return false;
@@ -111,5 +111,35 @@ public class MainPage {
             return false;
         }
         return true;
+    }
+    public boolean adequateDriverNotFound(){
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(., 'Adequate driver not found.')]")));
+        }
+        catch (NoSuchElementException ex){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean insufficientFunds() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(., 'Insufficient funds.')]")));
+        }
+        catch (NoSuchElementException ex){
+            return false;
+        }
+        return true;
+    }
+
+    public void fillRideInAdvance(int minutes) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='order-in-advance']"))).click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='delay-ride-minutes']"))).click();
+        driver.findElement(By.xpath("//*[@id='delay-ride-minutes']")).sendKeys(String.valueOf(minutes));
+
     }
 }
