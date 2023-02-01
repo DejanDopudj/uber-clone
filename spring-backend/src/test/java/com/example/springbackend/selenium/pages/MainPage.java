@@ -134,6 +134,19 @@ public class MainPage {
         return true;
     }
 
+    public void addPassenger(String passengerEmail) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(., 'Link more passengers')]"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[contains(@placeholder,'Enter a co-passenger')]"))).click();
+        driver.findElement(By.xpath("//input[contains(@placeholder,'Enter a co-passenger')]")).sendKeys(passengerEmail);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='addPassengerPlus']"))).click();
+    }
+
+    public void confirmSplitFareRide() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(., 'Confirm')]"))).click();
+    }
+
     public void fillRideInAdvance(int minutes) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='order-in-advance']"))).click();

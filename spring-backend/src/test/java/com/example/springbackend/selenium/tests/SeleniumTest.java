@@ -159,6 +159,97 @@ public class SeleniumTest {
     }
 
     @Test
+    public void splitFareRideTest(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
+        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.orderRide();
+
+
+        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        WebDriver driver2 = new ChromeDriver();
+        driver2.manage().window().maximize();
+
+
+        LoginPage homePageUser2 = new LoginPage(driver2);
+        assertTrue(homePageUser2.isPageOpened());
+        homePageUser2.login("passenger2@noemail.com","cascaded");
+
+        MainPage mainPageUser2 = new MainPage(driver2);
+        assertTrue(mainPageUser2.isPageOpened());
+        mainPageUser2.confirmSplitFareRide();
+
+
+        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        ChromeOptions options = new ChromeOptions();
+        WebDriver driver3 = new ChromeDriver(options);
+        driver3.manage().window().maximize();
+
+
+        LoginPage homePage2 = new LoginPage(driver3);
+        assertTrue(homePage2.isPageOpened());
+        homePage2.login("driver1@noemail.com","cascaded");
+        MainPage mainPage2 = new MainPage(driver3);
+        assertTrue(mainPage2.isPageOpened());
+        mainPage2.acceptRide();
+        mainPage2.completeRide();
+    }
+
+
+    @Test
+    public void splitFareRideInsufficientFundsTest(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Novosadski put 2");
+        mainPage.fillDestinationPoint("Ivana Gorana Kovacica 23");
+        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.orderRide();
+
+
+        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+        WebDriver driver2 = new ChromeDriver();
+        driver2.manage().window().maximize();
+
+
+        LoginPage homePageUser2 = new LoginPage(driver2);
+        assertTrue(homePageUser2.isPageOpened());
+        homePageUser2.login("passenger2@noemail.com","cascaded");
+
+        MainPage mainPageUser2 = new MainPage(driver2);
+        assertTrue(mainPageUser2.isPageOpened());
+        mainPageUser2.confirmSplitFareRide();
+        assertTrue(mainPageUser2.expectMessage("Ride is cancelled due to insufficient funds."));
+    }
+
+    @Test
+    public void splitFareRideNonExistentEmail(){
+        LoginPage homePage = new LoginPage(driver);
+        assertTrue(homePage.isPageOpened());
+        homePage.login("passenger1@noemail.com","cascaded");
+
+        MainPage mainPage = new MainPage(driver);
+        assertTrue(mainPage.isPageOpened());
+        mainPage.openSidePanel();
+        mainPage.fillStartingPoint("Novosadski put 2");
+        mainPage.fillDestinationPoint("Ivana Gorana Kovacica 23");
+        mainPage.addPassenger("unknown@noemail.com");
+        mainPage.orderRide();
+        assertTrue(mainPage.expectMessage("email does not exist in the system"));
+    }
+
+    @Test
     public void scheduleRide(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
