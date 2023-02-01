@@ -394,4 +394,287 @@ public class RideControllerIntegrationTests {
                 .andExpect(jsonPath("$.message")
                         .value("Reservation must be made at least 20 minutes in advance."));
     }
+
+    // passenger ride rejection/confirmation
+    @Test
+    @DisplayName("Should throw 404 when a passenger is attempting to reject " +
+            "non-existent ride via [PATCH] " + URL_PREFIX + "/reject")
+    @Rollback
+    void Throw_404_when_attempting_to_reject_non_existent_ride() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when a passenger is attempting to reject " +
+            "another passenger's ride [PATCH] " + URL_PREFIX + "/reject")
+    @Rollback
+    void Throw_404_when_attempting_to_reject_another_passengers_ride() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger2@noemail.com");
+        String passenger5Token = IntegrationUtils.getToken(mockMvc, "passenger5@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger5Token))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 200 when a passenger rejection is valid [PATCH] " + URL_PREFIX + "/reject")
+    @Rollback
+    void Return_200_when_rejection_is_valid() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger2@noemail.com");
+        String passenger2Token = IntegrationUtils.getToken(mockMvc, "passenger2@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger2Token))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when attempting to confirm " +
+            "non-existent ride via [PATCH] " + URL_PREFIX + "/confirm")
+    @Rollback
+    void Throw_404_when_attempting_to_confirm_non_existent_ride() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when a passenger is attempting to confirm " +
+            "another passenger's ride [PATCH] " + URL_PREFIX + "/confirm")
+    @Rollback
+    void Throw_404_when_attempting_to_confirm_another_passengers_ride() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger2@noemail.com");
+        String passenger5Token = IntegrationUtils.getToken(mockMvc, "passenger5@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger5Token))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 200 when attempting to confirm a ride without sufficient " +
+            "funds [PATCH] " + URL_PREFIX + "/confirm")
+    @Rollback
+    void Return_402_when_attempting_to_confirm_a_ride_without_sufficient_funds() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger2@noemail.com");
+        String passenger2Token = IntegrationUtils.getToken(mockMvc, "passenger2@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger2Token))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    @DisplayName("Should return 200 when a passenger confirmation is valid [PATCH] " + URL_PREFIX + "/confirm")
+    @Rollback
+    void Return_200_when_confirmation_is_valid() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger5@noemail.com");
+        String passenger5Token = IntegrationUtils.getToken(mockMvc, "passenger5@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger5Token))
+                .andExpect(status().is(402))
+                .andExpect(jsonPath("$.message")
+                        .value("Insufficient funds."));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and false when attempting to reject after first confirming [PATCH] " + URL_PREFIX + "/reject")
+    @Rollback
+    void Return_false_when_attempting_to_reject_after_passenger_has_confirmed() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        SplitFareRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidSplitFareRideCreationDto();
+        splitFareRideCreationDto.getUsersToPay().add("passenger2@noemail.com");
+        String passenger2Token = IntegrationUtils.getToken(mockMvc, "passenger2@noemail.com");
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/split-fare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger2Token))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+
+        mockMvc.perform(patch(URL_PREFIX + "/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger2Token))
+                .andExpect(status().is(200))
+                .andExpect(content().string("false"));
+    }
+
+
+    // driver inconsistency report
+    @Test
+    @DisplayName("Should return 404 when attempting to report an inconsistency on a non-existent ride " +
+            "[PATCH] " + URL_PREFIX + "/inconsistency")
+    @Rollback
+    void Return_404_when_reporting_an_inconsistency_on_a_non_existing_ride() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/inconsistency")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when attempting to report an inconsistency on a ride that " +
+            "does not belong to the passenger [PATCH] " + URL_PREFIX + "/inconsistency")
+    @Rollback
+    void Return_400_when_reporting_an_inconsistency_on_a_ride_that_does_not_belong_to_the_passenger() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        String passenger2Token = IntegrationUtils.getToken(mockMvc, "passenger2@noemail.com");
+
+        mockMvc.perform(patch(URL_PREFIX + "/inconsistency")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passenger2Token))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and true when reporting an inconsistency [PATCH] " + URL_PREFIX + "/inconsistency")
+    @Rollback
+    void Return_200_and_true_when_reporting_inconsistency() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO splitFareRideCreationDto = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res =  mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(splitFareRideCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/inconsistency")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideIdDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
 }
