@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Session } from 'src/app/shared/models/session.model';
 
 @Injectable({
@@ -170,7 +170,7 @@ export class AuthenticationService {
     model: string,
     colour: string,
     licensePlateNumber: string
-  ) {
+  ) : Promise<AxiosResponse<boolean>> {
     const formData = {
       username: username,
       name: name,
@@ -186,20 +186,7 @@ export class AuthenticationService {
       colour: colour,
       licensePlateNumber: licensePlateNumber,
     };
-    const successfulLogin = axios
-      .post('http://localhost:8080/api/preupdate/sendUpdateRequest', formData)
-      .then((resp) => {
-        if (resp.data) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        return false;
-      });
-    return successfulLogin;
+    return axios.post('http://localhost:8080/api/preupdate/sendUpdateRequest', formData);
   }
 
   updateDriver(
