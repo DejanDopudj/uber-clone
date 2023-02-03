@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { faCity } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { Session } from 'src/app/shared/models/session.model';
-import { VehicleType } from 'src/app/shared/models/vehicle-type.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,12 +26,13 @@ export class AuthenticationService {
         let reload: boolean = false;
         if (!this.getSession()) reload = true;
         this.saveSession(response.data);
-        if (reload) window.location.href = '/';
 
-        if(!localStorage.getItem('token')){
+        if (!localStorage.getItem('token')){
           localStorage.setItem('token',localStorage.getItem('token2')!);
         }
         localStorage.removeItem('token2');
+
+        if (reload) window.location.href = '/';
       })
       .catch((err) => {
         this.logout();
@@ -112,6 +111,7 @@ export class AuthenticationService {
           axios.defaults.headers.common[
             'Authorization'
           ] = `Bearer ${localStorage.getItem('token')}`;
+          this.toggleDriverActivityIfNeeded(res.data['accessToken']);
           return true;
         } else {
           return false;
@@ -248,5 +248,27 @@ export class AuthenticationService {
           },
         }
       );
+  }
+
+  async toggleDriverActivityIfNeeded(token: string): Promise<void> {
+    axios
+    .get(`/api/drivers/activity`, {
+      headers: {
+        Authorization: `Bearer ${ token }`,
+      },
+    })
+    .then((res) => {
+      if (!res.data) {
+        axios.patch(
+          `/api/drivers/activity`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+    });
   }
 }

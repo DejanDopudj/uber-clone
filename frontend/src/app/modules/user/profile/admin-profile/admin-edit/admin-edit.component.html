@@ -166,9 +166,9 @@
 </div>
 
 <div *ngIf="showResetPasswordConfirmationModal">
-  <app-error-modal 
+  <app-message-modal 
   [title]="'Success!'"
   [description]="'An email was sent to your address.'"
   (closeModal)="closeResetPasswordConfirmationModal()">
-  </app-error-modal>
+  </app-message-modal>
 </div>
