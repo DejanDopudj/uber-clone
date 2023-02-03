@@ -33,6 +33,7 @@ export class DriverEditComponent implements OnInit {
   @Output() changeView = new EventEmitter<void>();
 
   showConfirmModal: boolean = false;
+  showResetPasswordConfirmationModal: boolean = false;
 
   userEditForm = new FormGroup(
     {
@@ -128,7 +129,7 @@ export class DriverEditComponent implements OnInit {
   }
   async resetPassword() {
     this.authenticationService.resetPasword(this.driver.email!);
-    alert('Email sent');
+    this.showResetPasswordConfirmationModal = true;
   }
 
   async onSubmitUserUpdate() {
@@ -176,5 +177,9 @@ export class DriverEditComponent implements OnInit {
   closeModal(): void {
     this.showConfirmModal = false;
     this.changeView.emit();
+  }
+
+  closeResetPasswordConfirmationModal(): void {
+    this.showResetPasswordConfirmationModal = false;
   }
 }

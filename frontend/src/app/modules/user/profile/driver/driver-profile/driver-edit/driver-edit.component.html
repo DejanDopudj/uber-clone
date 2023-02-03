@@ -384,10 +384,19 @@
     >Change password</span
   >
 </div>
+
 <div *ngIf="showConfirmModal">
   <app-error-modal
     title="Successfully sent request"
     description="Successfully sent profile update request to the admin!"
     (closeModal)="closeModal()"
   ></app-error-modal>
+</div>
+
+<div *ngIf="showResetPasswordConfirmationModal">
+  <app-error-modal 
+  [title]="'Success!'"
+  [description]="'An email was sent to your address.'"
+  (closeModal)="closeResetPasswordConfirmationModal()">
+  </app-error-modal>
 </div>
