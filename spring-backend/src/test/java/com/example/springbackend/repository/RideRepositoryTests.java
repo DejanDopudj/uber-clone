@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Repository.class))
@@ -467,6 +469,398 @@ public class RideRepositoryTests {
 
         assertEquals(1, driverPage.getTotalElements());
         assertEquals(driverPage.getContent().get(0), driver2);
+    }
+
+    // getCloseBusyDriversWithNoNextRide
+    @Test
+    void Return_no_driver_if_none_are_busy() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(false);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Driver driver1 = new Driver();
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(false);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Driver driver2 = new Driver();
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 0);
+    }
+
+    @Test
+    void Return_the_busy_driver_within_five_kilometers() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(41.245782, 19.851122));
+        vehicle2.setNextCoordinates(new Coordinates(41.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver2.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 1);
+        assertTrue(drivers.get(0).equals(driver1));
+    }
+
+    @Test
+    void Return_no_busy_driver_if_none_are_within_five_kilometers() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(42.252782, 19.855517));
+        vehicle1.setNextCoordinates(new Coordinates(42.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(43.245782, 19.851122));
+        vehicle2.setNextCoordinates(new Coordinates(43.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver2.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 0);
+    }
+
+    @Test
+    void Return_no_busy_driver_if_all_have_a_next_ride_too() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Ride ride11 = new Ride();
+        entityManager.persist(ride11);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setNextRide(ride11);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Ride ride22 = new Ride();
+        entityManager.persist(ride22);
+        Driver driver2 = new Driver();
+        driver1.setCurrentRide(ride2);
+        driver1.setNextRide(ride22);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 0);
+    }
+
+    @Test
+    void Return_no_busy_driver_if_none_meet_the_baby_seat_criteria() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(false);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(false);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(true);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver1.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, true,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 0);
+    }
+
+    @Test
+    void Return_the_busy_driver_that_meets_the_baby_seat_criteria() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(true);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver2.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, true,
+                        false, "COUPE");
+
+        assertTrue(drivers.size() == 1);
+        assertTrue(drivers.get(0).equals(driver2));
+    }
+
+    @Test
+    void Return_no_busy_driver_if_none_meet_the_pets_allowed_criteria() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(true);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver1.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        true, "COUPE");
+
+        assertTrue(drivers.size() == 0);
+    }
+
+    @Test
+    void Return_the_busy_driver_that_meets_the_pets_allowed_criteria() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(true);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver2.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        true, "COUPE");
+
+        assertTrue(drivers.size() == 1);
+        assertTrue(drivers.get(0).equals(driver2));
+    }
+
+    @Test
+    void Return_the_busy_driver_that_meets_the_vehicle_type_criteria() {
+        Vehicle vehicle1 = new Vehicle();
+        vehicle1.setRideActive(true);
+        vehicle1.setVehicleType(vehicleTypeRepository.findByName("COUPE").get());
+        vehicle1.setCurrentCoordinates(new Coordinates(45.245782, 19.851122));
+        vehicle1.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle1.setBabySeat(false);
+        vehicle1.setPetsAllowed(false);
+        entityManager.persist(vehicle1);
+        Ride ride1 = new Ride();
+        entityManager.persist(ride1);
+        Driver driver1 = new Driver();
+        driver1.setCurrentRide(ride1);
+        driver1.setActive(true);
+        driver1.setVehicle(vehicle1);
+        driver1.setUsername("driver1@noemail.com");
+        entityManager.persist(driver1);
+
+        Vehicle vehicle2 = new Vehicle();
+        vehicle2.setRideActive(true);
+        vehicle2.setVehicleType(vehicleTypeRepository.findByName("MINIVAN").get());
+        vehicle2.setCurrentCoordinates(new Coordinates(45.252782, 19.855517));
+        vehicle2.setNextCoordinates(new Coordinates(45.245749, 19.851122));
+        vehicle2.setBabySeat(false);
+        vehicle2.setPetsAllowed(false);
+        entityManager.persist(vehicle2);
+        Ride ride2 = new Ride();
+        entityManager.persist(ride2);
+        Driver driver2 = new Driver();
+        driver2.setCurrentRide(ride2);
+        driver2.setActive(true);
+        driver2.setVehicle(vehicle2);
+        driver2.setUsername("driver2@noemail.com");
+        entityManager.persist(driver2);
+
+        List<Driver> drivers = driverRepository
+                .getCloseBusyDriversWithNoNextRide(45.245749, 19.851122, false,
+                        false, "MINIVAN");
+
+        assertTrue(drivers.size() == 1);
+        assertTrue(drivers.get(0).equals(driver2));
     }
 
 }
