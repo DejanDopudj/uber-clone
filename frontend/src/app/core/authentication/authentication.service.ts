@@ -69,22 +69,12 @@ export class AuthenticationService {
       });
   }
 
-  async confirmReset(token: String, password: String): Promise<boolean> {
-    if (password) {
-      var formData = {
+  confirmReset(token: String, password: String): Promise<AxiosResponse<boolean>> {
+    return axios
+      .post('http://localhost:8080/api/auth/confirm-password-reset', {
         token: token,
         newPassword: password,
-      };
-      await axios
-        .post('http://localhost:8080/api/auth/confirm-password-reset', formData)
-        .then((res) => {
-          return true;
-        })
-        .catch((err) => {
-          return false;
-        });
-    }
-    return false;
+      })
   }
 
   async login(username: string, password: string): Promise<boolean> {
