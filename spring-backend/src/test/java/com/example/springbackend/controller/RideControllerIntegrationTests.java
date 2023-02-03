@@ -54,13 +54,13 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.driver.name")
-                                .value("Travis"))
-                        .andExpect(jsonPath("$.startAddress")
-                                .value("Example starting address 1, Novi Sad"))
-                        .andExpect(jsonPath("$.distance")
-                                .value(5.0));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.driver.name")
+                        .value("Travis"))
+                .andExpect(jsonPath("$.startAddress")
+                        .value("Example starting address 1, Novi Sad"))
+                .andExpect(jsonPath("$.distance")
+                        .value(5.0));
     }
 
     @Test
@@ -98,10 +98,10 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(422))
-                        .andExpect(jsonPath("$.message")
-                                .value("Passenger already has an active ride."));
-        
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.message")
+                        .value("Passenger already has an active ride."));
+
     }
 
     @Test
@@ -118,7 +118,7 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(402));
+                .andExpect(status().is(402));
     }
 
     @Test
@@ -138,9 +138,9 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(422))
-                        .andExpect(jsonPath("$.message")
-                                .value("Adequate driver not found."));
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.message")
+                        .value("Adequate driver not found."));
     }
 
     @ParameterizedTest
@@ -156,10 +156,10 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.startAddress")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.startAddress")
                         .value("Example starting address 1, Novi Sad"))
-                        .andExpect(jsonPath("$.distance")
+                .andExpect(jsonPath("$.distance")
                         .value(5.0));
     }
 
@@ -177,7 +177,7 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(400));
+                .andExpect(status().is(400));
     }
 
     @ParameterizedTest
@@ -194,9 +194,9 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(400))
-                        .andExpect(jsonPath("$.message")
-                                .value("Reservation must be made at least 20 minutes in advance."));
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.message")
+                        .value("Reservation must be made at least 20 minutes in advance."));
     }
 
 
@@ -326,9 +326,9 @@ public class RideControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
-                        .andExpect(status().is(422))
-                        .andExpect(jsonPath("$.message")
-                                .value("Passenger already has an active ride."));
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.message")
+                        .value("Passenger already has an active ride."));
     }
 
     @Test
@@ -394,6 +394,7 @@ public class RideControllerIntegrationTests {
                 .andExpect(jsonPath("$.message")
                         .value("Reservation must be made at least 20 minutes in advance."));
     }
+
 
     // passenger ride rejection/confirmation
     @Test
@@ -677,4 +678,280 @@ public class RideControllerIntegrationTests {
                 .andExpect(content().string("true"));
     }
 
+
+    // begin ride
+    @Test
+    @DisplayName("Should return 404 when attempting to start a non-existent ride " +
+            "[PATCH] " + URL_PREFIX + "/begin")
+    @Rollback
+    void Return_404_when_attempting_to_start_a_non_existing_ride() throws Exception {
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/begin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and true when ride started successfully " +
+            "[PATCH] " + URL_PREFIX + "/begin")
+    @Rollback
+    void Return_200_and_true_when_a_ride_is_started_successfully() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO rideCreationDTO = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res = mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/begin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
+
+    // complete ride
+    @Test
+    @DisplayName("Should return 404 when attempting to complete a non-existent ride " +
+            "[PATCH] " + URL_PREFIX + "/complete")
+    @Rollback
+    void Return_404_when_attempting_to_complete_a_non_existing_ride() throws Exception {
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and true when ride started and completed successfully " +
+            "[PATCH] " + URL_PREFIX + "/complete")
+    @Rollback
+    void Return_200_and_true_when_a_ride_is_completed_successfully() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO rideCreationDTO = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res = mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/begin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+
+
+        mockMvc.perform(patch(URL_PREFIX + "/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
+
+    // driver reject ride
+    @Test
+    @DisplayName("Should return 404 when a driver is attempting to reject a non-existent ride " +
+            "[PATCH] " + URL_PREFIX + "/driver-rejection")
+    @Rollback
+    void Return_404_when_a_driver_is_attempting_to_reject_a_non_existing_ride() throws Exception {
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        DriverRideRejectionCreationDTO dto = new DriverRideRejectionCreationDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and true when a driver successfully submits a rejection request " +
+            "[PATCH] " + URL_PREFIX + "/driver-rejection")
+    @Rollback
+    void Return_200_and_true_when_a_driver_ride_rejection_is_successfully_submitted() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO rideCreationDTO = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res = mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        RideIdDTO rideIdDTO = new RideIdDTO();
+        rideIdDTO.setRideId(id);
+
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+        DriverRideRejectionCreationDTO dto = new DriverRideRejectionCreationDTO();
+        dto.setReason("Reason for rejection.");
+        dto.setRideId(id);
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
+
+
+    // get driver rejection requests
+    @Test
+    @DisplayName("Should return 200 and an empty list when there are no driver ride rejection " +
+            "requests [GET] " + URL_PREFIX + "/rejection-requests")
+    @Rollback
+    void Return_200_and_an_empty_list_when_there_are_no_driver_ride_rejection_requests() throws Exception {
+        String adminToken = IntegrationUtils.getToken(mockMvc, "admin1@noemail.com");
+
+        mockMvc.perform(get(URL_PREFIX + "/rejection-requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and a list of driver ride rejection " +
+            "requests [GET] " + URL_PREFIX + "/rejection-requests")
+    @Rollback
+    void Return_200_and_a_list_of_driver_ride_rejection_requests() throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO rideCreationDTO = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res = mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        DriverRideRejectionCreationDTO rejectionCreationDTO = new DriverRideRejectionCreationDTO();
+        rejectionCreationDTO.setReason("Reason for rejection.");
+        rejectionCreationDTO.setRideId(id);
+
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rejectionCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+
+
+        String adminToken = IntegrationUtils.getToken(mockMvc, "admin1@noemail.com");
+
+        mockMvc.perform(get(URL_PREFIX + "/rejection-requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[*].reason")
+                        .value("Reason for rejection."))
+                .andExpect(jsonPath("$.[*].*.name")
+                        .value("Travis"));
+    }
+
+
+    // accept driver ride rejection
+    @Test
+    @DisplayName("Should return 404 when attempting to accept a driver rejection request a non-existent ride " +
+            "[PATCH] " + URL_PREFIX + "/driver-rejection-verdict")
+    @Rollback
+    void Return_404_when_a_attempting_to_accept_a_driver_rejection_for_a_non_existent_ride() throws Exception {
+        String adminToken = IntegrationUtils.getToken(mockMvc, "admin1@noemail.com");
+        RideIdDTO dto = new RideIdDTO();
+        dto.setRideId(111);
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection-verdict")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().is(404));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    @DisplayName("Should return 200 and true when a driver rejection request is successfully responded to " +
+            "[PATCH] " + URL_PREFIX + "/driver-rejection-verdict")
+    @Rollback
+    void Return_200_and_true_when_a_driver_ride_rejection_is_successfully_responded_to(boolean isAccepted) throws Exception {
+        String passengerToken = IntegrationUtils.getToken(mockMvc, "passenger1@noemail.com");
+        BasicRideCreationDTO rideCreationDTO = IntegrationUtils.getValidBasicRideCreationDto();
+
+        MvcResult res = mockMvc.perform(post(URL_PREFIX + "/basic")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rideCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + passengerToken))
+                .andExpect(status().isOk()).andReturn();
+
+        String rideResponse = res.getResponse().getContentAsString();
+        Integer id = JsonPath.parse(rideResponse).read("$.id");
+        DriverRideRejectionCreationDTO rejectionCreationDTO = new DriverRideRejectionCreationDTO();
+        rejectionCreationDTO.setReason("Reason for rejection.");
+        rejectionCreationDTO.setRideId(id);
+
+        String driverToken = IntegrationUtils.getToken(mockMvc, "driver1@noemail.com");
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(rejectionCreationDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + driverToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+
+        String adminToken = IntegrationUtils.getToken(mockMvc, "admin1@noemail.com");
+        DriverRideRejectionVerdictCreationDTO verdictCreationDto = new DriverRideRejectionVerdictCreationDTO();
+        verdictCreationDto.setRideId(id);
+        verdictCreationDto.setAccepted(isAccepted);
+
+        mockMvc.perform(patch(URL_PREFIX + "/driver-rejection-verdict")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(verdictCreationDto))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().is(200))
+                .andExpect(content().string("true"));
+    }
 }
