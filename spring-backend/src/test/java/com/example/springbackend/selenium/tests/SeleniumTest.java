@@ -1,66 +1,81 @@
 package com.example.springbackend.selenium.tests;
 
+import com.example.springbackend.SpringBackendApplication;
+import com.example.springbackend.repository.RideRepository;
 import com.example.springbackend.selenium.pages.Login.LoginPage;
 import com.example.springbackend.selenium.pages.MainPage;
 import com.example.springbackend.selenium.pages.RideRejectionPage;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import com.example.springbackend.service.TestDataSupplierService;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@SpringBootTest(classes = SpringBackendApplication.class)
+@Transactional
 public class SeleniumTest {
 
     WebDriver driver;
+    ChromeOptions chromeOptions = new ChromeOptions();
+    @Autowired
+    TestDataSupplierService testDataSupplierService;
 
-    @BeforeAll()
+    @BeforeEach()
     public void setupAll() {
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
     }
 
-    @AfterAll()
+    @AfterEach()
     public void setupQuitAll() {
         driver.quit();
     }
 
-    @Test()
+
+    public void resetDatabase() {
+        testDataSupplierService.resetRides();
+    }
+
+
+    @Test
     public void mainTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger5@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
-        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
-        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillStartingPoint("Ivana Boldižara 39, Novi Sad");
+        mainPage.fillDestinationPoint("Novosadski put 162, Novi Sad");
         mainPage.orderRide();
 
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        WebDriver driver2 = new ChromeDriver(options);
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
         LoginPage homePage2 = new LoginPage(driver2);
         assertTrue(homePage2.isPageOpened());
-        homePage2.login("driver1@noemail.com","cascaded");
+        homePage2.login("driver6@noemail.com","cascaded");
         MainPage mainPage2 = new MainPage(driver2);
         assertTrue(mainPage2.isPageOpened());
         mainPage2.acceptRide();
         mainPage2.completeRide();
+        driver2.quit();
     }
 
 
-    @Test()
+    @Test
     public void rejectRideTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
@@ -69,13 +84,13 @@ public class SeleniumTest {
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
-        mainPage.fillStartingPoint("Rajka Mamuzica 24 Novi Sad");
-        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillStartingPoint("Drvarska 8 Novi Sad");
+        mainPage.fillDestinationPoint("Futoški put 93 Novi Sad");
         mainPage.orderRide();
 
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        WebDriver driver2 = new ChromeDriver();
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
@@ -86,7 +101,7 @@ public class SeleniumTest {
         assertTrue(mainPage2.isPageOpened());
         mainPage2.rejectRide();
 
-        WebDriver driver3 = new ChromeDriver();
+        WebDriver driver3 = new ChromeDriver(this.chromeOptions);
         driver3.manage().window().maximize();
         LoginPage adminLoginPage = new LoginPage(driver3);
         assertTrue(adminLoginPage.isPageOpened());
@@ -99,9 +114,11 @@ public class SeleniumTest {
 
         assertTrue(mainPage.expectMessage("The driver rejected the ride."));
         assertTrue(mainPage2.expectMessage("Your rejection is accepted"));
+        driver2.quit();
+        driver3.quit();
     }
 
-    @Test()
+    @Test
     public void noAvailableDriversTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
@@ -115,7 +132,7 @@ public class SeleniumTest {
         mainPage.orderRide();
         assertTrue(mainPage.expectMessage("Adequate driver not found."));
     }
-    @Test()
+    @Test
     public void insufficientFundsTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
@@ -129,7 +146,7 @@ public class SeleniumTest {
         mainPage.orderRide();
         assertTrue(mainPage.expectMessage("Insufficient funds."));
     }
-    @Test()
+    @Test
     public void minimumDistanceTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
@@ -143,11 +160,11 @@ public class SeleniumTest {
         mainPage.orderRide();
         assertTrue(mainPage.expectMessage("Minimum ride distance is 0.25km"));
     }
-    @Test()
+    @Test
     public void maximumDistanceTest() {
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger2@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
@@ -162,19 +179,19 @@ public class SeleniumTest {
     public void splitFareRideTest(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger3@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
-        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
-        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillStartingPoint("Vladimira Perića Valtera Novi Sad");
+        mainPage.fillDestinationPoint("Dr Ilije Đuričića 1 Novi Sad");
         mainPage.addPassenger("passenger2@noemail.com");
         mainPage.orderRide();
 
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        WebDriver driver2 = new ChromeDriver();
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
@@ -189,17 +206,19 @@ public class SeleniumTest {
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        WebDriver driver3 = new ChromeDriver(options);
+        WebDriver driver3 = new ChromeDriver(this.chromeOptions);
         driver3.manage().window().maximize();
 
 
         LoginPage homePage2 = new LoginPage(driver3);
         assertTrue(homePage2.isPageOpened());
-        homePage2.login("driver1@noemail.com","cascaded");
+        homePage2.login("driver2@noemail.com","cascaded");
         MainPage mainPage2 = new MainPage(driver3);
         assertTrue(mainPage2.isPageOpened());
         mainPage2.acceptRide();
         mainPage2.completeRide();
+        driver2.quit();
+        driver3.quit();
     }
 
 
@@ -219,7 +238,7 @@ public class SeleniumTest {
 
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        WebDriver driver2 = new ChromeDriver();
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
@@ -231,6 +250,7 @@ public class SeleniumTest {
         assertTrue(mainPageUser2.isPageOpened());
         mainPageUser2.confirmSplitFareRide();
         assertTrue(mainPageUser2.expectMessage("Ride is cancelled due to insufficient funds."));
+        driver2.quit();
     }
 
     @Test
@@ -253,30 +273,31 @@ public class SeleniumTest {
     public void splitFareRidePassengerRejectRide(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger3@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
         mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
         mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
-        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.addPassenger("passenger5@noemail.com");
         mainPage.orderRide();
 
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        WebDriver driver2 = new ChromeDriver();
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
         LoginPage homePageUser2 = new LoginPage(driver2);
         assertTrue(homePageUser2.isPageOpened());
-        homePageUser2.login("passenger2@noemail.com","cascaded");
+        homePageUser2.login("passenger5@noemail.com","cascaded");
 
         MainPage mainPageUser2 = new MainPage(driver2);
         assertTrue(mainPageUser2.isPageOpened());
         mainPageUser2.rejectSplitFareRide();
         assertTrue(mainPage.expectMessage("A passenger has rejected the ride."));
+        driver2.quit();
     }
 
 
@@ -284,14 +305,14 @@ public class SeleniumTest {
     public void splitFareRidePassengerNotRespond(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger5@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
         mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
         mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
-        mainPage.addPassenger("passenger2@noemail.com");
+        mainPage.addPassenger("passenger4@noemail.com");
         mainPage.orderRide();
         assertTrue(mainPage.expectCancelledRide());
     }
@@ -300,29 +321,30 @@ public class SeleniumTest {
     public void scheduleRide(){
         LoginPage homePage = new LoginPage(driver);
         assertTrue(homePage.isPageOpened());
-        homePage.login("passenger1@noemail.com","cascaded");
+        homePage.login("passenger4@noemail.com","cascaded");
 
         MainPage mainPage = new MainPage(driver);
         assertTrue(mainPage.isPageOpened());
         mainPage.openSidePanel();
-        mainPage.fillStartingPoint("Bulevar Patrijarha Pavla 36 Novi Sad");
-        mainPage.fillDestinationPoint("Kis Ernea 8, Telep Novi Sad");
+        mainPage.fillStartingPoint("Bulevar Slobodana Jovanovića 48 Novi Sad");
+        mainPage.fillDestinationPoint("Bulevar Jovana Dučića 1 Novi Sad");
         mainPage.fillRideInAdvance(20);
         mainPage.orderRide();
 
         System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        WebDriver driver2 = new ChromeDriver(options);
+        WebDriver driver2 = new ChromeDriver(this.chromeOptions);
         driver2.manage().window().maximize();
 
 
         LoginPage homePage2 = new LoginPage(driver2);
         assertTrue(homePage2.isPageOpened());
-        homePage2.login("driver1@noemail.com","cascaded");
+        homePage2.login("driver5@noemail.com","cascaded");
         MainPage mainPage2 = new MainPage(driver2);
         assertTrue(mainPage2.isPageOpened());
         mainPage2.acceptRide();
         mainPage2.completeRide();
+        driver2.quit();
     }
     @Test
     public void scheduleRideTooSoon(){

@@ -82,7 +82,7 @@ public class MainPage {
     }
 
     public void completeRide() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(180));
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(., 'COMPLETE RIDE')]"))).click();
     }
 
