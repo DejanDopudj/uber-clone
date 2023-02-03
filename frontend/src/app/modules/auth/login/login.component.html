@@ -71,7 +71,7 @@
 
   </form>
 
-  <div class="text-light text-sm text-center mt-4">
+  <div class="text-light text-sm text-center mt-6">
 
     <div class="text-light text-sm text-center mt-2">
       Continue with <span class="text-accent-light cursor-pointer"> <a href="http://localhost:8080/oauth2/authorization/facebook"> Facebook  </a></span> / 
@@ -88,4 +88,12 @@
       <span class="text-accent-light cursor-pointer" (click)="resetPassword()">Reset password</span>
     </div>
   </div>
+</div>
+
+<div *ngIf="showPasswordChangeResponseModal">
+  <app-message-modal 
+  [title]="passwordChangeResponseModalTitle"
+  [description]="passwordChangeResponseModalMessage"
+  (closeModal)="closePasswordChangeResponseModal()">
+  </app-message-modal>
 </div>

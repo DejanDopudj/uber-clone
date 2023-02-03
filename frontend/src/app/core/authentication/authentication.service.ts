@@ -62,21 +62,11 @@ export class AuthenticationService {
     localStorage.setItem('session', JSON.stringify(session));
   }
 
-  async resetPasword(email: String): Promise<boolean> {
-    if (email) {
-      var formData = {
-        email: email,
-      };
-      await axios
-        .post('http://localhost:8080/api/auth/reset-password', formData)
-        .then((resp) => {
-          return true;
-        })
-        .catch((err) => {
-          return false;
-        });
-    }
-    return false;
+  async resetPasword(email: String): Promise<AxiosResponse<boolean>> {
+    return axios
+      .post('http://localhost:8080/api/auth/reset-password', {
+        email
+      });
   }
 
   async confirmReset(token: String, password: String): Promise<boolean> {
