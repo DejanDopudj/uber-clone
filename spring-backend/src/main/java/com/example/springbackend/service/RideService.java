@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -53,6 +55,7 @@ public class RideService {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public RideSimpleDisplayDTO orderBasicRide(BasicRideCreationDTO dto, Authentication auth) {
         Passenger passenger = (Passenger) auth.getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findByName(dto.getVehicleType()).orElseThrow();
@@ -72,7 +75,16 @@ public class RideService {
         PassengerRide passengerRide = rideUtils.createPassengerRide(passenger, ride);
 
         if (dto.getDelayInMinutes() == 0) {
-            driver = rideUtils.findDriver(ride);
+            try {
+                driver = rideUtils.findDriver(ride);
+            } catch (DriverConflictException e) {
+                throw e;
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             if (driver == null) {
                 ride.setStatus(RideStatus.CANCELLED);
                 rideRepository.save(ride);

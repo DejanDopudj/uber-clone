@@ -13,14 +13,18 @@ import com.example.springbackend.service.SimulatorService;
 import com.example.springbackend.service.UserService;
 import com.example.springbackend.websocket.MessageType;
 import com.example.springbackend.websocket.WSMessage;
+import org.aspectj.apache.bcel.classfile.ExceptionTable;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -224,16 +228,27 @@ public class RideUtils {
         }
     }
 
-    public Driver findDriver(Ride ride) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Driver findDriver(Ride ride) throws DriverConflictException {
         Coordinates startCoordinates = ride.getRoute().getWaypoints().get(0);
-        List<Driver> potentialClosestDriver = driverRepository.getClosestFreeDriver(startCoordinates.getLat(),
-                startCoordinates.getLng(), ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType(),
-                PageRequest.of(0, 1)).stream().toList();
+        List<Driver> potentialClosestDriver = new ArrayList<>();
+        try {
+            potentialClosestDriver = driverRepository.getClosestFreeDriver(startCoordinates.getLat(),
+                    startCoordinates.getLng(), ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType(),
+                    PageRequest.of(0, 1)).stream().toList();
+        } catch (Exception e) {
+            throw new DriverConflictException();
+        }
         if (!potentialClosestDriver.isEmpty()) return potentialClosestDriver.get(0);
 
-        List<Driver> closeBusyDriversWithNoNextRide = driverRepository
-                .getCloseBusyDriversWithNoNextRide(startCoordinates.getLat(), startCoordinates.getLng(),
-                        ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType());
+        List<Driver> closeBusyDriversWithNoNextRide = new ArrayList<>();
+        try {
+            closeBusyDriversWithNoNextRide = driverRepository
+                    .getCloseBusyDriversWithNoNextRide(startCoordinates.getLat(), startCoordinates.getLng(),
+                            ride.isBabySeatRequested(), ride.isPetFriendlyRequested(), ride.getVehicleType());
+        } catch (Exception e) {
+            throw new DriverConflictException();
+        }
 
         if (closeBusyDriversWithNoNextRide.isEmpty()) return null;
         else if (closeBusyDriversWithNoNextRide.size() == 1) return closeBusyDriversWithNoNextRide.get(0);

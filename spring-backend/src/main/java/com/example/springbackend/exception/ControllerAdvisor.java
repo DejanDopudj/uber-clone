@@ -99,6 +99,14 @@ public class ControllerAdvisor {
                 "Passenger already has an active ride.");
     }
 
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(DriverConflictException.class)
+    public ExceptionResponseBody handleDriverConflictException(DriverConflictException ex) {
+        return new ExceptionResponseBody(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "A problem occurred while attempting to find the driver. Please submit your order again.");
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(TooManyPassengersException.class)
     public ExceptionResponseBody handleTooManyPassengersException(TooManyPassengersException ex) {

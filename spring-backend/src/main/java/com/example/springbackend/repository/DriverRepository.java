@@ -5,10 +5,14 @@ import com.example.springbackend.model.Ride;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +23,8 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
 
     Optional<Driver> findByUsername(String username);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "0")})
     @Query("SELECT d FROM Driver d WHERE d.active = true AND d.currentRide is null AND d.nextRide is null " +
             "AND d.vehicle.rideActive = false AND d.vehicle.babySeat >= :babySeat AND " +
             "d.vehicle.petsAllowed >= :petFriendly AND d.vehicle.vehicleType.name = :vehicleType AND " +
@@ -31,6 +37,8 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
             @Param("vehicleType") String vehicleType,
             Pageable page);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "0")})
     @Query("SELECT d FROM Driver d WHERE d.active = true AND d.currentRide is not null AND d.nextRide is null " +
             "AND d.vehicle.rideActive = true AND d.vehicle.babySeat >= :babySeat AND " +
             "d.vehicle.petsAllowed >= :petFriendly AND d.vehicle.vehicleType.name = :vehicleType AND " +
